@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.alcodes.alcodessmgalleryviewer">
 
-    <application android:name=".App">
+    <application>
 
-        <activity android:name="com.alcodes.alcodessmgalleryviewer.activities.MainActivity" />
+        <activity android:name=".activities.AsmGvrMainActivity" />
 
     </application>
 

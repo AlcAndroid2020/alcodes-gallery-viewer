@@ -10,7 +10,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-public class MainActivity extends AppCompatActivity {
+public class AsmGvrMainActivity extends AppCompatActivity {
 
     private AsmGvrActivityMainBinding mDataBinding;
     private NavController mNavController;

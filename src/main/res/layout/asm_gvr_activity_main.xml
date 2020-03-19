@@ -8,7 +8,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.alcodes.alcodessmgalleryviewer.activities.MainActivity">
+        tools:context="com.alcodes.alcodessmgalleryviewer.activities.AsmGvrMainActivity">
 
         <fragment
             android:id="@+id/nav_host_fragment"

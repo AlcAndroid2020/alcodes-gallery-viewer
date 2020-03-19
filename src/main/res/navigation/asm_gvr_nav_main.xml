@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/asm_gvr_mainfragment"
-        android:name="com.alcodes.alcodessmgalleryviewer.fragments.MainFragment"
+        android:name="com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrMainFragment"
         android:label="MainFragment"
         tools:layout="@layout/asm_gvr_fragment_main" />
 </navigation>
