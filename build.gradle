@@ -1,0 +1,58 @@
+apply plugin: 'com.android.library'
+
+def rootConfigurations = rootProject.ext.configurations
+def rootLibraries = rootProject.ext.libraries
+
+android {
+    compileSdkVersion rootConfigurations.compileSdkVersion
+    buildToolsVersion rootConfigurations.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootConfigurations.minSdkVersion
+        targetSdkVersion rootConfigurations.targetSdkVersion
+        versionCode 100
+        versionName "1.0.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        debug {
+//            debuggable true
+            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+//            debuggable false
+//            minifyEnabled true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    resourcePrefix "asm_gvr_"
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "androidx.appcompat:appcompat:${rootLibraries.androidxAppCompatVersion}"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:${rootLibraries.androidxCoordinatorLayoutVersion}"
+    implementation "androidx.lifecycle:lifecycle-extensions:${rootLibraries.androidxLifecycleExtensionsVersion}"
+    implementation "androidx.lifecycle:lifecycle-common-java8:${rootLibraries.androidxLifecycleCommonJava8Version}"
+    implementation "androidx.navigation:navigation-fragment:${rootLibraries.androidxNavigationVersion}"
+    implementation "androidx.navigation:navigation-ui:${rootLibraries.androidxNavigationVersion}"
+
+    implementation "com.jakewharton.timber:timber:${rootLibraries.timberVersion}"
+    implementation("com.github.bumptech.glide:glide:${rootLibraries.glideVersion}") {
+        exclude group: "com.android.support"
+    }
+}
