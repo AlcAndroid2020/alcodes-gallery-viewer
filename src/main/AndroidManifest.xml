@@ -1,2 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.alcodes.alcodes_sm_gallery_viewer" />
+    package="com.alcodes.alcodessmgalleryviewer">
+
+    <application android:name=".App">
+
+        <activity android:name="com.alcodes.alcodessmgalleryviewer.activities.MainActivity" />
+
+    </application>
+
+</manifest>
