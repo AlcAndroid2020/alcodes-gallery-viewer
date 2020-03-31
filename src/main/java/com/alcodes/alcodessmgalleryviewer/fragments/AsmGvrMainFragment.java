@@ -27,5 +27,7 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        // TODO test by kchong
     }
 }
