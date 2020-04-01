@@ -28,6 +28,6 @@ public class AsmGvrMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // TODO test by kchong
+        // TODO test by kchong 2020/04/01 1824
     }
 }
