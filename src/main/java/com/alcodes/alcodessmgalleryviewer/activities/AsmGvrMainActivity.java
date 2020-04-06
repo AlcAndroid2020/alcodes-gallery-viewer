@@ -35,3 +35,4 @@ public class AsmGvrMainActivity extends AppCompatActivity {
         return mNavController.navigateUp() || super.onSupportNavigateUp();
     }
 }
+
