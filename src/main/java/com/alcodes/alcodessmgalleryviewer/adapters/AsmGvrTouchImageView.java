@@ -26,6 +26,8 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
+import timber.log.Timber;
+
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatImageView implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
@@ -44,6 +46,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     float minScale = 1f;
     float maxScale = 3f;
     float[] m;
+    boolean reachEndImage = false;
 
     int viewWidth, viewHeight;
     static final int CLICK = 3;
@@ -52,6 +55,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     int oldMeasuredWidth, oldMeasuredHeight;
 
     ScaleGestureDetector mScaleDetector;
+
 
     Context context;
 
@@ -100,8 +104,8 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                         last.set(curr);
                         start.set(last);
                         mode = DRAG;
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         break;
-
                     case MotionEvent.ACTION_MOVE:
                         if (mode == DRAG) {
                             float deltaX = curr.x - last.x;
@@ -111,8 +115,23 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                             float fixTransY = getFixDragTrans(deltaY, viewHeight,
                                     origHeight * saveScale);
                             matrix.postTranslate(fixTransX, fixTransY);
+
                             fixTrans();
                             last.set(curr.x, curr.y);
+
+                            //Prevent View Pager Touch Happens
+                            if(saveScale == 1.0){
+                                //Slide Left/Right to Previous/Next Picture
+                                getParent().requestDisallowInterceptTouchEvent(false);
+                            }else{
+                                if(!reachEndImage){
+                                    //Panning the Image
+                                    getParent().requestDisallowInterceptTouchEvent(true);
+                                }else{
+                                    //Reach The End of Image
+                                    getParent().requestDisallowInterceptTouchEvent(false);
+                                }
+                            }
                         }
                         break;
 
@@ -122,6 +141,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                         int yDiff = (int) Math.abs(curr.y - start.y);
                         if (xDiff < CLICK && yDiff < CLICK)
                             performClick();
+                        getParent().requestDisallowInterceptTouchEvent(false);
                         break;
 
                     case MotionEvent.ACTION_POINTER_UP:
@@ -180,7 +200,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     }
 
     public void loadIntoGlide(Context context, Uri imageUri){
-
         final AsmGvrTouchImageView imageView = this;
         //PlaceHolder Drawable
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
@@ -230,12 +249,12 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         float origScale = saveScale;
         float mScaleFactor;
 
-        if (saveScale == maxScale) {
-            saveScale = minScale;
-            mScaleFactor = minScale / origScale;
-        } else {
+        if (saveScale == minScale) {
             saveScale = maxScale;
             mScaleFactor = maxScale / origScale;
+        } else {
+            saveScale = minScale;
+            mScaleFactor = minScale / origScale;
         }
 
         matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2,
@@ -325,6 +344,13 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
         if (fixTransX != 0 || fixTransY != 0)
             matrix.postTranslate(fixTransX, fixTransY);
+
+        if(fixTransX != 0){
+            reachEndImage = true;
+        }else{
+            reachEndImage = false;
+        }
+
     }
 
     float getFixTrans(float trans, float viewSize, float contentSize) {
