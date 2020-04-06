@@ -41,6 +41,7 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
 
         String fileType;
         View viewDisplay = null;
+        View viewDisplay1 = null;
         Uri uri;
         errorImageView = new ImageView(context);
         errorImageView.setScaleType(ImageView.ScaleType.CENTER);
@@ -82,11 +83,13 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
                 }else{
                     AsmGvrOpenUnknownFile openUnknownFile = new AsmGvrOpenUnknownFile();
                     viewDisplay = openUnknownFile.startOpenUnknownFile(context, uri);
-                    ;
+                    viewDisplay1 = openUnknownFile.startshareUnknownFile(context, uri);
+
                     if(viewDisplay==null){
                         viewDisplay = errorImageView;
                     }
                     container.addView(viewDisplay);
+                   container.addView(viewDisplay1);
                 }
             }else{
                 errorImageView.setImageResource(R.drawable.asm_gvr_ic_error_outline_black_128dp);
