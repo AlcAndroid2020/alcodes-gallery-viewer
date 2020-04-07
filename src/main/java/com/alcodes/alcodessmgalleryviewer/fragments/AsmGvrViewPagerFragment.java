@@ -19,8 +19,8 @@ import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrViewPagerAdapter;
 public class AsmGvrViewPagerFragment extends Fragment {
 
     public static final String TAG = AsmGvrViewPagerFragment.class.getSimpleName();
-
-    private String[] imageUrls = new String[] {
+    AsmGvrViewPagerAdapter adapter;
+    private String[] imageUrls = new String[]{
             "https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg",
             "https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg",
             "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif",
@@ -41,15 +41,16 @@ public class AsmGvrViewPagerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.asm_gvr_fragment_view_pager, container, false);
 
         final ViewPager viewPager = view.findViewById(R.id.view_pager);
-        final AsmGvrViewPagerAdapter adapter = new AsmGvrViewPagerAdapter(getContext(), imageUrls);
+        adapter = new AsmGvrViewPagerAdapter(getContext(), imageUrls);
         viewPager.setAdapter(adapter);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -69,6 +70,15 @@ public class AsmGvrViewPagerFragment extends Fragment {
 
             }
         });
+        if (savedInstanceState != null) {
+            int d=savedInstanceState.getInt("r");
+            adapter.setProgress(d);
+
+
+            //last clear the state
+            savedInstanceState.clear();
+        }
+
 
         return view;
     }
@@ -76,6 +86,8 @@ public class AsmGvrViewPagerFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+
     }
 
     @Override
@@ -83,13 +95,33 @@ public class AsmGvrViewPagerFragment extends Fragment {
         super.onDestroy();
     }
 
+  int duration;
+
     @Override
     public void onPause() {
         super.onPause();
+
+      //  if(adapter.getprogress()!=0)
+       // duration = adapter.getprogress();
+
+
+
+        Toast.makeText(getContext(),"Rotate"+adapter,Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //for recover audio when rotation
+    //        outState.putInt("r",duration);
+
+    }
+
+
 }

@@ -3,6 +3,7 @@ package com.alcodes.alcodessmgalleryviewer.adapters;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class AsmGvrViewPagerAdapter extends PagerAdapter {
     private Context context;
     private String[] urls;
+    AsmGvrAudioPlayer audioPlayer;
     private ImageView errorImageView;
     private ViewGroup container;
     private AsmGvrVideoPlayer mVideoPlayer;
@@ -77,6 +79,10 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
                         mAudioPlayer = new AsmGvrAudioPlayer();
                     }
                     viewDisplay = mAudioPlayer.initializeAudioPlayer(context, uri);
+
+                    if(duration!=0)
+                        audioPlayer.setProgress(duration);
+
                 }else{
                     if(mOpenUnknownFile == null){
                         mOpenUnknownFile = new AsmGvrOpenUnknownFile();
@@ -143,5 +149,15 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
     @Override
     public int getItemPosition(@NonNull Object object) {
         return super.getItemPosition(object);
+    }
+
+
+    public int  getprogress(){
+       return audioPlayer.getProgress();
+    }
+
+    int duration;
+    public void setProgress(int d) {
+        duration=d;
     }
 }

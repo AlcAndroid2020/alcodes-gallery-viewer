@@ -10,7 +10,7 @@
         <activity android:name=".activities.AsmGvrMainActivity" />
 
         <activity android:name=".activities.AsmGvrViewPagerActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboard">
+           >
             <intent-filter>
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http"/>

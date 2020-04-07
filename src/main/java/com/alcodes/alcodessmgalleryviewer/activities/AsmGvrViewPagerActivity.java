@@ -23,5 +23,6 @@ public class AsmGvrViewPagerActivity extends AppCompatActivity {
                     .replace(R.id.framelayout_fragment_view_pager_holder,AsmGvrViewPagerFragment.newInstance(), AsmGvrViewPagerFragment.TAG)
                     .commit();
         }
+
     }
 }
