@@ -5,14 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.alcodes.alcodessmgalleryviewer.R;
-import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
-import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
-import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -20,6 +12,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
+import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
+import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AsmGvrMainFragment extends Fragment {
 
@@ -66,6 +66,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("image");
         data.add("audio");
         data.add("image");
+        data.add("file");
 
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
