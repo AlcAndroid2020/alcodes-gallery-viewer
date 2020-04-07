@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import android.net.Uri;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewAudioFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewImageFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewUnknowFileFragment;
@@ -27,7 +28,9 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
 
     public AsmGvrMainViewPagerAdapter(@NonNull Fragment fragment,List<String> data) {
         super(fragment);
+
         this.fragment = fragment;
+
         mData = data;
         mMediaConfig = new AsmGvrMediaConfig();
     }
@@ -36,6 +39,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
     @NotNull
     public Fragment createFragment(int position) {
         String data = mData.get(position);
+
         String fileType = mMediaConfig.checkUrlAndUriType(fragment.getContext(), Uri.parse(data));
         Boolean isOnline;
         if(fileType.substring(fileType.lastIndexOf("/"), fileType.length()).equals("online")){
@@ -77,4 +81,5 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
     public int getItemCount() {
         return mData.size();
     }
+
 }

@@ -14,6 +14,9 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
+
+import androidx.viewpager.widget.ViewPager;
+
 import com.alcodes.alcodessmgalleryviewer.R;
 
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
@@ -152,6 +155,18 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
         return super.getItemPosition(object);
     }
 
+    public void checkPage(ViewPager viewPager){
+        if(viewPager.getChildAt(0) instanceof LinearLayout){
+            if(((LinearLayout) viewPager.getChildAt(0)).getChildAt(0) instanceof VideoView){
+                ((VideoView) ((LinearLayout) viewPager.getChildAt(0)).getChildAt(0)).pause();
+            }
+        }
+        if(viewPager.getChildAt(1) instanceof LinearLayout){
+            if(((LinearLayout) viewPager.getChildAt(1)).getChildAt(0) instanceof VideoView ){
+                ((VideoView) ((LinearLayout) viewPager.getChildAt(1)).getChildAt(0)).pause();
+            }
+        }
+    }
 
     public int  getprogress(){
        return audioPlayer.getProgress();
