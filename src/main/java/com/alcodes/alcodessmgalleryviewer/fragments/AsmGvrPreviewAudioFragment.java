@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.alcodes.alcodessmgalleryviewer.MediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
@@ -23,19 +24,20 @@ import timber.log.Timber;
 public class AsmGvrPreviewAudioFragment extends Fragment {
 
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    private static final String ARG_String_PAGER_FILEURL = "ARG_STRING_PAGER_FILEURL";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewAudioBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int mViewPagerPosition;
-
+    private  String mViewPagerURL;
     public AsmGvrPreviewAudioFragment() {
     }
 
-    public static AsmGvrPreviewAudioFragment newInstance(int position) {
+    public static AsmGvrPreviewAudioFragment newInstance(MediaConfig position) {
         Bundle args = new Bundle();
-        args.putInt(ARG_INT_PAGER_POSITION, position);
-
+        args.putInt(ARG_INT_PAGER_POSITION, position.getPosition());
+        args.putString(ARG_String_PAGER_FILEURL,position.getUri());
         AsmGvrPreviewAudioFragment fragment = new AsmGvrPreviewAudioFragment();
         fragment.setArguments(args);
 
@@ -64,8 +66,8 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
-
-        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
+        mViewPagerURL=requireArguments().getString(ARG_String_PAGER_FILEURL);
+        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d %s", mViewPagerPosition,mViewPagerURL));
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -88,6 +90,14 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
                 }
             }
         });
+        loadmusic();
+
+
+
+    }
+
+    private void loadmusic() {
+        //mViewPagerURL
     }
 
     @Override
@@ -103,4 +113,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
     }
+
+
 }

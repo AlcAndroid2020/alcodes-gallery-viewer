@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data></data>
@@ -12,6 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+
             android:text="This is Audio Preview Fragment" />
 
         <TextView
@@ -22,6 +24,13 @@
             android:layout_marginTop="30sp"
             android:textSize="30sp"
             tools:text="Position: 1" />
+
+        <VideoView
+            android:id="@+id/asm_gvr_videoview"
+            android:layout_width="420dp"
+            android:layout_marginTop="500dp"
+            android:layout_height="209dp" />
+
 
     </FrameLayout>
 

@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.adapters;
 
+import com.alcodes.alcodessmgalleryviewer.MediaConfig;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewAudioFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewImageFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewVideoFragment;
@@ -12,9 +13,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
 
-    private final List<String> mData;
+    private final List<MediaConfig> mData;
 
-    public AsmGvrMainViewPagerAdapter(@NonNull Fragment fragment, List<String> data) {
+    public AsmGvrMainViewPagerAdapter(@NonNull Fragment fragment,List<MediaConfig> data) {
         super(fragment);
 
         mData = data;
@@ -23,12 +24,12 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        String data = mData.get(position);
+        String data = mData.get(position).getFileType();
 
         if ("video".equals(data)) {
             return AsmGvrPreviewVideoFragment.newInstance(position);
         } else if ("audio".equals(data)) {
-            return AsmGvrPreviewAudioFragment.newInstance(position);
+            return AsmGvrPreviewAudioFragment.newInstance(mData.get(position));
         }
 
         // Default return image preview.
