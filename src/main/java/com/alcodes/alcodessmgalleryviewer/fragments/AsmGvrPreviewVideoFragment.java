@@ -1,14 +1,21 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.MediaController;
 
 import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
+import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import androidx.annotation.NonNull;
@@ -69,28 +76,32 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
 //        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
 
         // Init view model.
-        mMainSharedViewModel = new ViewModelProvider(
-                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(AsmGvrMainSharedViewModel.class);
+//        mMainSharedViewModel = new ViewModelProvider(
+//                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+//                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+//        ).get(AsmGvrMainSharedViewModel.class);
 
-        mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+//        mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+//
+//            @Override
+//            public void onChanged(Integer integer) {
+//                if (integer != null) {
+//                    if (integer == mViewPagerPosition) {
+//                        // TODO this page has been selected.
+//                        Timber.e("d;;Video fragment: page has been selected at: %s", mViewPagerPosition);
+//                    } else {
+//                        // TODO this page has been de-selected.
+//                        Timber.e("d;;Video fragment: page has been de-selected at: %s", mViewPagerPosition);
+//                    }
+//                }
+//            }
+//        });
 
-            @Override
-            public void onChanged(Integer integer) {
-                if (integer != null) {
-                    if (integer == mViewPagerPosition) {
-                        // TODO this page has been selected.
-                        Timber.e("d;;Video fragment: page has been selected at: %s", mViewPagerPosition);
-                    } else {
-                        // TODO this page has been de-selected.
-                        Timber.e("d;;Video fragment: page has been de-selected at: %s", mViewPagerPosition);
-                    }
-                }
-            }
-        });
+//        mMainSharedViewModel.startVideoPlayer(Uri.parse(mMediaConfig.getUri()), mDataBinding);
 
-        mMainSharedViewModel.startVideoPlayer(Uri.parse(mMediaConfig.getUri()), mDataBinding);
+        uri = Uri.parse(mMediaConfig.getUri());
+
+        startVideoPlayer();
     }
 
     @Override
@@ -105,5 +116,64 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         super.onPause();
 
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+    }
+
+    // TODO can move into startVideoPlayer as local variable
+    private Boolean noErrorFlag = true;
+    private String fileType = "";
+    private AsmGvrStateBroadcastingVideoView mStateBroadcastingVideoView;
+    private Uri uri;
+
+    public Boolean startVideoPlayer(){
+        // Initialize VideoView with custom play & pause listener
+        mDataBinding.previewVideoView.setForeground(null);
+//        mDataBinding.previewVideoView.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
+        mDataBinding.previewVideoView.setForeground(requireActivity().getDrawable(R.drawable.asm_gvr_loading_animation));
+        mDataBinding.previewVideoView.setForegroundGravity(Gravity.CENTER);
+        AnimationDrawable mAnimationDrawable = (AnimationDrawable) mDataBinding.previewVideoView.getForeground();
+        mAnimationDrawable.start();
+        // Initialize VideoView with custom play & pause listener
+
+        //Assigning URI to Video View and Anchoring Media Controller to Video View
+        if(uri != null){
+            try{
+                fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
+                fileType = fileType.substring(0, fileType.lastIndexOf("/"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                noErrorFlag = false;
+            }
+            if(noErrorFlag){
+                if(fileType.equals("video")) {
+                    MediaController mMediaController = new MediaController(requireActivity());
+                    mMediaController.setAnchorView(mDataBinding.previewVideoView);
+                    mDataBinding.previewVideoView.setMediaController(mMediaController);
+                    mDataBinding.previewVideoView.setVideoURI(uri);
+                }
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+        //Assigning URI to Video View and Anchoring Media Controller to Video View
+
+        //Setting Listener for Video View on preapred, finish, play and pause
+        mDataBinding.previewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            public void onPrepared(MediaPlayer mp) {
+                mAnimationDrawable.stop();
+                mDataBinding.previewVideoView.setForeground(null);
+                mp.start();
+            }
+        });
+        mDataBinding.previewVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mAnimationDrawable.stop();
+                mDataBinding.previewVideoView.setForeground(null);
+            }
+        });
+
+        return true;
     }
 }
