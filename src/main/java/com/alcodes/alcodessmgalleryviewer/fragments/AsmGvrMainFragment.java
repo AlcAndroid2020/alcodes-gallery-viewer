@@ -4,21 +4,32 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-import android.widget.VideoView;
 
-import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrViewPagerAdapter;
+import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
+import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
+
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.viewpager2.widget.ViewPager2;
 
 public class AsmGvrMainFragment extends Fragment {
 
+    private NavController mNavController;
     private AsmGvrFragmentMainBinding mDataBinding;
+    private AsmGvrMainSharedViewModel mMainSharedViewModel;
+    private AsmGvrMainViewPagerAdapter mAdapter;
+    private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
 
     private String[] Urls = new String[] {
             "https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg",
@@ -41,27 +52,63 @@ public class AsmGvrMainFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Init navigation component.
+        mNavController = Navigation.findNavController(view);
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final ViewPager viewPager = mDataBinding.viewPager;
-        final AsmGvrViewPagerAdapter adapter = new AsmGvrViewPagerAdapter(getContext(), Urls);
-        viewPager.setAdapter(adapter);
+        // Init view model.
+        mMainSharedViewModel = new ViewModelProvider(
+                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(AsmGvrMainSharedViewModel.class);
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+        // Init adapter data.
+        List<String> data = new ArrayList<>();
+        /*data.add("image");
+        data.add("image");
+        data.add("video");
+        data.add("audio");
+        data.add("video");
+        data.add("image");
+        data.add("audio");
+        data.add("image");*/
+        data = Arrays.asList(Urls);
+
+        // Init adapter and view pager.
+        mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
+
+        mViewPager2OnPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
 
             @Override
             public void onPageSelected(int position) {
-                Toast.makeText(getContext(), "viewpager position " + position, Toast.LENGTH_SHORT).show();
-                adapter.checkPage(viewPager);
-            }
+                super.onPageSelected(position);
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
+                mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
-        });
+        };
+
+        mDataBinding.viewPager.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mDataBinding.viewPager.registerOnPageChangeCallback(mViewPager2OnPageChangeCallback);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
+
     }
 }
