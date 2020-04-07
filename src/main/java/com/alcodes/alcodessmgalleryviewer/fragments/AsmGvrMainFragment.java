@@ -1,9 +1,13 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.alcodes.alcodessmgalleryviewer.MediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
@@ -67,6 +71,12 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        //Save internet status to shared view model
+        mMainSharedViewModel.setInternetStatus(isConnected());
+
+        //get internet status from shared view model
+        Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusString(), Toast.LENGTH_LONG).show();
+
         // Init adapter data.
 
         List<String> data = new ArrayList<>();
@@ -108,6 +118,15 @@ public class AsmGvrMainFragment extends Fragment {
         super.onPause();
 
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
+
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
     }
 }
