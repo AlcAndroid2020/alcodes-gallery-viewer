@@ -68,7 +68,7 @@ public class AsmGvrMainFragment extends Fragment {
         // Init adapter data.
         /*
         List<String> data = new ArrayList<>();
-        data.add("file");
+        data.add("file"); // Kah Lok Part
         data.add("image");
         data.add("image");
         data.add("video");
@@ -78,14 +78,24 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("audio");
         data.add("image");
         */
+        /* // Wilson Part
         List<MediaConfig> data = new ArrayList<>();
         MediaConfig audio=new MediaConfig(0,"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","audio",true);
 
         data.add(audio);
         data.add( new MediaConfig(1,"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3","audio",true));
+         */
 
-
-
+        //Daniel Part
+        List<String> data = new ArrayList<>();
+        data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
+        data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
+        data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
+        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+        data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
 
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);

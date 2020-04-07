@@ -8,20 +8,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView
+            android:id="@+id/preview_video_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="This is Video Preview Fragment" />
-
-        <TextView
-            android:id="@+id/text_view_demo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="30sp"
-            android:textSize="30sp"
-            tools:text="Position: 1" />
+            android:layout_gravity="center"/>
 
     </FrameLayout>
 

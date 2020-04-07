@@ -21,6 +21,7 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.MediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.Locale;
@@ -42,7 +43,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     public AsmGvrPreviewAudioFragment() {
     }
 
-    public static AsmGvrPreviewAudioFragment newInstance(MediaConfig position) {
+    public static AsmGvrPreviewAudioFragment newInstance(AsmGvrMediaConfig position) {
         Bundle args = new Bundle();
         args.putInt(ARG_INT_PAGER_POSITION, position.getPosition());
         args.putString(ARG_String_PAGER_FILEURL, position.getUri());

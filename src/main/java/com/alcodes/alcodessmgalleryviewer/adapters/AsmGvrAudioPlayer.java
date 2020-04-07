@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 
 public class AsmGvrAudioPlayer {
     private Boolean noErrorFlag = true;

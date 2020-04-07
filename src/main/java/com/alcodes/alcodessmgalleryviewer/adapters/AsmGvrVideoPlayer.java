@@ -4,14 +4,13 @@ import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.Gravity;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 
 public class AsmGvrVideoPlayer {
     private Boolean noErrorFlag = true;

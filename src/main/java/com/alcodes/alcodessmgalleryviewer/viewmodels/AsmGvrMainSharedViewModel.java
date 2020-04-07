@@ -22,4 +22,5 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     public void setViewPagerCurrentPagePosition(int position) {
         mViewPagerPositionLiveData.setValue(position);
     }
+
 }

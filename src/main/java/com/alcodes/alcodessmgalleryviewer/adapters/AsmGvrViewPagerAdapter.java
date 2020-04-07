@@ -14,8 +14,9 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
-
 import com.alcodes.alcodessmgalleryviewer.R;
+
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 import org.jetbrains.annotations.NotNull;
 
 public class AsmGvrViewPagerAdapter extends PagerAdapter {
