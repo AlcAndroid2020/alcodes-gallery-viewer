@@ -1,4 +1,4 @@
-package com.alcodes.alcodessmgalleryviewer.adapters;
+package com.alcodes.alcodessmgalleryviewer.entities;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
@@ -10,7 +10,6 @@ import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 
-import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.R;
 
 public class AsmGvrAudioPlayer {

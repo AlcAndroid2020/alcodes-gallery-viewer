@@ -10,10 +10,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.VideoView;
+import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrStateBroadcastingVideoView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
-
 import com.alcodes.alcodessmgalleryviewer.R;
 
 import org.jetbrains.annotations.NotNull;

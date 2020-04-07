@@ -1,15 +1,15 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
-
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,19 +22,20 @@ import timber.log.Timber;
 
 public class AsmGvrPreviewVideoFragment extends Fragment {
 
-    private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    private static final String ARG_PAGER_URI_MEDIA_CONFIG = "ARG_PAGER_URI_MEDIA_CONFIG";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewVideoBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
+    private AsmGvrMediaConfig mMediaConfig;
     private int mViewPagerPosition;
 
     public AsmGvrPreviewVideoFragment() {
     }
 
-    public static AsmGvrPreviewVideoFragment newInstance(int position) {
+    public static AsmGvrPreviewVideoFragment newInstance(AsmGvrMediaConfig mMediaConfig) {
         Bundle args = new Bundle();
-        args.putInt(ARG_INT_PAGER_POSITION, position);
+        args.putSerializable(ARG_PAGER_URI_MEDIA_CONFIG, mMediaConfig);
 
         AsmGvrPreviewVideoFragment fragment = new AsmGvrPreviewVideoFragment();
         fragment.setArguments(args);
@@ -63,9 +64,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         // Extract arguments.
-        mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
+        mMediaConfig = (AsmGvrMediaConfig) requireArguments().getSerializable(ARG_PAGER_URI_MEDIA_CONFIG);
 
-        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
+//        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -88,6 +89,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
                 }
             }
         });
+
+        mMainSharedViewModel.startVideoPlayer(Uri.parse(mMediaConfig.getUri()), mDataBinding);
     }
 
     @Override

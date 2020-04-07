@@ -1,4 +1,4 @@
-package com.alcodes.alcodessmgalleryviewer.adapters;
+package com.alcodes.alcodessmgalleryviewer.entities;
 
 import android.content.Context;
 import android.util.AttributeSet;
