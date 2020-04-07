@@ -21,13 +21,13 @@ public class AsmGvrViewPagerFragment extends Fragment {
     public static final String TAG = AsmGvrViewPagerFragment.class.getSimpleName();
 
     private String[] imageUrls = new String[] {
-//            "https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg",
-//            "https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg",
-//            "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif",
-//            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-//            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-//            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-//            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg",
+            "https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif",
+            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
             "https://files.eric.ed.gov/fulltext/ED573583.pdf"
     };
 
@@ -48,7 +48,6 @@ public class AsmGvrViewPagerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.asm_gvr_fragment_view_pager, container, false);
 
-
         final ViewPager viewPager = view.findViewById(R.id.view_pager);
         final AsmGvrViewPagerAdapter adapter = new AsmGvrViewPagerAdapter(getContext(), imageUrls);
         viewPager.setAdapter(adapter);
@@ -61,17 +60,8 @@ public class AsmGvrViewPagerFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
-                Toast.makeText(getContext(), getResources().getString(R.string.viewpagerposition) + position, Toast.LENGTH_SHORT).show();
-                if(viewPager.getChildAt(0) instanceof LinearLayout){
-                    if(((LinearLayout) viewPager.getChildAt(0)).getChildAt(0) instanceof VideoView){
-                        ((VideoView) ((LinearLayout) viewPager.getChildAt(0)).getChildAt(0)).pause();
-                    }
-                }
-                if(viewPager.getChildAt(1) instanceof LinearLayout){
-                    if(((LinearLayout) viewPager.getChildAt(1)).getChildAt(0) instanceof VideoView ){
-                        ((VideoView) ((LinearLayout) viewPager.getChildAt(1)).getChildAt(0)).pause();
-                    }
-                }
+                Toast.makeText(getContext(), "viewpager position " + viewPager.getChildCount(), Toast.LENGTH_SHORT).show();
+                adapter.resetBackForwardPagerView();
             }
 
             @Override

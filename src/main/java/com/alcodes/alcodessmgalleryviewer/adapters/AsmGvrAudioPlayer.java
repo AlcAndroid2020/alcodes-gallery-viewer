@@ -15,35 +15,33 @@ import com.alcodes.alcodessmgalleryviewer.R;
 public class AsmGvrAudioPlayer {
     private Boolean noErrorFlag = true;
     private String fileType = "";
-    private AnimationDrawable animationMusicDrawable;
+    private AnimationDrawable mAnimationMusicDrawable;
 
     public AnimationDrawable getAnimationMusicDrawable() {
-        return animationMusicDrawable;
+        return mAnimationMusicDrawable;
     }
 
-    public void setAnimationMusicDrawable(AnimationDrawable animationMusicDrawable) {
-        this.animationMusicDrawable = animationMusicDrawable;
+    public void setAnimationMusicDrawable(AnimationDrawable mAnimationMusicDrawable) {
+        this.mAnimationMusicDrawable = mAnimationMusicDrawable;
     }
 
-    public View initize(final Context getContext, Uri uri) {
-        final Context context = getContext;
-        LinearLayout ll = new LinearLayout(context);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setGravity(Gravity.CENTER);
+    public View initializeAudioPlayer(Context getContext, Uri uri) {
+        LinearLayout mll = new LinearLayout(getContext);
+        mll.setOrientation(LinearLayout.VERTICAL);
+        mll.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams llParam = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         llParam.gravity = Gravity.CENTER;
-        ll.setLayoutParams(llParam);
-        final AsmGvrStateBroadcastingVideoView mediaPlayer = new AsmGvrStateBroadcastingVideoView(context);
-        ll.addView(mediaPlayer,0);
+        mll.setLayoutParams(llParam);
+        final AsmGvrStateBroadcastingVideoView mediaPlayer = new AsmGvrStateBroadcastingVideoView(getContext);
+        mll.addView(mediaPlayer,0);
         mediaPlayer.setForeground(null);
-        mediaPlayer.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
+        mediaPlayer.setForeground(getContext.getDrawable(R.drawable.asm_gvr_loading_animation));
         mediaPlayer.setForegroundGravity(Gravity.CENTER);
         final AnimationDrawable animationDrawable = (AnimationDrawable) mediaPlayer.getForeground();
         animationDrawable.start();
         if (uri != null) {
-
             try{
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
                 fileType = fileType.substring(0, fileType.lastIndexOf("/"));
@@ -54,7 +52,7 @@ public class AsmGvrAudioPlayer {
 
             if (noErrorFlag) {
                 if (fileType.startsWith("audio")){
-                    MediaController mediaController2 = new MediaController(context);
+                    MediaController mediaController2 = new MediaController(getContext);
                     //  mediaPlayer.setBackgroundColor(Color.BLUE); set some image/icon
                     mediaController2.setAnchorView(mediaPlayer);
                     mediaPlayer.setMediaController(mediaController2);
@@ -66,7 +64,7 @@ public class AsmGvrAudioPlayer {
                         @Override
                         public void onPrepared(MediaPlayer mp) {
                             mediaPlayer.setForeground(null);
-                            mediaPlayer.setForeground(context.getDrawable(R.drawable.asm_gvr_music_animation));
+                            mediaPlayer.setForeground(getContext.getDrawable(R.drawable.asm_gvr_music_animation));
                             final AnimationDrawable animationMusicDrawable = (AnimationDrawable) mediaPlayer.getForeground();
                             mediaPlayer.setForegroundGravity(Gravity.CENTER);
                             setAnimationMusicDrawable(animationMusicDrawable);
@@ -91,7 +89,7 @@ public class AsmGvrAudioPlayer {
                                 getAnimationMusicDrawable().stop();
                         }
                     });
-                    return ll;
+                    return mll;
                 }
                 else
                     return null;

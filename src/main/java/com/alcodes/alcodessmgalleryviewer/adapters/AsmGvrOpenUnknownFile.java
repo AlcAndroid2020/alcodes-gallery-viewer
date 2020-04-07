@@ -104,7 +104,6 @@ public class AsmGvrOpenUnknownFile {
                     intent.setDataAndType(uri, "/");
                 }
 
-
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 context.startActivity(intent);
@@ -174,7 +173,6 @@ public class AsmGvrOpenUnknownFile {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         llParam.gravity = Gravity.CENTER;
         ll.setLayoutParams(llParam);
-
 
         return ll;
     }
