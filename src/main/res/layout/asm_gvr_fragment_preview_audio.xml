@@ -5,7 +5,7 @@
 
     <data></data>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -13,7 +13,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
+            android:id="@+id/text_view_demo2"
+          android:layout_alignParentTop="true"
             android:text="This is Audio Preview Fragment" />
 
         <TextView
@@ -21,17 +22,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="30sp"
+
             android:textSize="30sp"
+            android:layout_marginTop="50dp"
+
             tools:text="Position: 1" />
 
         <VideoView
-            android:id="@+id/asm_gvr_videoview"
-            android:layout_width="420dp"
-            android:layout_marginTop="500dp"
-            android:layout_height="209dp" />
+            android:id="@+id/Audio_player"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+    android:layout_alignParentBottom="true" />
 
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </layout>
