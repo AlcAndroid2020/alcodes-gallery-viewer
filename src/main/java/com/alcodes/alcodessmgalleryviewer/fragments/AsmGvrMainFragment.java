@@ -5,6 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.alcodes.alcodessmgalleryviewer.MediaConfig;
+import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
+import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
+import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -57,6 +66,7 @@ public class AsmGvrMainFragment extends Fragment {
         ).get(AsmGvrMainSharedViewModel.class);
 
         // Init adapter data.
+        /*
         List<String> data = new ArrayList<>();
         data.add("file");
         data.add("image");
@@ -67,6 +77,14 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("image");
         data.add("audio");
         data.add("image");
+        */
+        List<MediaConfig> data = new ArrayList<>();
+        MediaConfig audio=new MediaConfig(0,"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","audio",true);
+
+        data.add(audio);
+        data.add( new MediaConfig(1,"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3","audio",true));
+
+
 
 
         // Init adapter and view pager.
