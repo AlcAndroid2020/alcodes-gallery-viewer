@@ -58,15 +58,16 @@ public class AsmGvrMainFragment extends Fragment {
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
-        data.add("image");
-        data.add("image");
-        data.add("video");
-        data.add("audio");
-        data.add("video");
-        data.add("image");
-        data.add("audio");
-        data.add("image");
         data.add("file");
+        data.add("image");
+        data.add("image");
+        data.add("video");
+        data.add("audio");
+        data.add("video");
+        data.add("image");
+        data.add("audio");
+        data.add("image");
+
 
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
