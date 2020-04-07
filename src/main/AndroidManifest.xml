@@ -7,10 +7,7 @@
     <application
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".activities.AsmGvrMainActivity" />
-
-        <activity android:name=".activities.AsmGvrViewPagerActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboard">
+        <activity android:name=".activities.AsmGvrMainActivity">
             <intent-filter>
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http"/>
