@@ -8,9 +8,9 @@ import android.view.Gravity;
 import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
-import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrStateBroadcastingVideoView;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 
 public class AsmGvrVideoPlayer {
     private Boolean noErrorFlag = true;

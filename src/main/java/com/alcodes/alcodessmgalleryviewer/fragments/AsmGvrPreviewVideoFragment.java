@@ -1,6 +1,5 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -12,10 +11,9 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 
-import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
-import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import androidx.annotation.NonNull;
@@ -73,35 +71,29 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         // Extract arguments.
         mMediaConfig = (AsmGvrMediaConfig) requireArguments().getSerializable(ARG_PAGER_URI_MEDIA_CONFIG);
 
-//        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
-
         // Init view model.
-//        mMainSharedViewModel = new ViewModelProvider(
-//                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
-//                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-//        ).get(AsmGvrMainSharedViewModel.class);
+        mMainSharedViewModel = new ViewModelProvider(
+                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(AsmGvrMainSharedViewModel.class);
 
-//        mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-//
-//            @Override
-//            public void onChanged(Integer integer) {
-//                if (integer != null) {
-//                    if (integer == mViewPagerPosition) {
-//                        // TODO this page has been selected.
-//                        Timber.e("d;;Video fragment: page has been selected at: %s", mViewPagerPosition);
-//                    } else {
-//                        // TODO this page has been de-selected.
-//                        Timber.e("d;;Video fragment: page has been de-selected at: %s", mViewPagerPosition);
-//                    }
-//                }
-//            }
-//        });
+        mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
-//        mMainSharedViewModel.startVideoPlayer(Uri.parse(mMediaConfig.getUri()), mDataBinding);
+            @Override
+            public void onChanged(Integer integer) {
+                if (integer != null) {
+                    if (integer == mViewPagerPosition) {
+                        // TODO this page has been selected.
+                        Timber.e("d;;Video fragment: page has been selected at: %s", mViewPagerPosition);
+                    } else {
+                        // TODO this page has been de-selected.
+                        Timber.e("d;;Video fragment: page has been de-selected at: %s", mViewPagerPosition);
+                    }
+                }
+            }
+        });
 
-        uri = Uri.parse(mMediaConfig.getUri());
-
-        startVideoPlayer();
+        startVideoPlayer(Uri.parse(mMediaConfig.getUri()));
     }
 
     @Override
@@ -119,15 +111,13 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
     }
 
     // TODO can move into startVideoPlayer as local variable
-    private Boolean noErrorFlag = true;
-    private String fileType = "";
-    private AsmGvrStateBroadcastingVideoView mStateBroadcastingVideoView;
-    private Uri uri;
 
-    public Boolean startVideoPlayer(){
+
+    public Boolean startVideoPlayer(Uri uri){
+        Boolean noErrorFlag = true;
+        String fileType = "";
         // Initialize VideoView with custom play & pause listener
         mDataBinding.previewVideoView.setForeground(null);
-//        mDataBinding.previewVideoView.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
         mDataBinding.previewVideoView.setForeground(requireActivity().getDrawable(R.drawable.asm_gvr_loading_animation));
         mDataBinding.previewVideoView.setForegroundGravity(Gravity.CENTER);
         AnimationDrawable mAnimationDrawable = (AnimationDrawable) mDataBinding.previewVideoView.getForeground();

@@ -2,7 +2,7 @@ package com.alcodes.alcodessmgalleryviewer.adapters;
 
 import android.net.Uri;
 
-import com.alcodes.alcodessmgalleryviewer.entities.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewAudioFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewImageFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewVideoFragment;
