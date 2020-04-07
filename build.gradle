@@ -51,6 +51,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:${rootLibraries.androidxLifecycleCommonJava8Version}"
     implementation "androidx.navigation:navigation-fragment:${rootLibraries.androidxNavigationVersion}"
     implementation "androidx.navigation:navigation-ui:${rootLibraries.androidxNavigationVersion}"
+    implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"
 
     implementation "com.jakewharton.timber:timber:${rootLibraries.timberVersion}"
     implementation("com.github.bumptech.glide:glide:${rootLibraries.glideVersion}") {
