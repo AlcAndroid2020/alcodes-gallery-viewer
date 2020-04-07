@@ -67,4 +67,5 @@ dependencies {
     compile 'commons-io:commons-io:2.6'
     implementation 'com.google.android.material:material:1.1.0-alpha08'
     implementation 'androidx.viewpager2:viewpager2:1.0.0-beta02'
+    implementation "androidx.tonyodev.fetch2:xfetch2:3.1.4"
 }

@@ -1,35 +1,48 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnknownfileBinding;
+import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.tonyodev.fetch2.Fetch;
 
 import java.util.Locale;
 
 import timber.log.Timber;
 
-public class AsmGvrPreviewUnknowFileFragment extends Fragment {
+public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private NavController mNavController;
     private AsmGvrFragmentPreviewUnknownfileBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int mViewPagerPosition;
+    private Button btnDownload;
+
+    private Fetch fetch;
+    private static final int PERMISSION_STORGE_CODE = 1000;
+
 
     public AsmGvrPreviewUnknowFileFragment() {
     }
+
     public static AsmGvrPreviewUnknowFileFragment newInstance(int position) {
         Bundle args = new Bundle();
         args.putInt(ARG_INT_PAGER_POSITION, position);
@@ -39,6 +52,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment {
 
         return fragment;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,6 +68,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment {
         // Init navigation component.
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
     }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -63,28 +78,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment {
 
         mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
 
-        // Init view model.
-        mMainSharedViewModel = new ViewModelProvider(
-                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(AsmGvrMainSharedViewModel.class);
-
-        mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-
-            @Override
-            public void onChanged(Integer integer) {
-                if (integer != null) {
-                    if (integer == mViewPagerPosition) {
-                        // TODO this page has been selected.
-                        Timber.e("d;;Image fragment: page has been selected at: %s", mViewPagerPosition);
-                    } else {
-                        // TODO this page has been de-selected.
-                        Timber.e("d;;Image fragment: page has been de-selected at: %s", mViewPagerPosition);
-                    }
-                }
-            }
-        });
     }
+
+
 
     @Override
     public void onResume() {
@@ -98,5 +94,47 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment {
         super.onPause();
 
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_STORGE_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startdownloading();
+                }
+            }
+        }
+    }
+    @Override
+    public void onShareButtonClicked() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+
+                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                requestPermissions(permission, PERMISSION_STORGE_CODE);
+            } else {
+                startdownloading();
+            }
+
+        } else {
+            startdownloading();
+        }
+    }
+
+
+    private void startdownloading() {
+        String URL = "https://files.eric.ed.gov/fulltext/ED573583.pdf";
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(URL));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        request.setTitle("Download");
+        request.setDescription("Downloading file...");
+
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "" + System.currentTimeMillis());
+
+        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
     }
 }

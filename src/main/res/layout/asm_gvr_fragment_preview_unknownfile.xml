@@ -2,7 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data></data>
+    <data>
+        <variable
+            name="bindingCallback"
+            type="com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback" />
+    </data>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -22,6 +26,20 @@
             android:layout_marginTop="30sp"
             android:textSize="30sp"
             tools:text="Position: 1" />
+
+        <Button
+            android:id="@+id/btnDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:onClick="@{() -> bindingCallback.onShareButtonClicked()}"
+            android:padding="16dp"
+            android:text="DOWNLOAD PDF"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+
 
     </FrameLayout>
 
