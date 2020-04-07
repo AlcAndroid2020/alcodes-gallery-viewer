@@ -3,11 +3,13 @@ package com.alcodes.alcodessmgalleryviewer.adapters;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
@@ -18,6 +20,7 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
 
     private Context context;
     private String[] urls;
+    AsmGvrAudioPlayer audioPlayer;
     private ImageView errorImageView;
 
     public AsmGvrViewPagerAdapter(Context context, String[] urls) {
@@ -72,13 +75,16 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
                     }
                     container.addView(viewDisplay);
                 }else if(fileType.equals("audio")) {
-                    AsmGvrAudioPlayer audioPlayer = new AsmGvrAudioPlayer();
+                  audioPlayer = new AsmGvrAudioPlayer();
                     viewDisplay = audioPlayer.initize(context, uri);
 
                     if(viewDisplay==null){
                         viewDisplay = errorImageView;
                     }
                     container.addView(viewDisplay);
+                    if(duration!=0)
+                        audioPlayer.setProgress(duration);
+
                 }else{
                     AsmGvrOpenUnknownFile openUnknownFile = new AsmGvrOpenUnknownFile();
                     viewDisplay = openUnknownFile.startOpenUnknownFile(context, uri);
@@ -126,5 +132,12 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
         return super.getItemPosition(object);
     }
 
+    public int  getprogress(){
+       return audioPlayer.getProgress();
+    }
 
+    int duration;
+    public void setProgress(int d) {
+   duration=d;
+    }
 }

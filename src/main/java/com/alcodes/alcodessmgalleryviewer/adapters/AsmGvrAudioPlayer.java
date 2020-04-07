@@ -4,11 +4,16 @@ import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 
@@ -16,6 +21,11 @@ public class AsmGvrAudioPlayer {
     private Boolean noErrorFlag = true;
     private String fileType = "";
     private AnimationDrawable animationMusicDrawable;
+    private AsmGvrStateBroadcastingVideoView mediaPlayer;
+    Context mContext;
+    private int duration;
+    int newduration;
+    Boolean isRotate = false;
 
     public AnimationDrawable getAnimationMusicDrawable() {
         return animationMusicDrawable;
@@ -26,7 +36,9 @@ public class AsmGvrAudioPlayer {
     }
 
     public View initize(final Context getContext, Uri uri) {
+
         final Context context = getContext;
+        mContext = getContext;
         LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setGravity(Gravity.CENTER);
@@ -35,8 +47,8 @@ public class AsmGvrAudioPlayer {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         llParam.gravity = Gravity.CENTER;
         ll.setLayoutParams(llParam);
-        final AsmGvrStateBroadcastingVideoView mediaPlayer = new AsmGvrStateBroadcastingVideoView(context);
-        ll.addView(mediaPlayer,0);
+        mediaPlayer = new AsmGvrStateBroadcastingVideoView(context);
+        ll.addView(mediaPlayer, 0);
         mediaPlayer.setForeground(null);
         mediaPlayer.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
         mediaPlayer.setForegroundGravity(Gravity.CENTER);
@@ -44,7 +56,7 @@ public class AsmGvrAudioPlayer {
         animationDrawable.start();
         if (uri != null) {
 
-            try{
+            try {
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
                 fileType = fileType.substring(0, fileType.lastIndexOf("/"));
             } catch (Exception e) {
@@ -53,7 +65,8 @@ public class AsmGvrAudioPlayer {
             }
 
             if (noErrorFlag) {
-                if (fileType.startsWith("audio")){
+                if (fileType.startsWith("audio")) {
+
                     MediaController mediaController2 = new MediaController(context);
                     //  mediaPlayer.setBackgroundColor(Color.BLUE); set some image/icon
                     mediaController2.setAnchorView(mediaPlayer);
@@ -70,12 +83,19 @@ public class AsmGvrAudioPlayer {
                             final AnimationDrawable animationMusicDrawable = (AnimationDrawable) mediaPlayer.getForeground();
                             mediaPlayer.setForegroundGravity(Gravity.CENTER);
                             setAnimationMusicDrawable(animationMusicDrawable);
+
+                            if (newduration != 0) {
+                                mediaPlayer.seekTo(newduration);
+                                newduration = 0;
+                            }
+
+
                         }
                     });
                     mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
-                            if (getAnimationMusicDrawable()!=null)
+                            if (getAnimationMusicDrawable() != null)
                                 mediaPlayer.setForeground(null);
                         }
                     });
@@ -87,19 +107,34 @@ public class AsmGvrAudioPlayer {
 
                         @Override
                         public void onPause() {
-                            if (getAnimationMusicDrawable()!=null)
+                            if (getAnimationMusicDrawable() != null)
                                 getAnimationMusicDrawable().stop();
+
                         }
+
                     });
+
+
                     return ll;
-                }
-                else
+                } else
                     return null;
-            }
-            else
+            } else
                 return null;
-        }
-        else
+        } else
             return null;
+    }
+
+
+
+    public int getProgress() {
+        Toast.makeText(mContext,"get"+mediaPlayer.getCurrentPosition(),Toast.LENGTH_SHORT).show();
+
+        return mediaPlayer.getCurrentPosition();
+
+    }
+
+
+    public void setProgress(int d) {
+        newduration = d;
     }
 }
