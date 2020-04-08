@@ -20,8 +20,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import timber.log.Timber;
+
 public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
-    //private final List<MediaConfig> mData;
     private final List<String> mData;
     private final AsmGvrMediaConfig mMediaConfig;
     private Fragment fragment;
@@ -62,8 +63,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
         mMediaConfig.setUri(data);
 
         if(image){
-            // TODO For other module please change the parameter for the new instance
-            return AsmGvrPreviewImageFragment.newInstance(position);
+            return AsmGvrPreviewImageFragment.newInstance(mMediaConfig);
         }else if(audio){
             // TODO For other module please change the parameter for the new instance
             return AsmGvrPreviewAudioFragment.newInstance(mMediaConfig);

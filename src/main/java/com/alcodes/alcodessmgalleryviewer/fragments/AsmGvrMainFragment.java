@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,8 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class AsmGvrMainFragment extends Fragment {
 
@@ -78,9 +81,10 @@ public class AsmGvrMainFragment extends Fragment {
         Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusString(), Toast.LENGTH_LONG).show();
 
         // Init adapter data.
-
         List<String> data = new ArrayList<>();
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
+        data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
+        data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
@@ -104,6 +108,7 @@ public class AsmGvrMainFragment extends Fragment {
         };
 
         mDataBinding.viewPager.setAdapter(mAdapter);
+
     }
 
     @Override
@@ -118,7 +123,6 @@ public class AsmGvrMainFragment extends Fragment {
         super.onPause();
 
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
-
     }
 
     private boolean isConnected() {

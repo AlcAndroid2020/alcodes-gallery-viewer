@@ -1,13 +1,19 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrTouchImageView;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
+import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Locale;
 
@@ -22,19 +28,31 @@ import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment {
 
-    private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    //private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    //private static final String ARG_STRING_FILE_URI = "ARG_STRING_FILE_URI";
+    private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewImageBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
+    private AsmGvrMediaConfigModel mMediaConfig;
     private int mViewPagerPosition;
 
     public AsmGvrPreviewImageFragment() {
     }
 
-    public static AsmGvrPreviewImageFragment newInstance(int position) {
+    public static AsmGvrPreviewImageFragment newInstance(AsmGvrMediaConfig mediaConfig) {
         Bundle args = new Bundle();
-        args.putInt(ARG_INT_PAGER_POSITION, position);
+        //args.putString(ARG_STRING_FILE_URI, mediaConfig.getUri());
+        //args.putInt(ARG_INT_PAGER_POSITION, mediaConfig.getPosition());
+
+        AsmGvrMediaConfigModel mediaConfigModel = new AsmGvrMediaConfigModel();
+        mediaConfigModel.position = mediaConfig.getPosition();
+        mediaConfigModel.fileType = mediaConfig.getFileType();
+        mediaConfigModel.fromInternetSource = mediaConfig.getFromInternetSource();
+        mediaConfigModel.uri = mediaConfig.getUri();
+
+        args.putString(ARG_JSON_STRING_MEDIACONFIG_MODEL, new Gson().toJson(mediaConfigModel));
 
         AsmGvrPreviewImageFragment fragment = new AsmGvrPreviewImageFragment();
         fragment.setArguments(args);
@@ -63,9 +81,16 @@ public class AsmGvrPreviewImageFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         // Extract arguments.
-        mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
+        //mMediaConfig = new AsmGvrMediaConfig();
+        //mMediaConfig.setUri(requireArguments().getString(ARG_STRING_FILE_URI));
+        //mMediaConfig.setPosition(requireArguments().getInt(ARG_INT_PAGER_POSITION));
 
-        mDataBinding.textViewDemo.setText(String.format(Locale.ENGLISH, "Position: %d", mViewPagerPosition));
+        mMediaConfig = new GsonBuilder().create().fromJson(requireArguments().getString(ARG_JSON_STRING_MEDIACONFIG_MODEL), AsmGvrMediaConfigModel.class);
+
+        mViewPagerPosition = mMediaConfig.position;
+
+        // Init image view
+        mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),Uri.parse(mMediaConfig.uri));
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -80,10 +105,10 @@ public class AsmGvrPreviewImageFragment extends Fragment {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
                         // TODO this page has been selected.
-                        Timber.e("d;;Image fragment: page has been selected at: %s", mViewPagerPosition);
+                        //Before entering this fragment, Reset the scale and position it at Center
+                        mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                     } else {
                         // TODO this page has been de-selected.
-                        Timber.e("d;;Image fragment: page has been de-selected at: %s", mViewPagerPosition);
                     }
                 }
             }
@@ -93,14 +118,12 @@ public class AsmGvrPreviewImageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
+        //Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+        //Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
     }
 }

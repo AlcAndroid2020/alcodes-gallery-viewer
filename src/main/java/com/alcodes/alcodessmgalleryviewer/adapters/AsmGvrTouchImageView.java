@@ -16,6 +16,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.ViewPager;
 
@@ -48,6 +49,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     float maxScale = 4f;
     float[] m;
     boolean reachEndImage = false;
+    boolean disallowZoom = false;
 
     int viewWidth, viewHeight;
     static final int CLICK = 3;
@@ -70,8 +72,15 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         sharedConstructing(context);
     }
 
+    // This will be Removed Once AsmGvrViewPagerAdapter is Removed
     public AsmGvrTouchImageView(Context context, Uri imageUri){
         super(context);
+        sharedConstructing(context);
+        setZoomForImageFile(imageUri);
+        loadIntoGlide(context,imageUri);
+    }
+
+    public void initImageView(Context context, Uri imageUri){
         sharedConstructing(context);
         setZoomForImageFile(imageUri);
         loadIntoGlide(context,imageUri);
@@ -170,6 +179,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     public void setZoomForLandscapeMode(){
         int phoneCurrentOrientation = getResources().getConfiguration().orientation;
+
+        if(disallowZoom){
+            return;
+        }
+
         if(phoneCurrentOrientation == Configuration.ORIENTATION_LANDSCAPE){
             maxScale = 8f;
         }else{
@@ -189,11 +203,14 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                     fileExtension = getImageFileExtensionURI(imageUri);
                 }
             }
+            disallowZoom = false;
             if(fileExtension.toLowerCase().equals("gif")){
                 maxScale = 1f;
+                disallowZoom = true;
             }
         } catch (Exception e) {
             maxScale = 1f;
+            disallowZoom = true;
             e.printStackTrace();
         }
     }
@@ -219,7 +236,8 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
         circularProgressDrawable.setStrokeWidth(5f);
         circularProgressDrawable.setCenterRadius(30f);
-        circularProgressDrawable.setColorSchemeColors(Color.WHITE);
+        circularProgressDrawable.setColorSchemeColors(ContextCompat.getColor(context, R.color.design_default_color_on_secondary));
+
         circularProgressDrawable.start();
 
         //Error Drawable
@@ -247,7 +265,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                 .placeholder(circularProgressDrawable)
                 .transition(withCrossFade())
                 .error(requestBuilder)
-                //.apply(new RequestOptions().override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL))
                 .fitCenter()
                 .into(this);
     }
