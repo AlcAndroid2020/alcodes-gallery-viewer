@@ -13,6 +13,7 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> mViewPagerPositionLiveData = new MutableLiveData<>(0);
 
     private boolean internetStatus = false;
+    private int audioProgress;
 
     public AsmGvrMainSharedViewModel(@NonNull Application application) {
         super(application);
@@ -40,5 +41,14 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     public boolean getInternetStatus() {
         return internetStatus;
+    }
+
+
+    public int getAudioProgress(){
+
+        return audioProgress;
+    }
+    public void setAudioPogress(int progress){
+         audioProgress=progress;
     }
 }

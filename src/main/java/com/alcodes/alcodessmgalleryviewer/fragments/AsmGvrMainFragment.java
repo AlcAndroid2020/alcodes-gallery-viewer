@@ -1,8 +1,10 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +66,13 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Uri uri=null;
+        //testing uri by using uri from file picker
+        Intent intent = getActivity().getIntent();
+        Bundle bundle = intent.getExtras();
+        if(bundle != null){
+            uri = Uri.parse(bundle.getString("uri"));
+        }
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -88,8 +97,11 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
-
-
+        //test value for wilson audio module uri)
+        data.add("content://com.android.providers.downloads.documents/document/9334");
+        if(uri!=null){
+            data.add(String.valueOf(uri));
+        }
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
 
