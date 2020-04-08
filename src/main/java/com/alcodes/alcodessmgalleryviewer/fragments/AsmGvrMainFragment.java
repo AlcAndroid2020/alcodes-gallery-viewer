@@ -92,10 +92,10 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
-        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
         //test value for wilson audio module uri)
         //data.add("content://com.android.providers.downloads.documents/document/9334");

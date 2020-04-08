@@ -38,7 +38,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         String data = mData.get(position);
 
-        String fileType = mMediaConfig.checkUrlAndUriType(fragment.getContext(), Uri.parse(data));
+        String fileType = mMediaConfig.checkUrlAndUriType(fragment.getActivity(), Uri.parse(data));
         Boolean isOnline;
         if(fileType.substring(fileType.lastIndexOf("/"), fileType.length()).equals("online")){
             isOnline = true;

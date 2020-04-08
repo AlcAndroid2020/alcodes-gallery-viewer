@@ -104,13 +104,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
             }
         });
         loadmusic(Uri.parse(mViewPagerURL));
-      /*  if (savedInstanceState != null) {
-            //last stoped progress
-            progress = savedInstanceState.getInt("audioProgress");
-
-
-        }
-*/
     }
 
     private void loadmusic(Uri uri) {
@@ -136,7 +129,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         if (  mMainSharedViewModel.getAudioProgress()!= 0)
             //videoView.seekTo(progress);
         videoView.seekTo(mMainSharedViewModel.getAudioProgress());
-
 
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
