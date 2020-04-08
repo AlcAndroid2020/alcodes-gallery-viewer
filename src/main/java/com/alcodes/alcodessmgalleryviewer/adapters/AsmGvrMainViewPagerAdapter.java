@@ -17,9 +17,7 @@ import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 
 import org.jetbrains.annotations.NotNull;
 
-
 public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
-    //private final List<MediaConfig> mData;
     private final List<String> mData;
     private final AsmGvrMediaConfig mMediaConfig;
     private Fragment fragment;
@@ -60,8 +58,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
         mMediaConfig.setUri(data);
 
         if(image){
-            // TODO For other module please change the parameter for the new instance
-            return AsmGvrPreviewImageFragment.newInstance(position);
+            return AsmGvrPreviewImageFragment.newInstance(mMediaConfig);
         }else if(audio){
             return AsmGvrPreviewAudioFragment.newInstance(mMediaConfig);
         }else if(video){
