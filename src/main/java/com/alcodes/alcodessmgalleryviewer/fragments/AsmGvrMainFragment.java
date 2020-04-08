@@ -9,20 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.alcodes.alcodessmgalleryviewer.MediaConfig;
-import com.alcodes.alcodessmgalleryviewer.R;
-import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
-import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
-import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
