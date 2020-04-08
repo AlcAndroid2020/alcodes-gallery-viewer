@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="ResourceName">
-    <!-- See table below.  The external-files-path DOES NOT require external storage permissions. -->
-    <external-files-path
-        name="images"
-        path="Pictures" />
 
+    tools:ignore="ResourceName">
     <external-path name="external_files" path="."/>
-    <!--Uncomment below to share the entire application specific directory -->
-    <!--<external-path name="all_dirs" path="."/>-->
 </paths>
