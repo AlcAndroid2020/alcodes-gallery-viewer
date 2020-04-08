@@ -1,9 +1,12 @@
 package com.alcodes.alcodessmgalleryviewer.activities;
 
 import android.os.Bundle;
+import android.widget.Toolbar;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrActivityMainBinding;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;

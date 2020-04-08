@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.alcodes.alcodessmgalleryviewer.MediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
@@ -103,8 +102,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         if (savedInstanceState != null) {
             //last stoped progress
            progress=savedInstanceState.getInt("audioProgress");
-
-
         }
 
     }
@@ -120,7 +117,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
         if(progress!=0)
             videoView.seekTo(progress);
-
 
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {

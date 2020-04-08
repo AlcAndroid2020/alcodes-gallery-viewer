@@ -23,24 +23,33 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+
+import org.jetbrains.annotations.NotNull;
+
 import timber.log.Timber;
 
 public class AsmGvrPreviewVideoFragment extends Fragment {
-
-    private static final String ARG_PAGER_URI_MEDIA_CONFIG = "ARG_PAGER_URI_MEDIA_CONFIG";
+    private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    private static final String ARG_String_FILEURL = "ARG_STRING_PAGER_FILEURL";
+    private static final String ARG_String_IsInternetSource = "ARG_String_IsInternetSource";
+    private static final String ARG_MEDIA_CONFIG = "ARG_MEDIA_CONFIG";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewVideoBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
-    private AsmGvrMediaConfig mMediaConfig;
     private int mViewPagerPosition;
+    private AnimationDrawable mAnimationDrawable;
+    private Uri mViewPagerUri;
 
     public AsmGvrPreviewVideoFragment() {
     }
 
     public static AsmGvrPreviewVideoFragment newInstance(AsmGvrMediaConfig mMediaConfig) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PAGER_URI_MEDIA_CONFIG, mMediaConfig);
+
+        args.putInt("ARG_INT_PAGER_POSITION", mMediaConfig.getPosition());
+        args.putString("ARG_STRING_PAGER_FILEURL", mMediaConfig.getUri());
+        args.putBoolean("ARG_String_IsInternetSource", mMediaConfig.getFromInternetSource());
 
         AsmGvrPreviewVideoFragment fragment = new AsmGvrPreviewVideoFragment();
         fragment.setArguments(args);
@@ -69,7 +78,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         // Extract arguments.
-        mMediaConfig = (AsmGvrMediaConfig) requireArguments().getSerializable(ARG_PAGER_URI_MEDIA_CONFIG);
+        mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
+        mViewPagerUri = Uri.parse(requireArguments().getString(ARG_String_FILEURL));
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -83,35 +93,23 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
             public void onChanged(Integer integer) {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
-                        // TODO this page has been selected.
                         Timber.e("d;;Video fragment: page has been selected at: %s", mViewPagerPosition);
+                        if(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
+                            mDataBinding.previewVideoView.seekTo(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                        }
                     } else {
-                        // TODO this page has been de-selected.
                         Timber.e("d;;Video fragment: page has been de-selected at: %s", mViewPagerPosition);
+                        if(mDataBinding.previewVideoView.isPlaying()){
+                            mMainSharedViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+                        }
                     }
                 }
             }
         });
 
-        startVideoPlayer(Uri.parse(mMediaConfig.getUri()));
+        startVideoPlayer(mViewPagerUri);
+
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
-    }
-
-    // TODO can move into startVideoPlayer as local variable
-
 
     public Boolean startVideoPlayer(Uri uri){
         Boolean noErrorFlag = true;
@@ -120,7 +118,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         mDataBinding.previewVideoView.setForeground(null);
         mDataBinding.previewVideoView.setForeground(requireActivity().getDrawable(R.drawable.asm_gvr_loading_animation));
         mDataBinding.previewVideoView.setForegroundGravity(Gravity.CENTER);
-        AnimationDrawable mAnimationDrawable = (AnimationDrawable) mDataBinding.previewVideoView.getForeground();
+        if(mAnimationDrawable == null){
+            mAnimationDrawable = (AnimationDrawable) mDataBinding.previewVideoView.getForeground();
+        }
         mAnimationDrawable.start();
         // Initialize VideoView with custom play & pause listener
 
@@ -153,7 +153,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
             public void onPrepared(MediaPlayer mp) {
                 mAnimationDrawable.stop();
                 mDataBinding.previewVideoView.setForeground(null);
-                mp.start();
+                if(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
+                    mDataBinding.previewVideoView.seekTo(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                }
             }
         });
         mDataBinding.previewVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -166,4 +168,20 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
 
         return true;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+        if(mDataBinding.previewVideoView.isPlaying()){
+            mMainSharedViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+        }
+    }
+
 }

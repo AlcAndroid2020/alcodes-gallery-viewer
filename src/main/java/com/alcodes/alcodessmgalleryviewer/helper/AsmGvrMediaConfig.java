@@ -7,7 +7,7 @@ import android.webkit.MimeTypeMap;
 
 import java.io.Serializable;
 
-public class AsmGvrMediaConfig implements Serializable {
+public class AsmGvrMediaConfig{
     private int position;
     private String uri;
     private String fileType;
