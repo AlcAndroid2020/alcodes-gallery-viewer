@@ -2,6 +2,8 @@ package com.alcodes.alcodessmgalleryviewer;
 
 import android.app.Application;
 
+import androidx.databinding.library.baseAdapters.BuildConfig;
+
 import timber.log.Timber;
 
 public class AsmGvrApp {

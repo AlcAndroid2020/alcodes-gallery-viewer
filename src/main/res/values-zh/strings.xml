@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:ignore="ResourceName">图库浏览器</string>
+    <string name="btn_localfiledemo" tools:ignore="ResourceName">本地文件演示</string>
+    <string name="btn_URLfiledemo" tools:ignore="ResourceName">URL文件演示</string>
+    <string name="openwith" tools:ignore="ResourceName">打开方式</string>
+    <string name="viewpagerposition" tools:ignore="ResourceName">观看者位置</string>
+    <string name="asm_gvr_msg_internet_access">网络链接</string>
+    <string name="asm_gvr_msg_no_internet_access">无网络链接</string>
+</resources>

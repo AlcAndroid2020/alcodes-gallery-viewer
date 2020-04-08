@@ -1,4 +1,9 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:ignore="ResourceName">Gallery Viewer</string>
+    <string name="btn_localfiledemo" tools:ignore="ResourceName">Local Files Demo</string>
+    <string name="btn_URLfiledemo" tools:ignore="ResourceName">Local Files Demo</string>
+    <string name="openwith" tools:ignore="ResourceName">Open With...</string>
+    <string name="viewpagerposition" tools:ignore="ResourceName">viewpager position</string>
     <string name="asm_gvr_msg_internet_access">Internet Access</string>
     <string name="asm_gvr_msg_no_internet_access">No Internet Access</string>
 </resources>

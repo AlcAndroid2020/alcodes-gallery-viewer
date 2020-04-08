@@ -51,16 +51,21 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:${rootLibraries.androidxLifecycleCommonJava8Version}"
     implementation "androidx.navigation:navigation-fragment:${rootLibraries.androidxNavigationVersion}"
     implementation "androidx.navigation:navigation-ui:${rootLibraries.androidxNavigationVersion}"
-    implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"
 
     implementation "com.jakewharton.timber:timber:${rootLibraries.timberVersion}"
     implementation("com.github.bumptech.glide:glide:${rootLibraries.glideVersion}") {
         exclude group: "com.android.support"
     }
 
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    testImplementation "junit:junit:${rootLibraries.junitVersion}"
+    implementation "androidx.documentfile:documentfile:${rootLibraries.androidxDocumentFileVersion}"
+    androidTestImplementation "androidx.test.ext:junit:${rootLibraries.androidxTestExtJunitVersion}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${rootLibraries.androidxTestEspressoCoreVersion}"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:${rootLibraries.androidxSwipeRefreshLayoutVersion}"
+    implementation "commons-io:commons-io:${rootLibraries.commonIoVersion}"
 
+    implementation "androidx.constraintlayout:constraintlayout:${rootLibraries.androidxConstraintLayoutVersion}"
+    implementation "com.google.android.material:material:${rootLibraries.comGoogleAndroidMaterialVersion}"
+    implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"
+    implementation "androidx.tonyodev.fetch2:xfetch2:${rootLibraries.androidxTonyoDevVersion}"
 }

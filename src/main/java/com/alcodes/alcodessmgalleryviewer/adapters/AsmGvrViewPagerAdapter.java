@@ -3,24 +3,39 @@ package com.alcodes.alcodessmgalleryviewer.adapters;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
+
 import androidx.viewpager.widget.ViewPager;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 
-public class AsmGvrViewPagerAdapter extends PagerAdapter {
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
+import org.jetbrains.annotations.NotNull;
 
+public class AsmGvrViewPagerAdapter extends PagerAdapter {
     private Context context;
     private String[] urls;
+    AsmGvrAudioPlayer audioPlayer;
     private ImageView errorImageView;
+    private ViewGroup container;
+    private AsmGvrVideoPlayer mVideoPlayer;
+    private AsmGvrAudioPlayer mAudioPlayer;
+    private AsmGvrOpenUnknownFile mOpenUnknownFile;
+    private View viewDisplay;
+    private View viewDisplay1;
+    private Uri uri;
+    private String fileType;
+    private ContentResolver cR;
 
     public AsmGvrViewPagerAdapter(Context context, String[] urls) {
         this.context = context;
@@ -37,18 +52,17 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
         return view == object;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-
-        String fileType;
-        View viewDisplay = null;
-        Uri uri;
-        errorImageView = new ImageView(context);
-        errorImageView.setScaleType(ImageView.ScaleType.CENTER);
-        errorImageView.setImageResource(R.drawable.asm_gvr_ic_error_outline_black_128dp);
-        errorImageView.setLayoutParams(new LinearLayout.LayoutParams(
-                200, 200));
+        viewDisplay = null;
+        if(errorImageView == null){
+            errorImageView = new ImageView(context);
+            errorImageView.setScaleType(ImageView.ScaleType.CENTER);
+            errorImageView.setImageResource(R.drawable.asm_gvr_ic_error_outline_black_128dp);
+            errorImageView.setLayoutParams(new LinearLayout.LayoutParams(
+                    200, 200));
+        }
 
         // Check url is empty or not
         if (urls.length!=0){
@@ -58,51 +72,64 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
             //check fileType is null or not
             if(fileType != null){
                 if(fileType.equals("video")) {
-                    AsmGvrVideoPlayer videoPlayer = new AsmGvrVideoPlayer();
-                    viewDisplay = videoPlayer.startVideoPlayer(context, uri);
-
-                    //set error icon to viewDisplay when is null
-                    if(viewDisplay==null){
-                        viewDisplay = errorImageView;
+                    if(mVideoPlayer == null){
+                        mVideoPlayer = new AsmGvrVideoPlayer();
                     }
-                    container.addView(viewDisplay);
+                    viewDisplay = mVideoPlayer.startVideoPlayer(context, uri);
                 }else if(fileType.equals("image")) {
                     viewDisplay = new AsmGvrTouchImageView(context, uri);
-
-                    if(viewDisplay==null){
-                        viewDisplay = errorImageView;
-                    }
-                    container.addView(viewDisplay);
                 }else if(fileType.equals("audio")) {
-                    AsmGvrAudioPlayer audioPlayer = new AsmGvrAudioPlayer();
-                    viewDisplay = audioPlayer.initize(context, uri);
+                    if(mAudioPlayer == null){
+                        mAudioPlayer = new AsmGvrAudioPlayer();
+                    }
+                    viewDisplay = mAudioPlayer.initializeAudioPlayer(context, uri);
 
-                    if(viewDisplay==null){
-                        viewDisplay = errorImageView;
-                    }
-                    container.addView(viewDisplay);
+                    if(duration!=0)
+                        audioPlayer.setProgress(duration);
+
                 }else{
-                    AsmGvrOpenUnknownFile openUnknownFile = new AsmGvrOpenUnknownFile();
-                    viewDisplay = openUnknownFile.startOpenUnknownFile(context, uri);
-                    ;
-                    if(viewDisplay==null){
-                        viewDisplay = errorImageView;
+                    if(mOpenUnknownFile == null){
+                        mOpenUnknownFile = new AsmGvrOpenUnknownFile();
                     }
-                    container.addView(viewDisplay);
+                    viewDisplay = mOpenUnknownFile.startOpenUnknownFile(context, uri);
+                    viewDisplay1 = mOpenUnknownFile.startshareUnknownFile(context, uri);
+                    container.addView(viewDisplay1);
+                }
+                if(viewDisplay==null){
+                    viewDisplay = errorImageView;
                 }
             }else{
                 errorImageView.setImageResource(R.drawable.asm_gvr_ic_error_outline_black_128dp);
                 viewDisplay = errorImageView;
-
-                container.addView(viewDisplay);
-            }
+            };
+            container.addView(viewDisplay);
         }
+        this.container = container;
+
         return viewDisplay;
     }
 
+    public void resetBackForwardPagerView(){
+        //Loop through container's ViewGroup item to find Video View to pause and reset MediaController
+        for(int i=0;i < container.getChildCount();i++){
+            if(container.getChildAt(i) instanceof LinearLayout){
+                if(((LinearLayout) container.getChildAt(i)).getChildAt(0) instanceof AsmGvrStateBroadcastingVideoView){
+                    if(((AsmGvrStateBroadcastingVideoView) ((LinearLayout) container.getChildAt(i)).getChildAt(0)).isPlaying()){
+                        ((AsmGvrStateBroadcastingVideoView) ((LinearLayout) container.getChildAt(i)).getChildAt(0)).pause();
+                        MediaController mediaController = new MediaController(context);
+                        mediaController.setAnchorView(((VideoView) ((LinearLayout) container.getChildAt(i)).getChildAt(0)));
+                        ((AsmGvrStateBroadcastingVideoView) ((LinearLayout) container.getChildAt(i)).getChildAt(0)).setMediaController(mediaController);
+                    }
+                }
+            }
+        }
+        //Loop through container's ViewGroup item to find Video View to pause and reset MediaController
+    }
+
     public String checkUrlAndUriType (Uri uri){
-        ContentResolver cR = context.getContentResolver();
-        String fileType;
+        if(cR == null){
+            cR = context.getContentResolver();
+        }
         if(uri.getScheme().equals("http") | uri.getScheme().equals("https")){
             try{
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
@@ -141,4 +168,12 @@ public class AsmGvrViewPagerAdapter extends PagerAdapter {
         }
     }
 
+    public int  getprogress(){
+       return audioPlayer.getProgress();
+    }
+
+    int duration;
+    public void setProgress(int d) {
+        duration=d;
+    }
 }

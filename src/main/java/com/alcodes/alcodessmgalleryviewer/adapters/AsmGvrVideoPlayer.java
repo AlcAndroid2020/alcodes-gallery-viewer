@@ -5,39 +5,53 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.Gravity;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 
 public class AsmGvrVideoPlayer {
     private Boolean noErrorFlag = true;
     private String fileType = "";
+    private Uri uri;
 
     public AsmGvrVideoPlayer(){
         this.noErrorFlag = true;
         this.fileType = "";
     }
 
-    public View startVideoPlayer(Context context, Uri uri){
-        LinearLayout ll = new LinearLayout(context);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setGravity(Gravity.CENTER);
+    public LinearLayout startVideoPlayer(Context context, Uri uri){
+    // Initialize Linear Layout for Centered Display
+        //Check for existing Linear Layout (Optimization)
+        LinearLayout mll = new LinearLayout(context);
+        mll.setOrientation(LinearLayout.VERTICAL);
+        mll.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams llParam = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         llParam.gravity = Gravity.CENTER;
-        ll.setLayoutParams(llParam);
+        mll.setLayoutParams(llParam);
+        //Check for existing Linear Layout (Optimization)
 
-        final AsmGvrStateBroadcastingVideoView videoView = new AsmGvrStateBroadcastingVideoView(context);
-        ll.addView(videoView, 0);
-        videoView.setForeground(null);
-        videoView.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
-        videoView.setForegroundGravity(Gravity.CENTER);
-        final AnimationDrawable animationDrawable = (AnimationDrawable) videoView.getForeground();
-        animationDrawable.start();
+    // Initialize VideoView with custom play & pause listener
+        //Check for existing Video View (Optimization)
+        AsmGvrStateBroadcastingVideoView mStateBroadcastingVideoView = new AsmGvrStateBroadcastingVideoView(context);
+        //Add Video View into Linear Layout
+        mll.addView(mStateBroadcastingVideoView, 0);
+            //Add Video View into Linear Layout
+        //Check for existing Video View (Optimization)
+
+        mStateBroadcastingVideoView.setForeground(null);
+        mStateBroadcastingVideoView.setForeground(context.getDrawable(R.drawable.asm_gvr_loading_animation));
+        mStateBroadcastingVideoView.setForegroundGravity(Gravity.CENTER);
+        AnimationDrawable mAnimationDrawable = (AnimationDrawable) mStateBroadcastingVideoView.getForeground();
+        mAnimationDrawable.start();
+        // Initialize VideoView with custom play & pause listener
+    // Initialize Linear Layout for Centered Display
+
+    //Assigning URI to Video View and Anchoring Media Controller to Video View
         if(uri != null){
             try{
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
@@ -48,10 +62,10 @@ public class AsmGvrVideoPlayer {
             }
             if(noErrorFlag){
                 if(fileType.equals("video")) {
-                    MediaController mediaController = new MediaController(context);
-                    mediaController.setAnchorView(videoView);
-                    videoView.setMediaController(mediaController);
-                    videoView.setVideoURI(uri);
+                   MediaController mMediaController = new MediaController(context);
+                    mMediaController.setAnchorView(mStateBroadcastingVideoView);
+                    mStateBroadcastingVideoView.setMediaController(mMediaController);
+                    mStateBroadcastingVideoView.setVideoURI(uri);
                 }
             }else{
                 return null;
@@ -59,21 +73,23 @@ public class AsmGvrVideoPlayer {
         }else{
             return null;
         }
+    //Assigning URI to Video View and Anchoring Media Controller to Video View
 
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+    //Setting Listener for Video View on preapred, finish, play and pause
+        mStateBroadcastingVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                animationDrawable.stop();
-                videoView.setForeground(null);
+                mAnimationDrawable.stop();
+                mStateBroadcastingVideoView.setForeground(null);
             }
         });
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        mStateBroadcastingVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                animationDrawable.stop();
-                videoView.setForeground(null);
+                mAnimationDrawable.stop();
+                mStateBroadcastingVideoView.setForeground(null);
             }
         });
-        videoView.setPlayPauseListener(new AsmGvrStateBroadcastingVideoView.PlayPauseListener() {
+        mStateBroadcastingVideoView.setPlayPauseListener(new AsmGvrStateBroadcastingVideoView.PlayPauseListener() {
             @Override
             public void onPlay() {
 
@@ -85,6 +101,6 @@ public class AsmGvrVideoPlayer {
             }
         });
 
-        return ll;
+        return mll;
     }
 }

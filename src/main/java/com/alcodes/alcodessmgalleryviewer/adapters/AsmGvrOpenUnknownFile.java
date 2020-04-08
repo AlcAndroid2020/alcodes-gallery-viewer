@@ -1,14 +1,27 @@
 package com.alcodes.alcodessmgalleryviewer.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.core.app.ShareCompat;
 import androidx.documentfile.provider.DocumentFile;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class AsmGvrOpenUnknownFile {
 
@@ -17,7 +30,7 @@ public class AsmGvrOpenUnknownFile {
     private Uri uri;
 
 
-    public View startOpenUnknownFile(Context getContext, Uri getUri){
+    public View startOpenUnknownFile(Context getContext, Uri getUri) {
         context = getContext;
         uri = getUri;
 
@@ -30,8 +43,11 @@ public class AsmGvrOpenUnknownFile {
         llParam.gravity = Gravity.CENTER;
         ll.setLayoutParams(llParam);
 
-        final Button buttonView = new Button(context);
+        final Button buttonView = new Button(getContext);
         buttonView.setText("Open With ...");
+        if (buttonView.getParent() != null) {
+            ((ViewGroup) buttonView.getParent()).removeView(buttonView); // <- fix
+        }
         ll.addView(buttonView, 0);
 
         buttonView.setOnClickListener(new View.OnClickListener() {
@@ -89,9 +105,75 @@ public class AsmGvrOpenUnknownFile {
                 }
 
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
                 context.startActivity(intent);
             }
         });
+        final Button buttonViewq = new Button(getContext);
+        buttonViewq.setText(" Share With ...");
+        ll.addView(buttonViewq, 0);
+        buttonViewq.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+//                Uri imageUri = Uri.parse("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
+//                Intent shareIntent = new Intent();
+//                shareIntent.setAction(Intent.ACTION_SEND);
+//                shareIntent.putExtra(Intent.EXTRA_TEXT, "Hello");
+//                shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+//                shareIntent.setType("image/jpeg");
+//                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                context.startActivity(Intent.createChooser(shareIntent, "send"));
+
+
+                //download file from url
+//                http://www.codeplayon.com/2019/02/how-to-download-pdf-from-url-in-android-code-example/
+                String mineType = "text/plain";
+                ShareCompat.IntentBuilder.from((Activity) context)
+                        .setType(mineType)
+                        .setChooserTitle("Share With")
+                        .setText(uri.toString())
+                        .startChooser();
+
+//https://www.programcreek.com/java-api-examples/?class=org.apache.commons.io.FileUtils&method=copyURLToFile
+                String path = Environment.getExternalStorageDirectory().getPath();
+                File ini=new File(path);
+                if (ini.exists()) ini.delete(); //Delete existing ini file to prevent an exception
+
+                try {
+                    //Download default configuration from the website
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
+                    FileUtils.copyURLToFile(new URL("https://files.eric.ed.gov/fulltext/ED573583.pdf"),ini);
+
+                    //Exceptions if something goes wrong (Connection/IO)
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+
+                }
+
+            }
+        });
+
+        return ll;
+    }
+
+
+    public View startshareUnknownFile(Context getContext, Uri getUri) {
+        context = getContext;
+        uri = getUri;
+
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams llParam = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        llParam.gravity = Gravity.CENTER;
+        ll.setLayoutParams(llParam);
+
         return ll;
     }
 }
