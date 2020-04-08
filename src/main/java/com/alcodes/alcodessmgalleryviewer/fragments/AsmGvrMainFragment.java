@@ -74,10 +74,10 @@ public class AsmGvrMainFragment extends Fragment {
         ).get(AsmGvrMainSharedViewModel.class);
 
         //Save internet status to shared view model
-        mMainSharedViewModel.setInternetStatus(isConnected());
+        mMainSharedViewModel.setInternetStatusData(isConnected());
 
         //get internet status from shared view model
-        Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusString(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_LONG).show();
 
         // Init adapter data.
         List<String> data = new ArrayList<>();

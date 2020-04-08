@@ -1,1 +1,4 @@
-<resources></resources>
+<resources>
+    <string name="asm_gvr_msg_internet_access">Internet Access</string>
+    <string name="asm_gvr_msg_no_internet_access">No Internet Access</string>
+</resources>
