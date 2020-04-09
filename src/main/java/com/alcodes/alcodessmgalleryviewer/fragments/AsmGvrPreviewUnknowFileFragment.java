@@ -2,18 +2,21 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,13 +30,12 @@ import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnkno
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
-import com.tonyodev.fetch2.Fetch;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
 
 import timber.log.Timber;
+
+import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
@@ -44,9 +46,11 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private int mViewPagerPosition;
     private String mViewPagerURL;
 
-    private Fetch fetch;
+    private DownloadManager mgr = null;
+    private long downloadID;
     private static final int PERMISSION_STORGE_CODE = 1000;
-
+    public File file;
+    public String fileName = "";
 
     public AsmGvrPreviewUnknowFileFragment() {
     }
@@ -87,22 +91,56 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_PAGER_FILEURL);
 
+        mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+        getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
         mDataBinding.setBindingCallback(this);
     }
 
 
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            if (downloadID == id) {
+                Toast.makeText(requireContext(), "Download Completed", Toast.LENGTH_SHORT).show();
+                startshare();
+            }
+
+
+        }
+    };
+
+    private void startshare() {
+        //https://stackoverflow.com/questions/38200282/android-os-fileuriexposedexception-file-storage-emulated-0-test-txt-exposed
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
+        Intent shareIntent = new Intent("android.intent.action.SEND");
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
+        shareIntent.putExtra("android.intent.extra.STREAM", path);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setType("application/pdf");
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(shareIntent, "Share..."));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getContext().unregisterReceiver(onComplete);
+
     }
 
     @Override
@@ -110,7 +148,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         switch (requestCode) {
             case PERMISSION_STORGE_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startdownloading();
+                    startDownload();
                 }
             }
         }
@@ -124,13 +162,35 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
                 requestPermissions(permission, PERMISSION_STORGE_CODE);
             } else {
-                startdownloading();
+                startDownload();
             }
 
         } else {
-            startdownloading();
+            startDownload();
         }
     }
+
+    private void startDownload() {
+
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+        file = new File(requireContext().getExternalFilesDir("application/pdf"), fileName);
+       /*
+       Create a DownloadManager.Request with all the information necessary to start the download
+        */
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
+                .setTitle(fileName)// Title of the Download Notification
+                .setDescription("Downloading")// Description of the Download Notification
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
+
+                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
+                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
+        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
+
+
+    }
+
 
     @Override
     public void onOpenWithButtonClicked() {
@@ -193,51 +253,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     }
 
 
-    private void startdownloading() {
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL));
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("Download");
-        request.setDescription("Downloading file...");
-
-        request.allowScanningByMediaScanner();
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "" + System.currentTimeMillis());
-
-
-        String fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
-
-
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
-//        new File(String.valueOf(file)).mkdirs();
-        file.mkdir();
-
-        if (file.exists()) {
-            Calendar time = Calendar.getInstance();
-            time.add(Calendar.DAY_OF_YEAR, -7);
-            //I store the required attributes here and delete them
-            Date lastModified = new Date(file.lastModified());
-            if (lastModified.before(time.getTime())) {
-                //file is older than a week
-                file.delete();
-            } else {
-                System.out.println("Not find file ");
-            }
-
-            Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, path);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.setType("application/pdf");
-            startActivity(Intent.createChooser(shareIntent, "Share..."));
-
-
-        }
-    }
 
 
 }
