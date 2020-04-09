@@ -12,10 +12,12 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -23,18 +25,24 @@ import androidx.navigation.Navigation;
 
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnknownfileBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.tonyodev.fetch2.Fetch;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
 
 import timber.log.Timber;
 
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
+    private static final String ARG_String_PAGER_FILEURL = "ARG_STRING_PAGER_FILEURL";
     private NavController mNavController;
     private AsmGvrFragmentPreviewUnknownfileBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int mViewPagerPosition;
-    private Button btnDownload;
+    private String mViewPagerURL;
 
     private Fetch fetch;
     private static final int PERMISSION_STORGE_CODE = 1000;
@@ -43,9 +51,10 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public AsmGvrPreviewUnknowFileFragment() {
     }
 
-    public static AsmGvrPreviewUnknowFileFragment newInstance(int position) {
+    public static AsmGvrPreviewUnknowFileFragment newInstance(AsmGvrMediaConfig position) {
         Bundle args = new Bundle();
-        args.putInt(ARG_INT_PAGER_POSITION, position);
+        args.putInt(ARG_INT_PAGER_POSITION, position.getPosition());
+        args.putString(ARG_String_PAGER_FILEURL, position.getUri());
 
         AsmGvrPreviewUnknowFileFragment fragment = new AsmGvrPreviewUnknowFileFragment();
         fragment.setArguments(args);
@@ -74,8 +83,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         super.onActivityCreated(savedInstanceState);
 
         // Extract arguments.
-        mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
 
+        mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
+        mViewPagerURL = requireArguments().getString(ARG_String_PAGER_FILEURL);
 
         mDataBinding.setBindingCallback(this);
     }
@@ -109,9 +119,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onShareButtonClicked() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 
-                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
                 requestPermissions(permission, PERMISSION_STORGE_CODE);
             } else {
                 startdownloading();
@@ -125,12 +135,13 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onOpenWithButtonClicked() {
         String filename = "";
-        Uri uri = Uri.parse("https://files.eric.ed.gov/fulltext/ED573583.pdf");
-        if (uri.equals("http") | uri.equals("https")) {
+        Uri uri = Uri.parse(mViewPagerURL);
+
+        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
 
             filename = uri.toString();
         } else {
-            DocumentFile f = DocumentFile.fromSingleUri(getActivity(), uri);
+            DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
             filename = f.getName();
         }
 
@@ -176,19 +187,15 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             intent.setDataAndType(uri, "/");
         }
 
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);
-
-
     }
 
 
     private void startdownloading() {
-//        String URL = "https://files.eric.ed.gov/fulltext/ED573583.pdf";
-String URL="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg";
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(URL));
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         request.setTitle("Download");
         request.setDescription("Downloading file...");
@@ -197,22 +204,40 @@ String URL="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ima
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "" + System.currentTimeMillis());
 
+
+        String fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
 
-        Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-       
-            intentShareFile.setType("image/*");
 
-            intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + Environment.DIRECTORY_DOWNLOADS));
-//        intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.DIRECTORY_DOWNLOADS)));
-            intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
-                    "Sharing File...");
-            intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...");
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+//        new File(String.valueOf(file)).mkdirs();
+        file.mkdir();
 
-            startActivity(Intent.createChooser(intentShareFile, "Share File"));
+        if (file.exists()) {
+            Calendar time = Calendar.getInstance();
+            time.add(Calendar.DAY_OF_YEAR, -7);
+            //I store the required attributes here and delete them
+            Date lastModified = new Date(file.lastModified());
+            if (lastModified.before(time.getTime())) {
+                //file is older than a week
+                file.delete();
+            } else {
+                System.out.println("Not find file ");
+            }
+
+            Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, path);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.setType("application/pdf");
+            startActivity(Intent.createChooser(shareIntent, "Share..."));
+
 
         }
+    }
 
 
 }

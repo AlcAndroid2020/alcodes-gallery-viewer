@@ -4,25 +4,10 @@
 
     <data></data>
 
-    <FrameLayout
+    <com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrTouchImageView
+        android:id="@+id/touch_image_view_preview_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="This is Image Preview Fragment" />
-
-        <TextView
-            android:id="@+id/text_view_demo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="30sp"
-            android:textSize="30sp"
-            tools:text="Position: 1" />
-
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
 
 </layout>
