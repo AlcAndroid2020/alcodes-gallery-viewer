@@ -6,13 +6,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
@@ -21,15 +26,6 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.viewpager2.widget.ViewPager2;
 
 
 public class AsmGvrMainFragment extends Fragment {
@@ -89,15 +85,15 @@ public class AsmGvrMainFragment extends Fragment {
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
-        data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
-        data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
-        data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
-        data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
-        data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
-        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
-        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
-        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+//        data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
+//        data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
+//        data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
+//        data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
+//        data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
+//        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
+//        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+//        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+//        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
         //test value for wilson audio module uri)
         //data.add("content://com.android.providers.downloads.documents/document/9334");
