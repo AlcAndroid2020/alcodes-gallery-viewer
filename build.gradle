@@ -64,7 +64,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootLibraries.androidxTestEspressoCoreVersion}"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:${rootLibraries.androidxSwipeRefreshLayoutVersion}"
     implementation "commons-io:commons-io:${rootLibraries.commonIoVersion}"
-
+    implementation "com.danikula:videocache:${rootLibraries.videoCacheVersion}"
     implementation "androidx.constraintlayout:constraintlayout:${rootLibraries.androidxConstraintLayoutVersion}"
     implementation "com.google.android.material:material:${rootLibraries.comGoogleAndroidMaterialVersion}"
     implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"

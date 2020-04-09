@@ -22,7 +22,6 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import timber.log.Timber;
@@ -39,7 +38,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
-    private AnimationDrawable mAnimationDrawable;
 
     private Boolean mInternetSource;
 
@@ -110,17 +108,9 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
         //determine the audio is from online/local
 
-
-
         //initiz video view/load music
         MediaController mediaController = new MediaController(getContext());
         videoView = mDataBinding.AudioPlayer;
-
-        videoView.setForeground(getContext().getDrawable(R.drawable.asm_gvr_loading_animation));
-        if (mAnimationDrawable == null) {
-            mAnimationDrawable = (AnimationDrawable) videoView.getForeground();
-        }
-        mAnimationDrawable.start();
 
         mediaController.setAnchorView(videoView);
         videoView.setMediaController(mediaController);
@@ -132,8 +122,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                mAnimationDrawable.stop();
-                videoView.setForeground(getContext().getDrawable(R.drawable.muisicon));
 
                 mp.start();
             }

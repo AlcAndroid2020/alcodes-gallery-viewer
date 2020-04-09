@@ -1,8 +1,11 @@
 package com.alcodes.alcodessmgalleryviewer;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.databinding.library.baseAdapters.BuildConfig;
+
+import com.danikula.videocache.HttpProxyCacheServer;
 
 import timber.log.Timber;
 
@@ -28,4 +31,5 @@ public class AsmGvrApp {
             }
         }
     }
+
 }
