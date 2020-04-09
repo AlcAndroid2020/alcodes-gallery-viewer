@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data></data>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/preview_video_image_loading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:alpha="0.7"/>
 
-        <com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView
-            android:id="@+id/preview_video_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-
-    </FrameLayout>
+            <com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView
+                android:id="@+id/preview_video_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+    </RelativeLayout>
 
 </layout>

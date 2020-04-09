@@ -15,6 +15,9 @@ import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -115,13 +118,12 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         Boolean noErrorFlag = true;
         String fileType = "";
         // Initialize VideoView with custom play & pause listener
-        mDataBinding.previewVideoView.setForeground(null);
-        mDataBinding.previewVideoView.setForeground(requireActivity().getDrawable(R.drawable.asm_gvr_loading_animation));
-        mDataBinding.previewVideoView.setForegroundGravity(Gravity.CENTER);
-        if(mAnimationDrawable == null){
-            mAnimationDrawable = (AnimationDrawable) mDataBinding.previewVideoView.getForeground();
-        }
-        mAnimationDrawable.start();
+        Glide.with(this)
+                .asGif()
+                .load(R.raw.loading)
+                .into(mDataBinding.previewVideoImageLoading);
+        mDataBinding.previewVideoView.setZ(0);
+        mDataBinding.previewVideoImageLoading.setZ(1);
         // Initialize VideoView with custom play & pause listener
 
         //Assigning URI to Video View and Anchoring Media Controller to Video View
@@ -151,18 +153,11 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         //Setting Listener for Video View on preapred, finish, play and pause
         mDataBinding.previewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                mAnimationDrawable.stop();
-                mDataBinding.previewVideoView.setForeground(null);
+                mDataBinding.previewVideoImageLoading.setVisibility(View.INVISIBLE);
+                mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
                 if(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
                     mDataBinding.previewVideoView.seekTo(mMainSharedViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                 }
-            }
-        });
-        mDataBinding.previewVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mAnimationDrawable.stop();
-                mDataBinding.previewVideoView.setForeground(null);
             }
         });
 
