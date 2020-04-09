@@ -25,7 +25,6 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     private MutableLiveData<InternetStatusData> mInternetStatusData = new MutableLiveData<>();
 
-    private int audioProgress;
 
 
     public AsmGvrMainSharedViewModel(@NonNull Application application) {
@@ -55,13 +54,7 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     }
 
 
-    public int getAudioProgress(){
 
-        return audioProgress;
-    }
-    public void setAudioPogress(int progress){
-         audioProgress=progress;
-    }
 
     public VideoViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {
         Boolean isNoMatchRecords = true;

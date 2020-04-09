@@ -100,7 +100,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
         //test value for wilson audio module uri)
-        //data.add("content://com.android.providers.downloads.documents/document/9334");
+       data.add("content://com.android.providers.downloads.documents/document/9334");
         if(uri!=null){
             data.add(String.valueOf(uri));
         }

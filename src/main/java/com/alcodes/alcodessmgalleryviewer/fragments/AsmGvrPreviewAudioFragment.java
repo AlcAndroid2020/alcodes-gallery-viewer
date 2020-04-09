@@ -1,15 +1,15 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +22,8 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
-
-import timber.log.Timber;
+import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
 
 public class AsmGvrPreviewAudioFragment extends Fragment {
 
@@ -34,13 +32,13 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     private static final String ARG_String_IsInternetSource = "ARG_String_IsInternetSource ";
 
     private NavController mNavController;
-    private VideoView videoView;
     private AsmGvrFragmentPreviewAudioBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
+    private AsmGvrPreviewAudioViewModel mPreviewAudioViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
     private AnimationDrawable mAnimationDrawable;
-
+    private Boolean mIsInternetConnected;
     private Boolean mInternetSource;
 
     public AsmGvrPreviewAudioFragment() {
@@ -82,11 +80,19 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         mViewPagerURL = requireArguments().getString(ARG_String_FILEURL);
         mInternetSource = Boolean.valueOf(requireArguments().getString(ARG_String_IsInternetSource));
 
+
         // Init view model.
+        //ShareviewModel
         mMainSharedViewModel = new ViewModelProvider(
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(AsmGvrMainSharedViewModel.class);
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
+                get(AsmGvrMainSharedViewModel.class);
+
+        //AudioViewModel
+        mPreviewAudioViewModel = new ViewModelProvider(mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
+                get(AsmGvrPreviewAudioViewModel.class);
+
 
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
@@ -95,89 +101,98 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
                         // TODO this page has been selected.
-                        Timber.e("d;;Audio fragment: page has been selected at: %s", mViewPagerPosition);
+                        if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
+                            mDataBinding.AudioPlayer.seekTo(mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                        }
                     } else {
                         // TODO this page has been de-selected.
-                        Timber.e("d;;Audio fragment: page has been de-selected at: %s", mViewPagerPosition);
+                        if (mDataBinding.AudioPlayer.isPlaying()) {
+                            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+                        }
                     }
                 }
             }
         });
-        loadmusic(Uri.parse(mViewPagerURL));
+        //Check Internet State
+        mIsInternetConnected = mMainSharedViewModel.getInternetStatusDataLiveData().getValue().internetStatus;
+
+        //load music player
+        //determine if audio is from url
+        if (mInternetSource == true) {
+            if (mIsInternetConnected == true)
+                loadmusic(Uri.parse(mViewPagerURL));
+                //downloadOffline(mViewPagerURL);
+            else
+                showErrorMsg();
+        } else {
+            //for local audio/offline audio
+            loadmusic(Uri.parse(mViewPagerURL));
+        }
+
     }
+
+    private void downloadOffline(String link) {
+
+
+    }
+
 
     private void loadmusic(Uri uri) {
 
-        //determine the audio is from online/local
-
-
-
-        //initiz video view/load music
+        //initiz video view/song player
         MediaController mediaController = new MediaController(getContext());
-        videoView = mDataBinding.AudioPlayer;
 
-        videoView.setForeground(getContext().getDrawable(R.drawable.asm_gvr_loading_animation));
-        if (mAnimationDrawable == null) {
-            mAnimationDrawable = (AnimationDrawable) videoView.getForeground();
-        }
-        mAnimationDrawable.start();
+        //loading dialog
 
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(uri);
 
-        if (  mMainSharedViewModel.getAudioProgress()!= 0)
-            //videoView.seekTo(progress);
-        videoView.seekTo(mMainSharedViewModel.getAudioProgress());
+        mediaController.setAnchorView(mDataBinding.AudioPlayer);
+        mDataBinding.AudioPlayer.setMediaController(mediaController);
+        mDataBinding.AudioPlayer.setVideoURI(uri);
 
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        //when player ready to play
+        mDataBinding.AudioPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                mAnimationDrawable.stop();
-                videoView.setForeground(getContext().getDrawable(R.drawable.muisicon));
+                //close progress bar
+                mDataBinding.indeterminateBar.setVisibility(View.GONE);
 
-                mp.start();
+                //set music icon
+                mDataBinding.AudioPlayer.setForeground(getContext().getDrawable(R.drawable.muisicon));
+
+                //get progress if screen rotated and slide to other page
+                if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
+                    mDataBinding.AudioPlayer.seekTo(mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                }
+
             }
         });
+    }
 
-
+    private void showErrorMsg() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("No Internet Connection")
+                .setMessage("Internet connection is required to play audio")
+                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 
     //to recover progress when screen rotate/rotete back
-    int progress;
-
     @Override
     public void onResume() {
         super.onResume();
-     /*   if (progress != 0)
-            videoView.seekTo(progress);
-
-
-*/
-        videoView.seekTo(mMainSharedViewModel.getAudioProgress());
-        videoView.start();
+        mDataBinding.AudioPlayer.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-    /*    if (videoView != null)
-            if (videoView.isPlaying())
-                progress = videoView.getCurrentPosition();
-        */
-    mMainSharedViewModel.setAudioPogress(videoView.getCurrentPosition());
-
-        videoView.pause();
-
+        if (mDataBinding.AudioPlayer.isPlaying()) {
+            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+        }
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //for recover audio when rotation
-      //  outState.putInt("audioProgress", progress);
-
-    }
-
 
 }
