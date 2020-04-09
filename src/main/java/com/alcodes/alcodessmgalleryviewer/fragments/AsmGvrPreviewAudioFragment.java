@@ -117,11 +117,13 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         mIsInternetConnected = mMainSharedViewModel.getInternetStatusDataLiveData().getValue().internetStatus;
 
         //load music player
+
         //determine if audio is from url
         if (mInternetSource == true) {
             if (mIsInternetConnected == true)
                 loadmusic(Uri.parse(mViewPagerURL));
                 //downloadOffline(mViewPagerURL);
+
             else
                 showErrorMsg();
         } else {
@@ -133,7 +135,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
 
     private void downloadOffline(String link) {
 
-
+        //still study
     }
 
 
@@ -143,7 +145,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         MediaController mediaController = new MediaController(getContext());
 
         //loading dialog
-
 
         mediaController.setAnchorView(mDataBinding.AudioPlayer);
         mDataBinding.AudioPlayer.setMediaController(mediaController);
