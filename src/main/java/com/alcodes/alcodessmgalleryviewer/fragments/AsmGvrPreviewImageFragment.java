@@ -113,6 +113,14 @@ public class AsmGvrPreviewImageFragment extends Fragment {
                 }
             }
         });
+
+        mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+            @Override
+            public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                Timber.e("CHECK: " + internetStatusData.statusMessage);
+            }
+        });
+
     }
 
     @Override

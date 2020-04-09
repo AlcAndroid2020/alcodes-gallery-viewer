@@ -3,7 +3,7 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -35,12 +37,10 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
-    private String appsName;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Nullable
@@ -71,17 +71,15 @@ public class AsmGvrMainFragment extends Fragment {
             uri = Uri.parse(bundle.getString("uri"));
         }
 
+        // Get menu bar
+        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+
+
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
-
-        //Save internet status to shared view model
-        mMainSharedViewModel.setInternetStatusData(isConnected());
-
-        //get internet status from shared view model
-        Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_LONG).show();
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -109,9 +107,20 @@ public class AsmGvrMainFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+
+                //Save internet status to shared view model
+                mMainSharedViewModel.setInternetStatusData(isConnected());
+
+                //get internet status from shared view model
+                Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
+
+                // Set fragment number in to menu bar
+                actionBar.setTitle((position + 1) + "/" + data.size());
+
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
         };
+
 
         mDataBinding.viewPager.setAdapter(mAdapter);
 
@@ -135,8 +144,9 @@ public class AsmGvrMainFragment extends Fragment {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
 
+        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
+
 }
