@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -24,6 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrCheckInternetConnectivityHelper;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
 
+    private ActionBar mActionBar;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +52,8 @@ public class AsmGvrMainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Init data binding;
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+
+        mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -64,6 +70,7 @@ public class AsmGvrMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Uri uri = null;
+
         //testing uri by using uri from file picker
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
@@ -87,6 +94,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
         data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
+        data.add("https://media.giphy.com/media/Pm4ZMaevvoGhXlm714/giphy.gif");
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
@@ -116,6 +124,17 @@ public class AsmGvrMainFragment extends Fragment {
 
                 // Set fragment number in to menu bar
                 actionBar.setTitle((position + 1) + "/" + data.size());
+                mMainSharedViewModel.setInternetStatusData(new AsmGvrCheckInternetConnectivityHelper().isNetworkConnected(requireActivity()));
+
+                //get internet status from shared view model
+                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+                    @Override
+                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                        if (!internetStatusData.internetStatus) {
+                            Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
@@ -148,5 +167,6 @@ public class AsmGvrMainFragment extends Fragment {
 
         return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
+
 
 }

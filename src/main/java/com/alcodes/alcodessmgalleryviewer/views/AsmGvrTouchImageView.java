@@ -1,8 +1,7 @@
-package com.alcodes.alcodessmgalleryviewer.adapters;
+package com.alcodes.alcodessmgalleryviewer.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
@@ -18,12 +17,13 @@ import android.webkit.MimeTypeMap;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
-import androidx.viewpager.widget.ViewPager;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -48,8 +48,13 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     float minScale = 1f;
     float maxScale = 4f;
     float[] m;
+
+    //Flag
     boolean reachEndImage = false;
     boolean disallowZoom = false;
+    boolean isErrorImage = false;
+    boolean internetAvailable = false;
+    private AsmGvrImageCallback imageCallback;
 
     int viewWidth, viewHeight;
     static final int CLICK = 3;
@@ -72,17 +77,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         sharedConstructing(context);
     }
 
-    // This will be Removed Once AsmGvrViewPagerAdapter is Removed
-    public AsmGvrTouchImageView(Context context, Uri imageUri){
-        super(context);
+    public void initImageView(Context context, Uri imageUri, boolean internetAvailable, AsmGvrImageCallback imageCallback){
         sharedConstructing(context);
         setZoomForImageFile(imageUri);
-        loadIntoGlide(context,imageUri);
-    }
-
-    public void initImageView(Context context, Uri imageUri){
-        sharedConstructing(context);
-        setZoomForImageFile(imageUri);
+        this.internetAvailable = internetAvailable;
+        this.imageCallback = imageCallback;
         loadIntoGlide(context,imageUri);
     }
 
@@ -113,12 +112,14 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        //Image is Pressing
                         last.set(curr);
                         start.set(last);
                         mode = DRAG;
                         getParent().requestDisallowInterceptTouchEvent(true);
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        //Image is moving
                         if (mode == DRAG) {
                             float deltaX = curr.x - last.x;
                             float deltaY = curr.y - last.y;
@@ -131,6 +132,13 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                             fixTrans();
                             last.set(curr.x, curr.y);
 
+
+                            if(isErrorImage){
+                                //Error image only able to slide.
+                                getParent().requestDisallowInterceptTouchEvent(false);
+                                break;
+                            }
+
                             if(saveScale == 1.0){
                                 //Not in Zooming
                                 //Slide Left/Right to Previous/Next Picture
@@ -138,11 +146,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                             }else{
                                 //In Zooming
                                 if((origWidth * saveScale) <= viewWidth){
-                                    //Side still have empty Space
+                                    //Side still have empty Space (Margin Does Show)
                                     //Slide Left/Right to Previous/Next Picture
                                     getParent().requestDisallowInterceptTouchEvent(false);
                                 }else{
-                                    //Side do not have empty Space
+                                    //Side do not have empty Space (Margin Does Not Show)
                                     if(!reachEndImage){
                                         //Panning the Image
                                         getParent().requestDisallowInterceptTouchEvent(true);
@@ -152,6 +160,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                                     }
                                 }
                             }
+
                         }
                         break;
 
@@ -180,13 +189,16 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     public void setZoomForLandscapeMode(){
         int phoneCurrentOrientation = getResources().getConfiguration().orientation;
 
-        if(disallowZoom){
+        if(disallowZoom | isErrorImage){
+            //No Scale Set to Error File and Gif File
             return;
         }
 
         if(phoneCurrentOrientation == Configuration.ORIENTATION_LANDSCAPE){
+            //Landscape
             maxScale = 8f;
         }else{
+            //Portrait
             maxScale = 4f;
         }
     }
@@ -231,8 +243,15 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(context.getContentResolver().getType(imageUri));
     }
 
+    public void loadNoInternetConnectionIconIntoGlide(Context context){
+        Glide.with(context)
+                .load(R.drawable.asm_gvr_no_internet_access)
+                .centerInside()
+                .into(this);
+    }
+
     public void loadIntoGlide(Context context, Uri imageUri){
-        //PlaceHolder Drawable
+        //PlaceHolder Drawable (Progress Bar)
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
         circularProgressDrawable.setStrokeWidth(5f);
         circularProgressDrawable.setCenterRadius(30f);
@@ -240,10 +259,20 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
         circularProgressDrawable.start();
 
-        //Error Drawable
+        int imgNoInternetAccessDrawable;
+
+        if(internetAvailable){
+            //General Error Icon
+            imgNoInternetAccessDrawable = R.drawable.asm_gvr_ic_error_outline_black_128dp;
+        }else{
+            //No Internet Access Icon
+            imgNoInternetAccessDrawable = R.drawable.asm_gvr_no_internet_access;
+        }
+
+        //Error Drawable (Error Image)
         RequestBuilder<Drawable> requestBuilder =
                 Glide.with(context)
-                        .load(R.drawable.asm_gvr_ic_error_outline_black_128dp)
+                        .load(imgNoInternetAccessDrawable)
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -252,9 +281,9 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                ViewPager.LayoutParams layoutParams = new ViewPager.LayoutParams();
-                                setLayoutParams(layoutParams);
-                                setScaleType(ScaleType.CENTER);
+                                isErrorImage = true;
+                                //Set to Center Without Fit to the Frame
+                                setScaleType(ScaleType.CENTER_INSIDE);
                                 return false;
                             }
                         })
@@ -274,7 +303,10 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         saveScale = 1f;
         setScaleType(ScaleType.CENTER);
         fixTrans();
-        setScaleType(ScaleType.MATRIX);
+
+        if(!isErrorImage){
+            setScaleType(ScaleType.MATRIX);
+        }
     }
 
     @Override
@@ -288,22 +320,32 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         float origScale = saveScale;
         float mScaleFactor;
 
+
         if (saveScale == minScale) {
+            //Current Scale is Equal Minimum Scale
+            //Enlarge It
             saveScale = maxScale;
             mScaleFactor = maxScale / origScale;
         } else {
+            //Current Scale is at any point of Scale (Except Minimum Scale)
+            //Dwindle It
             setScaleType(ScaleType.FIT_CENTER);
-            //resetIamgeToCenter();
             saveScale = minScale;
             mScaleFactor = minScale / origScale;
         }
 
-
         matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2,
                 viewHeight / 2);
 
+        //Check and Fix its Transition when end image is reached
         fixTrans();
-        setScaleType(ScaleType.MATRIX);
+
+        if(!isErrorImage){
+            setScaleType(ScaleType.MATRIX);
+        }else{
+            setScaleType(ScaleType.CENTER);
+        }
+
         return false;
     }
 
@@ -324,6 +366,8 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
+        Timber.e("IMAGE CHECK TOUCH");
+        imageCallback.onTouchShowHideActionBar();
         return false;
     }
 
@@ -347,6 +391,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
             ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
+            //Sense Gesture and set it to Zoom
             mode = ZOOM;
             return true;
         }
