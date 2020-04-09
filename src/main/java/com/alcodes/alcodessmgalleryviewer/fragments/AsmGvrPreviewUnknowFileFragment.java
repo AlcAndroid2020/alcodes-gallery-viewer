@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,11 +111,14 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     };
 
     private void startshare() {
+        //https://stackoverflow.com/questions/38200282/android-os-fileuriexposedexception-file-storage-emulated-0-test-txt-exposed
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
         Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
-        Intent shareIntent = new Intent();
+        Intent shareIntent = new Intent("android.intent.action.SEND");
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, path);
+        shareIntent.putExtra("android.intent.extra.STREAM", path);
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         shareIntent.setType("application/pdf");
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -125,7 +129,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public void onResume() {
         super.onResume();
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
-
     }
 
     @Override
@@ -136,7 +139,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         getContext().unregisterReceiver(onComplete);
 
     }
