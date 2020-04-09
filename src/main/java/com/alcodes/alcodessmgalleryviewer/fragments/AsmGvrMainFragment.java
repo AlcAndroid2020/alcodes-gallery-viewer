@@ -2,14 +2,21 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -17,6 +24,7 @@ import android.widget.Toast;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
+import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrCheckInternetConnectivityHelper;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
@@ -24,12 +32,17 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
+
+import timber.log.Timber;
 
 
 public class AsmGvrMainFragment extends Fragment {
@@ -40,6 +53,8 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
     private String appsName;
+
+    private ActionBar mActionBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +67,8 @@ public class AsmGvrMainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Init data binding;
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+
+        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -67,6 +84,7 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         Uri uri=null;
         //testing uri by using uri from file picker
         Intent intent = getActivity().getIntent();
@@ -81,11 +99,6 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
-        //Save internet status to shared view model
-        mMainSharedViewModel.setInternetStatusData(isConnected());
-
-        //get internet status from shared view model
-        Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_LONG).show();
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -93,6 +106,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
         data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
+        data.add("https://media.giphy.com/media/Pm4ZMaevvoGhXlm714/giphy.gif");
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
@@ -112,9 +126,24 @@ public class AsmGvrMainFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+
+                //Save internet status to shared view model
+                mMainSharedViewModel.setInternetStatusData(new AsmGvrCheckInternetConnectivityHelper().isNetworkConnected(requireActivity()));
+
+                //get internet status from shared view model
+                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+                    @Override
+                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                        if(!internetStatusData.internetStatus){
+                            Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
         };
+
 
         mDataBinding.viewPager.setAdapter(mAdapter);
 
@@ -134,12 +163,4 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
     }
 
-    private boolean isConnected() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-    }
 }

@@ -4,7 +4,7 @@
 
     <data></data>
 
-    <com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrTouchImageView
+    <com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView
         android:id="@+id/touch_image_view_preview_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
