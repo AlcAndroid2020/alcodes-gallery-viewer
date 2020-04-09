@@ -175,6 +175,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
     }
 
+
     @Override
     public void onPause() {
         super.onPause();
