@@ -4,11 +4,7 @@
 
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-
-
-    </data>
+    <data></data>
 
     <RelativeLayout
         android:layout_width="match_parent"

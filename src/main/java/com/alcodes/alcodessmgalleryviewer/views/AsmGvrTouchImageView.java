@@ -303,10 +303,10 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         saveScale = 1f;
         setScaleType(ScaleType.CENTER);
         fixTrans();
-
         if(!isErrorImage){
             setScaleType(ScaleType.MATRIX);
         }
+     //   imageCallback.onTouchShowHideActionBar();
     }
 
     @Override

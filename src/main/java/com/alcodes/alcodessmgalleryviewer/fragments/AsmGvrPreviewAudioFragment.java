@@ -39,6 +39,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     private String mViewPagerURL;
     private AnimationDrawable mAnimationDrawable;
     private Boolean mIsInternetConnected;
+
     private Boolean mInternetSource;
 
     public AsmGvrPreviewAudioFragment() {
@@ -139,12 +140,17 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     }
 
 
+
     private void loadmusic(Uri uri) {
 
         //initiz video view/song player
         MediaController mediaController = new MediaController(getContext());
 
         //loading dialog
+
+        //initiz video view/load music
+
+
 
         mediaController.setAnchorView(mDataBinding.AudioPlayer);
         mDataBinding.AudioPlayer.setMediaController(mediaController);
@@ -157,7 +163,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
                 mDataBinding.indeterminateBar.setVisibility(View.GONE);
 
                 //set music icon
-                mDataBinding.AudioPlayer.setForeground(getContext().getDrawable(R.drawable.muisicon));
+                mDataBinding.AudioPlayer.setForeground(getContext().getDrawable(R.drawable.asm_gvr_music_icon));
 
                 //get progress if screen rotated and slide to other page
                 if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {

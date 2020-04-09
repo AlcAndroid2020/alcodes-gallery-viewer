@@ -25,7 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrMainViewPagerAdapter;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentMainBinding;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrCheckInternetConnectivityHelper;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrCheckInternetConnectivityHelper;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
