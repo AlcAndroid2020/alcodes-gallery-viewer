@@ -70,12 +70,19 @@ public class AsmGvrMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Uri uri = null;
+        List<String> UriList = new ArrayList<String>();
 
         //testing uri by using uri from file picker
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
-            uri = Uri.parse(bundle.getString("uri"));
+            //get single file
+            if (bundle.getString("uri") != null)
+                uri = Uri.parse(bundle.getString("uri"));
+
+            //get multiple file
+            if (bundle.getStringArrayList("urilist") != null)
+                UriList = bundle.getStringArrayList("urilist");
         }
 
         // Get menu bar
@@ -101,12 +108,22 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
-        //test value for wilson audio module uri)
-        // data.add("content://com.android.providers.downloads.documents/document/9334");
 
+        // Init Local File Uri
+
+        //single file
         if (uri != null) {
             data.add(String.valueOf(uri));
         }
+
+        // Multiple File
+        if (UriList != null) {
+            for(int i=0;i<UriList.size();i++){
+                data.add(UriList.get(i));
+
+            }
+        }
+
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
 
@@ -131,7 +148,7 @@ public class AsmGvrMainFragment extends Fragment {
                     @Override
                     public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                         if (!internetStatusData.internetStatus) {
-                            Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
