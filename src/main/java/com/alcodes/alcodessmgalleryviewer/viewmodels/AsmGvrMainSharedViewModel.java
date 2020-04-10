@@ -11,6 +11,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +52,15 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
+    }
+    private File downloadedFile;
+
+    public File getDowloadProgress(){
+
+        return downloadedFile;
+    }
+    public void setDownloadPogress(File progress){
+        downloadedFile=progress;
     }
 
     public class VideoViewModel {
