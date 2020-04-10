@@ -10,7 +10,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,10 +173,11 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
     }
 
-    private void startDownload() {
-
+    private void startDownload(){
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(requireContext().getExternalFilesDir("application/pdf"), fileName);
+
+        //DocumentFile dir = DocumentFile.fromTreeUri(requireContext(), DocumentFile.fromFile(file).getUri()).createFile(MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL), fileName);
        /*
        Create a DownloadManager.Request with all the information necessary to start the download
         */
@@ -187,8 +191,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
         DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
-
-
     }
 
 
@@ -251,8 +253,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         startActivity(intent);
     }
-
-
 
 
 }

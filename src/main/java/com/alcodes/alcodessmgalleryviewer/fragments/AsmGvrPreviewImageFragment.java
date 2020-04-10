@@ -97,9 +97,9 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
                         // TODO this page has been selected.
-                        //Before entering this fragment, Reset the scale and position it at Center
-                        mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                     } else {
+                        //Before leaving this fragment, Reset the scale and position it at Center
+                        mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                         // TODO this page has been de-selected.
                     }
                 }
@@ -110,7 +110,6 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 // Init image
-                Timber.e("Internet: " + internetStatusData.internetStatus);
                 mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),Uri.parse(mMediaConfig.uri),internetStatusData.internetStatus, AsmGvrPreviewImageFragment.this );;
             }
         });

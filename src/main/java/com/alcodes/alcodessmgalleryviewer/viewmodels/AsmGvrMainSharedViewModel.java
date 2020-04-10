@@ -52,9 +52,6 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     }
 
 
-
-
-
     public class VideoViewModel {
         public int viewPagerPosition;
         public int currentPlayingPosition;
