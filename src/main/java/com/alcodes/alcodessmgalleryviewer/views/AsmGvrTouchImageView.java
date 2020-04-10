@@ -311,6 +311,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
+        imageCallback.onTouchShowHideActionBar();
         return false;
     }
 
@@ -366,8 +367,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        Timber.e("IMAGE CHECK TOUCH");
-        imageCallback.onTouchShowHideActionBar();
         return false;
     }
 
@@ -388,7 +387,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     }
 
     private class ScaleListener extends
-            ScaleGestureDetector.SimpleOnScaleGestureListener {
+        ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             //Sense Gesture and set it to Zoom

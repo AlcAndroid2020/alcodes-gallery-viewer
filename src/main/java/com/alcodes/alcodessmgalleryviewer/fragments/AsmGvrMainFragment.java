@@ -1,9 +1,12 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -88,6 +91,8 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        initIsNetworkConnectedListener();
+
         // Init adapter data.
         List<String> data = new ArrayList<>();
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
@@ -107,6 +112,7 @@ public class AsmGvrMainFragment extends Fragment {
         if (uri != null) {
             data.add(String.valueOf(uri));
         }
+
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
 
@@ -116,22 +122,14 @@ public class AsmGvrMainFragment extends Fragment {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
 
-                //Save internet status to shared view model
-                mMainSharedViewModel.setInternetStatusData(isConnected());
-
-                //get internet status from shared view model
-                Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
-
                 // Set fragment number in to menu bar
                 actionBar.setTitle((position + 1) + "/" + data.size());
-                mMainSharedViewModel.setInternetStatusData(new AsmGvrCheckInternetConnectivityHelper().isNetworkConnected(requireActivity()));
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
                     @Override
                     public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                         if (!internetStatusData.internetStatus) {
-                            Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -139,7 +137,6 @@ public class AsmGvrMainFragment extends Fragment {
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
         };
-
 
         mDataBinding.viewPager.setAdapter(mAdapter);
 
@@ -159,13 +156,26 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
     }
 
-    private boolean isConnected() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+    public void initIsNetworkConnectedListener(){
+        final ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
 
-        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        if (connectivityManager != null) {
+            connectivityManager.registerNetworkCallback(
+                    builder.build(),
+                    new ConnectivityManager.NetworkCallback() {
+                        @Override
+                        public void onAvailable(@NonNull Network network) {
+                            mMainSharedViewModel.setInternetStatusData(true);
+                        }
 
-        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                        @Override
+                        public void onLost(@NonNull Network network) {
+                            mMainSharedViewModel.setInternetStatusData(false);
+                        }
+                    }
+            );
+        }
     }
 
 

@@ -149,9 +149,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         //loading dialog
 
         //initiz video view/load music
-
-
-
         mediaController.setAnchorView(mDataBinding.AudioPlayer);
         mDataBinding.AudioPlayer.setMediaController(mediaController);
         mDataBinding.AudioPlayer.setVideoURI(uri);

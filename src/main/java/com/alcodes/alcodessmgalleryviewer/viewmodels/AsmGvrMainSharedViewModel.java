@@ -1,6 +1,7 @@
 package com.alcodes.alcodessmgalleryviewer.viewmodels;
 
 import android.app.Application;
+import android.net.ConnectivityManager;
 import android.util.Log;
 import android.widget.VideoView;
 
@@ -44,21 +45,16 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_internet_access);
         } else
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_no_internet_access);
-        mInternetStatusData.setValue(dataHolder);
+        mInternetStatusData.postValue(dataHolder);
     }
 
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
     }
 
-
-
-
-
     public class VideoViewModel {
         public int viewPagerPosition;
         public int currentPlayingPosition;
-
     }
 }
 

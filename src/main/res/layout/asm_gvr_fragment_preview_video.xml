@@ -4,6 +4,7 @@
     <data></data>
 
     <RelativeLayout
+        android:id="@+id/preview_video_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/cardview_dark_background">
@@ -11,8 +12,7 @@
                 android:id="@+id/preview_video_image_loading"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
-                android:layout_centerInParent="true"
-                android:alpha="0.6"/>
+                android:layout_centerInParent="true" />
 
             <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
                 android:id="@+id/preview_video_view"
