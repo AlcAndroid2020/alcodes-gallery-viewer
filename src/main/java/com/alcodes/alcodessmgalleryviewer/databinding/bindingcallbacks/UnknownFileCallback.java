@@ -4,4 +4,5 @@ public interface UnknownFileCallback {
 
     void onShareButtonClicked();
     void onOpenWithButtonClicked();
+    void onDownloadButtonClicked();
 }
