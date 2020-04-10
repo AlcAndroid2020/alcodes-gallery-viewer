@@ -102,6 +102,7 @@ public class AsmGvrMainFragment extends Fragment {
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
+        data.add("https://www.w3.org/TR/PNG/iso_8859-1.txt");
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
         data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
         data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");

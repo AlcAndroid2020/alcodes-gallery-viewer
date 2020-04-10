@@ -50,13 +50,12 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     }
 
     public File getDowloadProgress(){
-
         return downloadedFile;
     }
 
 
-    public void setDownloadPogress(File progress){
-        downloadedFile=progress;
+    public void setDownloadPogress(File progress) {
+        downloadedFile = progress;
     }
 
 }

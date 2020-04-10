@@ -255,7 +255,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
         circularProgressDrawable.setStrokeWidth(5f);
         circularProgressDrawable.setCenterRadius(30f);
-        circularProgressDrawable.setColorSchemeColors(ContextCompat.getColor(context, R.color.design_default_color_on_secondary));
+        circularProgressDrawable.setColorSchemeColors(ContextCompat.getColor(context, R.color.design_default_color_surface));
 
         circularProgressDrawable.start();
 
@@ -367,6 +367,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
+
         return false;
     }
 
@@ -387,7 +388,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     }
 
     private class ScaleListener extends
-        ScaleGestureDetector.SimpleOnScaleGestureListener {
+            ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             //Sense Gesture and set it to Zoom
