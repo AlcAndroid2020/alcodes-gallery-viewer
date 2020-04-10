@@ -209,8 +209,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         }
         //Assigning URI to Video View
 
-        //Setting Listener for Video View on preapred, finish, play and pause
-
+        //Setting Listener for Video View on prepared, finish, play and pause
         mDataBinding.previewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
                 //Set video playing visible, set video info image view invisible
@@ -321,6 +320,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+
     }
 
 

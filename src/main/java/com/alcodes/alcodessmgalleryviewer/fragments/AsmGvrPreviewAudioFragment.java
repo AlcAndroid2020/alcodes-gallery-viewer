@@ -40,6 +40,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private AsmGvrPreviewAudioViewModel mPreviewAudioViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
+    private Boolean mIsInternetConnected;
     private Boolean mInternetSource;
 
     public AsmGvrPreviewAudioFragment() {

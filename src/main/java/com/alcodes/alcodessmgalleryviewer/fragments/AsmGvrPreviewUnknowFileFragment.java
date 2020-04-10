@@ -256,6 +256,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onDownloadButtonClicked() {
-        
+
     }
 }

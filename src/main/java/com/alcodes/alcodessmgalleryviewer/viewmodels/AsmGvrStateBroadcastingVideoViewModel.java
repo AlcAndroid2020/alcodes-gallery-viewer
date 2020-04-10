@@ -89,5 +89,3 @@ public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
         public int currentPlayingPosition;
     }
 }
-
-

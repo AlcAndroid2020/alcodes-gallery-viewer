@@ -5,10 +5,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.alcodes.alcodessmgalleryviewer.R;
-
 import java.io.File;
+
 
 public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
@@ -47,15 +46,6 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
-    }
-
-    public File getDowloadProgress(){
-        return downloadedFile;
-    }
-
-
-    public void setDownloadPogress(File progress) {
-        downloadedFile = progress;
     }
 
 }

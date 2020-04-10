@@ -10,7 +10,8 @@
     <application android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true"
         android:largeHeap="true">
-        <activity android:name=".activities.AsmGvrMainActivity">
+        <activity android:name=".activities.AsmGvrMainActivity"
+            android:theme="@style/asm_gvr_apps_theme">
             <intent-filter>
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http"/>

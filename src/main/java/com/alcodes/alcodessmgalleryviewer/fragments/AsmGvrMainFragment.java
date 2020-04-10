@@ -1,6 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -10,8 +10,10 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +25,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.alcodes.alcodessmgalleryviewer.R;
@@ -50,6 +53,8 @@ public class AsmGvrMainFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+
+    @SuppressLint("RestrictedApi")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,6 +62,7 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+        mActionBar.setShowHideAnimationEnabled(true);
 
         return mDataBinding.getRoot();
     }
@@ -87,9 +93,6 @@ public class AsmGvrMainFragment extends Fragment {
             if (bundle.getStringArrayList("urilist") != null)
                 UriList = bundle.getStringArrayList("urilist");
         }
-
-        // Get menu bar
-        ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
 
         // Init view model.
@@ -133,6 +136,8 @@ public class AsmGvrMainFragment extends Fragment {
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
 
+
+
         mViewPager2OnPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
 
             @Override
@@ -140,14 +145,13 @@ public class AsmGvrMainFragment extends Fragment {
                 super.onPageSelected(position);
 
                 // Set fragment number in to menu bar
-                actionBar.setTitle((position + 1) + "/" + data.size());
+                mActionBar.setTitle((position + 1) + "/" + data.size());
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
                     @Override
                     public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                         if (!internetStatusData.internetStatus) {
-                           // Toast.makeText(getActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -195,6 +199,4 @@ public class AsmGvrMainFragment extends Fragment {
             );
         }
     }
-
-
 }
