@@ -7,4 +7,8 @@
     <string name="viewpagerposition" tools:ignore="ResourceName">观看者位置</string>
     <string name="asm_gvr_msg_internet_access">网络链接</string>
     <string name="asm_gvr_msg_no_internet_access">无网络链接</string>
+    <string name="DownloadComplete" tools:ignore="ResourceName">下载完毕</string>
+    <string name="btnDownload" tools:ignore="ResourceName">下载</string>
+    <string name="btnOpenWith" tools:ignore="ResourceName">其他开启方式</string>
+    <string name="btnShareWith" tools:ignore="ResourceName">分享</string>
 </resources>

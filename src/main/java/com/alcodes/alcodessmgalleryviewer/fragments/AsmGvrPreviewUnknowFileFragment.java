@@ -1,6 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.Manifest;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.LayoutInflater;
@@ -63,6 +62,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         args.putInt(ARG_INT_PAGER_POSITION, position.getPosition());
         args.putString(ARG_String_PAGER_FILEURL, position.getUri());
 
+
         AsmGvrPreviewUnknowFileFragment fragment = new AsmGvrPreviewUnknowFileFragment();
         fragment.setArguments(args);
 
@@ -88,12 +88,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         // Extract arguments.
-
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_PAGER_FILEURL);
-
 
         mMainSharedViewModel = new ViewModelProvider(
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
@@ -125,17 +122,16 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
         getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
+//        mDataBinding.btnDownload.setVisibility(View.VISIBLE);
         mDataBinding.setBindingCallback(this);
     }
-
 
     BroadcastReceiver onComplete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (downloadID == id) {
-                Toast.makeText(requireContext(), "Download Completed", Toast.LENGTH_SHORT).show();
-                startshare(file);
+            Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
+//                startshare(file);
             }
         }
     };
@@ -161,10 +157,11 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
 
         if (mMainSharedViewModel.getDowloadProgress() == null) {
-            file=null;
-        }else{
-            file=mMainSharedViewModel.getDowloadProgress();
 
+            file = null;
+        } else {
+            file = mMainSharedViewModel.getDowloadProgress();
+//            startshare(file);
         }
     }
 
@@ -174,6 +171,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
         mMainSharedViewModel.setDownloadPogress(file);
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -193,18 +191,33 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+//
+//                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+//                requestPermissions(permission, PERMISSION_STORGE_CODE);
+//            } else {
+//                startDownload();
+//            }
+//
+//        } else {
+//            startDownload();
+//        }
 
-                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-                requestPermissions(permission, PERMISSION_STORGE_CODE);
-            } else {
-                startDownload();
-            }
+//        file = new File(mViewPagerURL);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+//        Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
+        Intent shareIntent = new Intent("android.intent.action.SEND");
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
+//        shareIntent.putExtra("android.intent.extra.STREAM", path);
+        shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse(mViewPagerURL));
 
-        } else {
-            startDownload();
-        }
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setType("application/pdf");
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(shareIntent, "Share..."));
     }
 
     private void startDownload() {
@@ -249,16 +262,16 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
             intent.setDataAndType(uri, "application/vnd.ms-excel");           // Excel file
         } else if (filename.contains(".zip") || filename.contains(".rar")) {
-            intent.setDataAndType(uri, "application/x-wav");                            // WAV audio file
-        } else if (filename.contains(".rtf")) {                                          // RTF file
+            intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
+        } else if (filename.contains(".rtf")) {                                     // RTF file
             intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) { // WAV audio file
+        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
             intent.setDataAndType(uri, "audio/x-wav");
-        } else if (filename.contains(".gif")) {            // GIF file
+        } else if (filename.contains(".gif")) {                                     // GIF file
             intent.setDataAndType(uri, "image/gif");
-        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) { // JPG file
+        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
             intent.setDataAndType(uri, "image/jpeg");
-        } else if (filename.contains(".txt")) { // Text file
+        } else if (filename.contains(".txt")) {
             intent.setDataAndType(uri, "text/plain");
         } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
             intent.setDataAndType(uri, "video/*");
@@ -272,6 +285,39 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     }
 
 
+    @Override
+    public void onDownloadButtonClicked() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+//                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+//                requestPermissions(permission, PERMISSION_STORGE_CODE);
+//            } else {
+//                startDownload();
+//            }
+//
+//        } else {
+//            startDownload();
+//        }
 
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, 41);
+
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 41) {
+                if (null != data) {
+                    Uri uri= data.getData();
+
+                     file = new File(uri.toString());
+                    startDownload();
+
+                }
+
+            }
+
+        }
+    }
 
 }

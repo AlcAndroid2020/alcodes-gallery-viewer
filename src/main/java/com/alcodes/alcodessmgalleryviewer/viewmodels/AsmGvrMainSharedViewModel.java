@@ -1,10 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.viewmodels;
 
 import android.app.Application;
-import android.net.ConnectivityManager;
-import android.util.Log;
-import android.widget.VideoView;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -13,8 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.alcodes.alcodessmgalleryviewer.R;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
@@ -27,6 +21,7 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     private MutableLiveData<InternetStatusData> mInternetStatusData = new MutableLiveData<>();
 
+    private File downloadedFile;
 
     public AsmGvrMainSharedViewModel(@NonNull Application application) {
         super(application);
@@ -53,19 +48,16 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
     }
-    private File downloadedFile;
 
     public File getDowloadProgress(){
 
         return downloadedFile;
     }
+
+
     public void setDownloadPogress(File progress){
         downloadedFile=progress;
     }
 
-    public class VideoViewModel {
-        public int viewPagerPosition;
-        public int currentPlayingPosition;
-    }
 }
 
