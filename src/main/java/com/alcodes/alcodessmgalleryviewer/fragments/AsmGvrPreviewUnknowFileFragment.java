@@ -23,9 +23,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnknownfileBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
@@ -85,11 +87,14 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         // Extract arguments.
-
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_PAGER_FILEURL);
+
+        mMainSharedViewModel = new ViewModelProvider(
+                mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(AsmGvrMainSharedViewModel.class);
 
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
         getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -97,20 +102,17 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mDataBinding.setBindingCallback(this);
     }
 
-
     BroadcastReceiver onComplete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (downloadID == id) {
-                Toast.makeText(requireContext(), "Download Completed", Toast.LENGTH_SHORT).show();
-                startshare();
+                Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
+                startshare(file);
             }
-
-
         }
     };
 
-    private void startshare() {
+    private void startshare(File file) {
         //https://stackoverflow.com/questions/38200282/android-os-fileuriexposedexception-file-storage-emulated-0-test-txt-exposed
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
@@ -129,18 +131,26 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public void onResume() {
         super.onResume();
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
+
+        if (mMainSharedViewModel.getDowloadProgress() == null) {
+            file = null;
+        } else {
+            file = mMainSharedViewModel.getDowloadProgress();
+//            startshare(file);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+        mMainSharedViewModel.setDownloadPogress(file);
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         getContext().unregisterReceiver(onComplete);
-
     }
 
     @Override
@@ -196,54 +206,36 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public void onOpenWithButtonClicked() {
         String filename = "";
         Uri uri = Uri.parse(mViewPagerURL);
-
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-
             filename = uri.toString();
         } else {
             DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
             filename = f.getName();
         }
-
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (filename.contains(".doc") || filename.contains(".docx")) {
-            // Word document
-            intent.setDataAndType(uri, "application/msword");
+            intent.setDataAndType(uri, "application/msword");               // Word document
         } else if (filename.contains(".pdf")) {
-            // PDF file
-            intent.setDataAndType(uri, "application/pdf");
+            intent.setDataAndType(uri, "application/pdf");                   // PDF file
         } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-            // Powerpoint file
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
+            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
         } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-            // Excel file
-            intent.setDataAndType(uri, "application/vnd.ms-excel");
+            intent.setDataAndType(uri, "application/vnd.ms-excel");           // Excel file
         } else if (filename.contains(".zip") || filename.contains(".rar")) {
-            // WAV audio file
-            intent.setDataAndType(uri, "application/x-wav");
-        } else if (filename.contains(".rtf")) {
-            // RTF file
+            intent.setDataAndType(uri, "application/x-wav");                            // WAV audio file
+        } else if (filename.contains(".rtf")) {                                          // RTF file
             intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) {
-            // WAV audio file
+        } else if (filename.contains(".wav") || filename.contains(".mp3")) { // WAV audio file
             intent.setDataAndType(uri, "audio/x-wav");
-        } else if (filename.contains(".gif")) {
-            // GIF file
+        } else if (filename.contains(".gif")) {            // GIF file
             intent.setDataAndType(uri, "image/gif");
-        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-            // JPG file
+        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) { // JPG file
             intent.setDataAndType(uri, "image/jpeg");
-        } else if (filename.contains(".txt")) {
-            // Text file
+        } else if (filename.contains(".txt")) { // Text file
             intent.setDataAndType(uri, "text/plain");
         } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
-            // Video files
             intent.setDataAndType(uri, "video/*");
         } else {
-            //if you want you can also define the intent type for any other file
-            //additionally use else clause below, to manage other unknown extensions
-            //in this case, Android will show all applications installed on the device
-            //so you can choose which application to use
             intent.setDataAndType(uri, "/");
         }
 
@@ -251,8 +243,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         startActivity(intent);
     }
-
-
 
 
 }

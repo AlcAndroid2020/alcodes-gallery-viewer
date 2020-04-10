@@ -6,4 +6,8 @@
     <string name="viewpagerposition" tools:ignore="ResourceName">viewpager position</string>
     <string name="asm_gvr_msg_internet_access">Internet Access</string>
     <string name="asm_gvr_msg_no_internet_access">No Internet Access</string>
+    <string name="DownloadComplete" tools:ignore="ResourceName">Download Complete</string>
+    <string name="btnDownload" tools:ignore="ResourceName">Share With</string>
+    <string name="btnOpenWith" tools:ignore="ResourceName">Open With</string>
+
 </resources>
