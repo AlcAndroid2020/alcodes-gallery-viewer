@@ -37,7 +37,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
     private AsmGvrPreviewAudioViewModel mPreviewAudioViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
-    private AnimationDrawable mAnimationDrawable;
     private Boolean mIsInternetConnected;
 
     private Boolean mInternetSource;

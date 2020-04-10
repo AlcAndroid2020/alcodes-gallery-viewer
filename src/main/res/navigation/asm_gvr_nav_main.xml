@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/asm_gvr_nav_main"
+    android:label="@string/app_name"
     app:startDestination="@id/asm_gvr_mainfragment">
 
     <fragment
         android:id="@+id/asm_gvr_mainfragment"
         android:name="com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrMainFragment"
-        android:label="@string/app_name"
         tools:layout="@layout/asm_gvr_fragment_main" />
 </navigation>

@@ -1,8 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.viewmodels;
 
 import android.app.Application;
-import android.util.Log;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,8 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
@@ -51,14 +47,5 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
         return mInternetStatusData;
     }
 
-
-
-
-
-    public class VideoViewModel {
-        public int viewPagerPosition;
-        public int currentPlayingPosition;
-
-    }
 }
 

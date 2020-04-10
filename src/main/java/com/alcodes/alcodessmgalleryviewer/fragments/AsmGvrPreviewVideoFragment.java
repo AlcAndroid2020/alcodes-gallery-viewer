@@ -4,12 +4,15 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 import android.widget.Toast;
+
+import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
@@ -19,13 +22,15 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVide
 import com.bumptech.glide.Glide;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-public class AsmGvrPreviewVideoFragment extends Fragment {
+public class AsmGvrPreviewVideoFragment extends Fragment{
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_String_FILEURL = "ARG_STRING_PAGER_FILEURL";
     private static final String ARG_String_IsInternetSource = "ARG_String_IsInternetSource";
@@ -36,6 +41,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
     private AsmGvrStateBroadcastingVideoViewModel mStateBroadcastingVideoViewModel;
     private int mViewPagerPosition;
     private Uri mViewPagerUri;
+    private ActionBar mActionBar;
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -58,6 +64,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewVideoBinding.inflate(inflater, container, false);
 
+        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
         return mDataBinding.getRoot();
     }
 
@@ -94,10 +101,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if(internetStatusData.internetStatus){
-                    Toast.makeText(requireActivity(), internetStatusData.statusMessage, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
                     startVideoPlayer(mViewPagerUri);
                 }else{
-                    Toast.makeText(requireActivity(), internetStatusData.statusMessage, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireActivity(), internetStatusData.statusMessage, Toast.LENGTH_SHORT).show();
                     mDataBinding.previewVideoView.setVisibility(View.GONE);
                     mDataBinding.previewVideoImageLoading.setZ(1);
                     mDataBinding.previewVideoView.setZ(0);
@@ -139,6 +146,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         // Initialize VideoView with loading bar when video is loading for playing
         mDataBinding.previewVideoView.setZ(0);
         mDataBinding.previewVideoImageLoading.setZ(1);
+        mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
         Glide.with(this)
                 .asGif()
                 .load(R.raw.loading)
@@ -166,7 +174,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         }
         //Assigning URI to Video View
 
-        //Setting Listener for Video View on preapred, finish, play and pause
+        //Setting Listener for Video View on prepared, finish, play and pause
+
         mDataBinding.previewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
                 //Set video playing visible, set video info image view invisible
@@ -278,6 +287,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
     }
 
 
@@ -290,5 +300,4 @@ public class AsmGvrPreviewVideoFragment extends Fragment {
         }
         //Store in ViewModel the video playing position
     }
-
 }
