@@ -218,15 +218,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
 
                 //Set video playing visible, set video info image view invisible
 
-                //Anchor media controller to video view with the right dimension
-//                mp.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-//                    @Override
-//                    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-//                        mMediaController.hide();
-//                    }
-//                });
-                //Anchor media controller to video view with the right dimension
-
                 //Start video and check if there is records video playing, resume the video
                 mp.start();
                 if(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
@@ -322,7 +313,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         super.onResume();
 
     }
-
 
     @Override
     public void onPause() {

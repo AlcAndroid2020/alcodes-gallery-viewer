@@ -127,7 +127,6 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         //Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
     }
 
-
     @Override
     public void onTouchShowHideActionBar() {
         if(mActionBar.isShowing()){
