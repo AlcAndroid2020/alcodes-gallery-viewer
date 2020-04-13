@@ -136,7 +136,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     };
 
     private void deleteOriginalFile(Context context, Uri uri, String fileName) {
-    
+
     }
 
 

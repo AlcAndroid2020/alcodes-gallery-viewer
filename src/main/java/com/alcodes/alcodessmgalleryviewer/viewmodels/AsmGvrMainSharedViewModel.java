@@ -44,6 +44,8 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
         mInternetStatusData.postValue(dataHolder);
     }
 
+
+
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
     }

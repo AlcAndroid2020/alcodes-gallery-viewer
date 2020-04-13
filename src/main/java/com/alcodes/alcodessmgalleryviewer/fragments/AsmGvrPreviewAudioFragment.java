@@ -23,6 +23,7 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
 import com.bumptech.glide.Glide;
 import com.danikula.videocache.CacheListener;
+import com.vincan.medialoader.DownloadManager;
 import com.vincan.medialoader.MediaLoader;
 
 import java.io.File;
@@ -115,7 +116,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                 }
             }
         });
-/*
+
         //Check Internet State
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
 
@@ -152,9 +153,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                 }
             }
         });
-*/
-        //able to recove progress for online video onky
-        loadmusic(Uri.parse(mViewPagerURL), true);
+
 
     }
 
