@@ -1,8 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.adapters;
 
-
 import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;

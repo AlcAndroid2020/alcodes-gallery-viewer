@@ -17,7 +17,6 @@
             android:layout_height="match_parent"
             app:defaultNavHost="true"
             app:navGraph="@navigation/asm_gvr_nav_main" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

@@ -4,18 +4,17 @@
 
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-
-
-    </data>
+    <data></data>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/cardview_dark_background">
-
-
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:id="@+id/loadgif"
+            android:layout_centerInParent="true"/>
         <VideoView
             android:id="@+id/Audio_player"
             android:layout_width="match_parent"

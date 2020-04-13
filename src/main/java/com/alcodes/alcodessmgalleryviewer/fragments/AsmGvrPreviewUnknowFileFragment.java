@@ -104,7 +104,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
         getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-         uri = Uri.parse(mViewPagerURL);
+        uri = Uri.parse(mViewPagerURL);
 
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);

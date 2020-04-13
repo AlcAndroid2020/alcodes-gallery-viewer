@@ -7,8 +7,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <application android:usesCleartextTraffic="true">
-        <activity android:name=".activities.AsmGvrMainActivity">
+    <application android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true">
+        <activity android:name=".activities.AsmGvrMainActivity"
+            android:theme="@style/asm_gvr_apps_theme">
             <intent-filter>
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http"/>

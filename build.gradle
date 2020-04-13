@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 def rootConfigurations = rootProject.ext.configurations
 def rootLibraries = rootProject.ext.libraries
 
+
 android {
     compileSdkVersion rootConfigurations.compileSdkVersion
     buildToolsVersion rootConfigurations.buildToolsVersion
@@ -69,4 +70,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"
     implementation "androidx.tonyodev.fetch2:xfetch2:${rootLibraries.androidxTonyoDevVersion}"
     implementation "com.google.code.gson:gson:${rootLibraries.gsonVersion}"
+    implementation "com.danikula:videocache:${rootLibraries.videoCacheVersion}"
+    implementation  "com.vincan:medialoader:${rootLibraries.medialoaderVersion}"
+
 }

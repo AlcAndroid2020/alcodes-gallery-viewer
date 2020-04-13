@@ -7,29 +7,27 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.alcodes.alcodessmgalleryviewer.R;
-import com.alcodes.alcodessmgalleryviewer.adapters.AsmGvrTouchImageView;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
+import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+
 import timber.log.Timber;
 
-public class AsmGvrPreviewImageFragment extends Fragment {
-
-    //private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
-    //private static final String ARG_STRING_FILE_URI = "ARG_STRING_FILE_URI";
+public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
 
     private NavController mNavController;
@@ -37,14 +35,13 @@ public class AsmGvrPreviewImageFragment extends Fragment {
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private AsmGvrMediaConfigModel mMediaConfig;
     private int mViewPagerPosition;
+    private ActionBar mActionBar;
 
     public AsmGvrPreviewImageFragment() {
     }
 
     public static AsmGvrPreviewImageFragment newInstance(AsmGvrMediaConfig mediaConfig) {
         Bundle args = new Bundle();
-        //args.putString(ARG_STRING_FILE_URI, mediaConfig.getUri());
-        //args.putInt(ARG_INT_PAGER_POSITION, mediaConfig.getPosition());
 
         AsmGvrMediaConfigModel mediaConfigModel = new AsmGvrMediaConfigModel();
         mediaConfigModel.position = mediaConfig.getPosition();
@@ -65,6 +62,8 @@ public class AsmGvrPreviewImageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewImageBinding.inflate(inflater, container, false);
 
+        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+
         return mDataBinding.getRoot();
     }
 
@@ -81,16 +80,9 @@ public class AsmGvrPreviewImageFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         // Extract arguments.
-        //mMediaConfig = new AsmGvrMediaConfig();
-        //mMediaConfig.setUri(requireArguments().getString(ARG_STRING_FILE_URI));
-        //mMediaConfig.setPosition(requireArguments().getInt(ARG_INT_PAGER_POSITION));
-
         mMediaConfig = new GsonBuilder().create().fromJson(requireArguments().getString(ARG_JSON_STRING_MEDIACONFIG_MODEL), AsmGvrMediaConfigModel.class);
 
         mViewPagerPosition = mMediaConfig.position;
-
-        // Init image view
-        mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),Uri.parse(mMediaConfig.uri));
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -105,12 +97,20 @@ public class AsmGvrPreviewImageFragment extends Fragment {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
                         // TODO this page has been selected.
-                        //Before entering this fragment, Reset the scale and position it at Center
-                        mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                     } else {
+                        //Before leaving this fragment, Reset the scale and position it at Center
+                        mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                         // TODO this page has been de-selected.
                     }
                 }
+            }
+        });
+
+        mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+            @Override
+            public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                // Init image
+                mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),Uri.parse(mMediaConfig.uri),internetStatusData.internetStatus, AsmGvrPreviewImageFragment.this );;
             }
         });
     }
@@ -125,5 +125,14 @@ public class AsmGvrPreviewImageFragment extends Fragment {
     public void onPause() {
         super.onPause();
         //Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+    }
+
+    @Override
+    public void onTouchShowHideActionBar() {
+        if(mActionBar.isShowing()){
+            mActionBar.hide();
+        }else{
+            mActionBar.show();
+        }
     }
 }

@@ -1,15 +1,12 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,25 +19,27 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
 import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
+import com.bumptech.glide.Glide;
+import com.danikula.videocache.CacheListener;
+import com.vincan.medialoader.MediaLoader;
 
-import timber.log.Timber;
+import java.io.File;
 
-public class AsmGvrPreviewAudioFragment extends Fragment {
+public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListener {
 
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_String_FILEURL = "ARG_STRING_PAGER_FILEURL";
     private static final String ARG_String_IsInternetSource = "ARG_String_IsInternetSource ";
 
     private NavController mNavController;
-    private VideoView videoView;
     private AsmGvrFragmentPreviewAudioBinding mDataBinding;
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
+    private AsmGvrPreviewAudioViewModel mPreviewAudioViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
-    private AnimationDrawable mAnimationDrawable;
-
+    private Boolean mIsInternetConnected;
     private Boolean mInternetSource;
 
     public AsmGvrPreviewAudioFragment() {
@@ -80,13 +79,22 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_FILEURL);
-        mInternetSource = Boolean.valueOf(requireArguments().getString(ARG_String_IsInternetSource));
+        // mInternetSource = Boolean.valueOf(requireArguments().getString(ARG_String_IsInternetSource));
+        mInternetSource = checkFileType(mViewPagerURL);
 
         // Init view model.
+
+        //ShareviewModel
         mMainSharedViewModel = new ViewModelProvider(
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(AsmGvrMainSharedViewModel.class);
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
+                get(AsmGvrMainSharedViewModel.class);
+
+        //AudioViewModel
+        mPreviewAudioViewModel = new ViewModelProvider(mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
+                get(AsmGvrPreviewAudioViewModel.class);
+
 
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
@@ -95,89 +103,150 @@ public class AsmGvrPreviewAudioFragment extends Fragment {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
                         // TODO this page has been selected.
-                        Timber.e("d;;Audio fragment: page has been selected at: %s", mViewPagerPosition);
+                        if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
+                            mDataBinding.AudioPlayer.seekTo(mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                        }
                     } else {
                         // TODO this page has been de-selected.
-                        Timber.e("d;;Audio fragment: page has been de-selected at: %s", mViewPagerPosition);
+                        if (mDataBinding.AudioPlayer.isPlaying()) {
+                            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+                        }
                     }
                 }
             }
         });
-        loadmusic(Uri.parse(mViewPagerURL));
+/*
+        //Check Internet State
+        mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+
+            @Override
+            public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                if (internetStatusData.internetStatus) {
+
+                    //Internet Connected
+
+
+                    //for Online file (url)
+                    if (mInternetSource) {
+                        loadmusic(Uri.parse(mViewPagerURL), true);
+                    } else {
+                        loadmusic(Uri.parse(mViewPagerURL), false);
+                    }
+
+                } else {
+
+                    //No Internet
+
+                    //for Online file (url)
+                    if (mInternetSource) {
+                        if (DownloadManager.getInstance(getContext()).isCached(mViewPagerURL))
+                            loadmusic(Uri.parse(mViewPagerURL), true);
+                        else
+                            showErrorMsg();
+
+                    } else {
+                        //for offline file (uri)
+                        loadmusic(Uri.parse(mViewPagerURL), false);
+                    }
+
+                }
+            }
+        });
+*/
+        //able to recove progress for online video onky
+        loadmusic(Uri.parse(mViewPagerURL), true);
+
     }
 
-    private void loadmusic(Uri uri) {
+    private Boolean checkFileType(String mViewPagerURL) {
 
-        //determine the audio is from online/local
+        if (mViewPagerURL.substring(0, 5).equals("https"))
+            return true;
+        else if (mViewPagerURL.substring(0, 4).equals("http"))
+            return true;
 
+        else
+            return false;
+    }
+
+
+    private void loadmusic(Uri uri, Boolean IsOnlineAudio) {
+
+        //initiz video view/song player
+
+        MediaController mediaController = new MediaController(getContext());
+
+        //loading dialog
+
+        //initiz video view/load music
+        mDataBinding.AudioPlayer.setZ(0);
+        mDataBinding.loadgif.setZ(1);
+        Glide.with(this)
+                .asGif()
+                .load(R.drawable.loading)
+                .into(mDataBinding.loadgif);
 
 
         //initiz video view/load music
-        MediaController mediaController = new MediaController(getContext());
-        videoView = mDataBinding.AudioPlayer;
+        mediaController.setAnchorView(mDataBinding.AudioPlayer);
+        mDataBinding.AudioPlayer.setMediaController(mediaController);
 
-        videoView.setForeground(getContext().getDrawable(R.drawable.asm_gvr_loading_animation));
-        if (mAnimationDrawable == null) {
-            mAnimationDrawable = (AnimationDrawable) videoView.getForeground();
+
+        if (IsOnlineAudio) {
+            //cache audio
+            String proxyUrl = MediaLoader.getInstance(getContext()).getProxyUrl(uri.toString());
+            mDataBinding.AudioPlayer.setVideoURI(Uri.parse(proxyUrl));
+            //video path
+
+        } else {
+            //for local audio/offline audio
+            mDataBinding.AudioPlayer.setVideoURI(uri);
+
         }
-        mAnimationDrawable.start();
-
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(uri);
-
-        if (  mMainSharedViewModel.getAudioProgress()!= 0)
-            //videoView.seekTo(progress);
-        videoView.seekTo(mMainSharedViewModel.getAudioProgress());
-
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        //when player ready to play
+        mDataBinding.AudioPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
-                mAnimationDrawable.stop();
-                videoView.setForeground(getContext().getDrawable(R.drawable.muisicon));
+                //close progress bar
+                mDataBinding.loadgif.setVisibility(View.GONE);
 
-                mp.start();
+                //set music icon
+                mDataBinding.AudioPlayer.setForeground(getContext().getDrawable(R.drawable.asm_gvr_music_icon));
+
+                //get progress if screen rotated and slide to other page
+                if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
+                    mDataBinding.AudioPlayer.seekTo(mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                }
+
             }
         });
-
-
     }
 
 
-    //to recover progress when screen rotate/rotete back
-    int progress;
+    private void showErrorMsg() {
 
+        mDataBinding.AudioPlayer.setVisibility(View.GONE);
+        mDataBinding.loadgif.setImageResource(R.drawable.asm_gvr_no_internet);
+
+    }
+
+    //to recover progress when screen rotate/rotete back
     @Override
     public void onResume() {
         super.onResume();
-     /*   if (progress != 0)
-            videoView.seekTo(progress);
-
-
-*/
-        videoView.seekTo(mMainSharedViewModel.getAudioProgress());
-        videoView.start();
+        mDataBinding.AudioPlayer.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-    /*    if (videoView != null)
-            if (videoView.isPlaying())
-                progress = videoView.getCurrentPosition();
-        */
-    mMainSharedViewModel.setAudioPogress(videoView.getCurrentPosition());
-
-        videoView.pause();
-
+        if (mDataBinding.AudioPlayer.isPlaying()) {
+            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+        }
     }
+
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //for recover audio when rotation
-      //  outState.putInt("audioProgress", progress);
+    public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
 
     }
-
-
 }

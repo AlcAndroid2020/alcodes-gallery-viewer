@@ -1,33 +1,26 @@
 package com.alcodes.alcodessmgalleryviewer.viewmodels;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.alcodes.alcodessmgalleryviewer.R;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Integer> mViewPagerPositionLiveData = new MutableLiveData<>(0);
-    private final MutableLiveData<List<VideoViewModel>> mViewPagerVideoViewLiveData = new MutableLiveData<>();
 
-    public static class InternetStatusData{
+    public static class InternetStatusData {
         public boolean internetStatus;
         public String statusMessage;
     }
 
     private MutableLiveData<InternetStatusData> mInternetStatusData = new MutableLiveData<>();
 
-    private int audioProgress;
     private File downloadedFile;
-
 
     public AsmGvrMainSharedViewModel(@NonNull Application application) {
         super(application);
@@ -44,90 +37,16 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
     public void setInternetStatusData(boolean status) {
         InternetStatusData dataHolder = new InternetStatusData();
         dataHolder.internetStatus = status;
-        if(status){
+        if (status) {
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_internet_access);
-        }else
+        } else
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_no_internet_access);
-        mInternetStatusData.setValue(dataHolder);
+        mInternetStatusData.postValue(dataHolder);
     }
 
     public LiveData<InternetStatusData> getInternetStatusDataLiveData() {
         return mInternetStatusData;
     }
 
-
-    public int getAudioProgress(){
-
-        return audioProgress;
-    }
-    public void setAudioPogress(int progress){
-         audioProgress=progress;
-    }
-
-    public File getDowloadProgress(){
-
-        return downloadedFile;
-    }
-    public void setDownloadPogress(File progress){
-        downloadedFile=progress;
-    }
-
-    public VideoViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {
-        Boolean isNoMatchRecords = true;
-        VideoViewModel videoViewModel = new VideoViewModel();
-        if(mViewPagerVideoViewLiveData.getValue() != null && mViewPagerVideoViewLiveData.getValue().size() != 0){
-            for(VideoViewModel records : mViewPagerVideoViewLiveData.getValue()){
-                if(records.viewPagerPosition == mViewPagerPosition){
-                    videoViewModel = records;
-                    isNoMatchRecords = false;
-                    break;
-                }
-            }
-            if(isNoMatchRecords){
-                videoViewModel.currentPlayingPosition = -1;
-                videoViewModel.viewPagerPosition = -1;
-            }
-
-        }else{
-            //Values -1 for null value store in Live Data
-            videoViewModel.currentPlayingPosition = -1;
-            videoViewModel.viewPagerPosition = -1;
-        }
-
-        return videoViewModel;
-    }
-
-    public void setViewPagerVideoViewLiveData(int viewPagerPosition, int currentPlayingPosition) {
-        Boolean isPresentRecord = false;
-        List<VideoViewModel> videoViewModels;
-        VideoViewModel videoViewModel = new VideoViewModel();
-        videoViewModel.viewPagerPosition = viewPagerPosition;
-        videoViewModel.currentPlayingPosition = currentPlayingPosition;
-
-        if(mViewPagerVideoViewLiveData.getValue() == null){
-            videoViewModels = new ArrayList<>();
-            videoViewModels.add(videoViewModel);
-        }else{
-            videoViewModels = mViewPagerVideoViewLiveData.getValue();
-            for(int i=0; i < videoViewModels.size();i++){
-                if(videoViewModels.get(i).viewPagerPosition == viewPagerPosition){
-                    isPresentRecord = true;
-                    videoViewModels.get(i).currentPlayingPosition = currentPlayingPosition;
-                    break;
-                }
-            }
-            if(!isPresentRecord){
-                videoViewModels.add(videoViewModel);
-            }
-        }
-
-        mViewPagerVideoViewLiveData.setValue(videoViewModels);
-    }
-
-    public class VideoViewModel{
-        public int viewPagerPosition;
-        public int currentPlayingPosition;
-    }
 }
-
 

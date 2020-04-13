@@ -1,3 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-</menu>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:myapp="http://schemas.android.com/apk/res-auto"
+    myapp:theme="@style/Theme.Design.NoActionBar"
+    myapp:popupTheme="@style/Widget.MaterialComponents.ActionBar.Primary"
+    android:id="@+id/toolbar_actionbar"
+    android:background="@null"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize" />
