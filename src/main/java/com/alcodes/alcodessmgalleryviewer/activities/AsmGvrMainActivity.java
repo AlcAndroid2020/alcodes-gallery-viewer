@@ -1,20 +1,14 @@
 package com.alcodes.alcodessmgalleryviewer.activities;
 
 import android.os.Bundle;
-import android.widget.Toolbar;
-
-import com.alcodes.alcodessmgalleryviewer.R;
-import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrActivityMainBinding;
-<<<<<<< HEAD
-import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
-=======
->>>>>>> origin/OoiLiangZhi/editing
-import com.bumptech.glide.Glide;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+
+import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrActivityMainBinding;
 
 public class AsmGvrMainActivity extends AppCompatActivity {
 

@@ -124,16 +124,15 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             }
         });
 
-<<<<<<< HEAD
-=======
+
         //hide and show menu bar
         mDataBinding.previewAudioRoot.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    if(mActionBar.isShowing()){
+                    if (mActionBar.isShowing()) {
                         mActionBar.hide();
-                    }else{
+                    } else {
                         mActionBar.show();
                     }
                     return super.onDoubleTap(e);
@@ -152,8 +151,9 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             }
 
         });
-/*
->>>>>>> origin/OoiLiangZhi/editing
+
+
+
         //Check Internet State
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
 

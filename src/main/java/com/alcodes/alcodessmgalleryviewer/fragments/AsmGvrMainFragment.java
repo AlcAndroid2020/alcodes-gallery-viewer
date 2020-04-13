@@ -1,6 +1,5 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -9,7 +8,6 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -152,8 +150,6 @@ public class AsmGvrMainFragment extends Fragment {
                 mActionBar.setTitle((position + 1) + "/" + data.size());
 
                 //get internet status from shared view model
-<<<<<<< HEAD
-=======
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
                     @Override
                     public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
@@ -162,7 +158,7 @@ public class AsmGvrMainFragment extends Fragment {
                         }
                     }
                 });
->>>>>>> origin/OoiLiangZhi/editing
+
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
