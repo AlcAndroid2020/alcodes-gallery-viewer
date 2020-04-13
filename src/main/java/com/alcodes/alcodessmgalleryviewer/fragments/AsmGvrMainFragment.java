@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
@@ -96,6 +97,7 @@ public class AsmGvrMainFragment extends Fragment {
         ).get(AsmGvrMainSharedViewModel.class);
 
         initIsNetworkConnectedListener();
+        mMainSharedViewModel.setInternetStatusData(isConnected());
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -108,6 +110,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
@@ -192,5 +195,13 @@ public class AsmGvrMainFragment extends Fragment {
                     }
             );
         }
+    }
+    private boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 }
