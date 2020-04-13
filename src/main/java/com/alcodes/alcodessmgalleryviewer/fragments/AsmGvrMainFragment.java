@@ -9,9 +9,11 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,7 +51,6 @@ public class AsmGvrMainFragment extends Fragment {
     }
 
 
-    @SuppressLint("RestrictedApi")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
-        mActionBar.setShowHideAnimationEnabled(true);
+
 
         return mDataBinding.getRoot();
     }
@@ -96,6 +97,7 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        mMainSharedViewModel.setInternetStatusData(isConnected());
         initIsNetworkConnectedListener();
         mMainSharedViewModel.setInternetStatusData(isConnected());
 
@@ -134,7 +136,6 @@ public class AsmGvrMainFragment extends Fragment {
         if (UriList != null) {
             for(int i=0;i<UriList.size();i++){
                 data.add(UriList.get(i));
-
             }
         }
 
@@ -151,6 +152,17 @@ public class AsmGvrMainFragment extends Fragment {
                 mActionBar.setTitle((position + 1) + "/" + data.size());
 
                 //get internet status from shared view model
+<<<<<<< HEAD
+=======
+                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+                    @Override
+                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                        if (!internetStatusData.internetStatus) {
+                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+>>>>>>> origin/OoiLiangZhi/editing
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }

@@ -13,6 +13,10 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 import android.widget.Toast;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/OoiLiangZhi/editing
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
@@ -168,6 +172,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         });
         //Observed page selected and check if played history is present, if present then resume video
 
+        //hide and show menu bar
         mDataBinding.previewVideoRoot.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override

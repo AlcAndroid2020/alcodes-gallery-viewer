@@ -13,15 +13,21 @@ import android.os.StrictMode;
 
 import android.provider.DocumentsContract;
 
+import android.provider.DocumentsProvider;
+import android.view.GestureDetector;
+
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -59,8 +65,10 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public File file;
     public String fileName = "";
     public Uri uri = null;
-
     private DocumentFile fileuri;
+
+    private ActionBar mActionBar;
+
 
     public AsmGvrPreviewUnknowFileFragment() {
     }
@@ -82,12 +90,41 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewUnknownfileBinding.inflate(inflater, container, false);
 
+        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+
         return mDataBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //hide and show menu bar
+        mDataBinding.previewUnknownFileRoot.setOnTouchListener(new View.OnTouchListener() {
+            private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    if(mActionBar.isShowing()){
+                        mActionBar.hide();
+                    }else{
+                        mActionBar.show();
+                    }
+                    return super.onSingleTapUp(e);
+                }
+
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    return super.onDoubleTap(e);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+
+        });
 
         // Init navigation component.
         mNavController = Navigation.findNavController(requireParentFragment().requireView());

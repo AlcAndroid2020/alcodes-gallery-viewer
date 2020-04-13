@@ -5,7 +5,10 @@ import android.widget.Toolbar;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrActivityMainBinding;
+<<<<<<< HEAD
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+=======
+>>>>>>> origin/OoiLiangZhi/editing
 import com.bumptech.glide.Glide;
 
 import androidx.appcompat.app.AppCompatActivity;
