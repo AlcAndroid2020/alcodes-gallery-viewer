@@ -1,11 +1,9 @@
-package com.alcodes.alcodessmgalleryviewer.helper;
+package com.alcodes.alcodessmgalleryviewer.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
-
-import java.io.Serializable;
 
 public class AsmGvrMediaConfig{
     private int position;

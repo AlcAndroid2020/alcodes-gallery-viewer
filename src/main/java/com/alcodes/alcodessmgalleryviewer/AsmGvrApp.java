@@ -1,12 +1,15 @@
 package com.alcodes.alcodessmgalleryviewer;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.databinding.library.baseAdapters.BuildConfig;
 
+import com.danikula.videocache.HttpProxyCacheServer;
+
 import timber.log.Timber;
 
-public class AsmGvrApp {
+public class AsmGvrApp{
 
     // TODO REF: https://medium.com/@deepakpk/how-to-add-a-git-android-library-project-as-a-sub-module-c713a653ab1f
     // TODO REF: https://developer.android.com/studio/projects/add-app-module
@@ -27,6 +30,7 @@ public class AsmGvrApp {
                 Timber.tag(TAG).i("Timber: debug tree init successfully.");
             }
         }
+
     }
 
 }

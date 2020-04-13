@@ -13,15 +13,15 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 import android.widget.Toast;
-
-import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVideoViewModel;
 import com.bumptech.glide.Glide;
+import com.danikula.videocache.HttpProxyCacheServer;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -31,6 +31,10 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+
+import java.io.File;
+
+import timber.log.Timber;
 
 public class AsmGvrPreviewVideoFragment extends Fragment{
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
@@ -42,9 +46,12 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private AsmGvrStateBroadcastingVideoViewModel mStateBroadcastingVideoViewModel;
     private int mViewPagerPosition;
+    private Boolean isInternetSource;
     private Uri mViewPagerUri;
     private ActionBar mActionBar;
     private MediaController mMediaController;
+    private HttpProxyCacheServer httpProxyCacheServer;
+    private String proxyURL = "";
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -86,6 +93,21 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerUri = Uri.parse(requireArguments().getString(ARG_String_FILEURL));
+        isInternetSource = requireArguments().getBoolean(ARG_String_IsInternetSource);
+
+        // Init Internet Status & Video Caching Notifier
+        mDataBinding.previewVideoNoInternet.setZ(3);
+        Glide.with(requireActivity())
+                .load(R.drawable.asm_gvr_no_wifi)
+                .into(mDataBinding.previewVideoNoInternet);
+        mDataBinding.previewVideoCache.setZ(3);
+        Glide.with(requireActivity())
+                .load(R.drawable.asm_gvr_save)
+                .into(mDataBinding.previewVideoCache);
+        if(isInternetSource){
+            mDataBinding.previewVideoCache.setVisibility(View.GONE);
+        }
+        // Init Internet Status & Video Caching Notifier
 
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
@@ -99,24 +121,29 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         ).get(AsmGvrStateBroadcastingVideoViewModel.class);
         // Init view model.
 
+        // Init HttpProxyCacheServer for VideoView
+        if(mStateBroadcastingVideoViewModel.getHttpProxyCacheServer() == null){
+            mStateBroadcastingVideoViewModel.initHttpProxyCacheServer(requireActivity());
+        }
+
+        httpProxyCacheServer = mStateBroadcastingVideoViewModel.getHttpProxyCacheServer();
+        // HttpProxyCacheServer for VideoView
+
         //Observed Internet Status, if internet not present video is not played and no internet img will be shown (For URL only for now)
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
-
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if(internetStatusData.internetStatus){
+                    mDataBinding.previewVideoNoInternet.setVisibility(View.INVISIBLE);
+                    if(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
+                        mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
+                    }
                     startVideoPlayer(mViewPagerUri);
                 }else{
                     if(mDataBinding.previewVideoView.isPlaying()){
                         mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
                     }
-                    mDataBinding.previewVideoView.setVisibility(View.GONE);
-                    mDataBinding.previewVideoImageLoading.setZ(1);
-                    mDataBinding.previewVideoView.setZ(0);
-                    mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
-                    Glide.with(requireActivity())
-                            .load(R.drawable.asm_gvr_no_wifi)
-                            .into(mDataBinding.previewVideoImageLoading);
+                    mDataBinding.previewVideoNoInternet.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -124,7 +151,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
 
         //Observed page selected and check if played history is present, if present then resume video
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-
             @Override
             public void onChanged(Integer integer) {
                 if (integer != null) {
@@ -199,7 +225,12 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 if(fileType.equals("video")) {
                     mDataBinding.previewVideoView.setMediaController(mMediaController);
                     mMediaController.setAnchorView(mDataBinding.previewVideoView);
-                    mDataBinding.previewVideoView.setVideoURI(uri);
+                    if(isInternetSource){
+                        proxyURL = httpProxyCacheServer.getProxyUrl(uri.toString());
+                        mDataBinding.previewVideoView.setVideoURI(Uri.parse(proxyURL));
+                    }else{
+                        mDataBinding.previewVideoView.setVideoURI(uri);
+                    }
                 }
             }else{
                 return false;
@@ -215,7 +246,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 //Set video playing visible, set video info image view invisible
                 mDataBinding.previewVideoImageLoading.setVisibility(View.GONE);
                 mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
-
                 //Set video playing visible, set video info image view invisible
 
                 //Start video and check if there is records video playing, resume the video
@@ -224,6 +254,26 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                 }
                 //Start video and check if there is records video playing, resume the video
+                if(isInternetSource){
+                    if(httpProxyCacheServer.isCached(mViewPagerUri.toString())){
+                        mDataBinding.previewVideoCache.setVisibility(View.VISIBLE);
+                    }else{
+                        mDataBinding.previewVideoCache.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
+        mDataBinding.previewVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if(isInternetSource){
+                    if(httpProxyCacheServer.isCached(mViewPagerUri.toString())){
+                        mDataBinding.previewVideoCache.setVisibility(View.VISIBLE);
+                    }else{
+                        mDataBinding.previewVideoCache.setVisibility(View.GONE);
+                    }
+                }
             }
         });
 
