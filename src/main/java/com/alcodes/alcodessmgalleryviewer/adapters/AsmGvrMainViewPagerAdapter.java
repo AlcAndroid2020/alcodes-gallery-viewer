@@ -11,7 +11,7 @@ import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewUnknowFileFragm
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewVideoFragment;
 
 import java.util.List;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,17 +36,13 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
 
         String fileType = mMediaConfig.checkUrlAndUriType(fragment.getActivity(), Uri.parse(data));
         Boolean isOnline;
-        if(fileType.substring(fileType.lastIndexOf("/"), fileType.length()).equals("online")){
+        if(fileType.endsWith("online")){
             isOnline = true;
         }else{
             isOnline = false;
         }
 
-        boolean image = fileType.substring(0, fileType.lastIndexOf("/")).equals("image");
-        boolean audio = fileType.substring(0, fileType.lastIndexOf("/")).equals("audio");
-        boolean video = fileType.substring(0, fileType.lastIndexOf("/")).equals("video");
-
-        if(!image || !audio || !video){
+        if(!fileType.startsWith("image") && !fileType.startsWith("video") && !fileType.startsWith("audio")){
             mMediaConfig.setFileType("unknown");
         }else{
             mMediaConfig.setFileType(fileType.substring(0, fileType.lastIndexOf("/")));
@@ -55,14 +51,13 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
         mMediaConfig.setPosition(position);
         mMediaConfig.setUri(data);
 
-        if(image){
+        if(fileType.startsWith("image")){
             return AsmGvrPreviewImageFragment.newInstance(mMediaConfig);
-        }else if(audio){
+        }else if(fileType.startsWith("audio")){
             return AsmGvrPreviewAudioFragment.newInstance(mMediaConfig);
-        }else if(video){
+        }else if(fileType.startsWith("video")){
             return AsmGvrPreviewVideoFragment.newInstance(mMediaConfig);
         }else{
-            // TODO For other module please change the parameter for the new instance
             return AsmGvrPreviewUnknowFileFragment.newInstance(mMediaConfig);
         }
 

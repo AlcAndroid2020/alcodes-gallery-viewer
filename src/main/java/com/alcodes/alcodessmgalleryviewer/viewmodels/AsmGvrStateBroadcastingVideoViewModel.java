@@ -1,6 +1,7 @@
 package com.alcodes.alcodessmgalleryviewer.viewmodels;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -8,15 +9,27 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.danikula.videocache.HttpProxyCacheServer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
     private final MutableLiveData<List<VideoViewModel>> mViewPagerVideoViewLiveData = new MutableLiveData<>();
+    private HttpProxyCacheServer httpProxyCacheServer;
 
     public AsmGvrStateBroadcastingVideoViewModel(@NonNull Application application) {
         super(application);
+    }
+
+    public void initHttpProxyCacheServer(Context context){
+        httpProxyCacheServer = new HttpProxyCacheServer.Builder(context)
+                .maxCacheSize(1024 * 1024 * 1024)
+                .build();
+    }
+
+    public HttpProxyCacheServer getHttpProxyCacheServer() {
+        return httpProxyCacheServer;
     }
 
     public VideoViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {

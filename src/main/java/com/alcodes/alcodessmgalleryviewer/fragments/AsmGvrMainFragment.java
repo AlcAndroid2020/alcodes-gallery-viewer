@@ -116,6 +116,12 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
 
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" );
 
         // Init Local File Uri
 
@@ -135,8 +141,6 @@ public class AsmGvrMainFragment extends Fragment {
         // Init adapter and view pager.
         mAdapter = new AsmGvrMainViewPagerAdapter(this, data);
 
-
-
         mViewPager2OnPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
 
             @Override
@@ -147,13 +151,6 @@ public class AsmGvrMainFragment extends Fragment {
                 mActionBar.setTitle((position + 1) + "/" + data.size());
 
                 //get internet status from shared view model
-                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
-                    @Override
-                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
-                        if (!internetStatusData.internetStatus) {
-                        }
-                    }
-                });
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
@@ -161,6 +158,14 @@ public class AsmGvrMainFragment extends Fragment {
 
         mDataBinding.viewPager.setAdapter(mAdapter);
 
+        mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+            @Override
+            public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                if (!internetStatusData.internetStatus) {
+
+                }
+            }
+        });
     }
 
     @Override
@@ -175,6 +180,15 @@ public class AsmGvrMainFragment extends Fragment {
         super.onPause();
 
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
+
+        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     public void initIsNetworkConnectedListener(){
@@ -199,13 +213,4 @@ public class AsmGvrMainFragment extends Fragment {
         }
     }
 
-    public boolean isConnected() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
-
-        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-
-    }
 }

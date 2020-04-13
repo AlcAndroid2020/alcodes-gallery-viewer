@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
 import com.bumptech.glide.Glide;
@@ -242,7 +242,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
         }
     }
-
 
     @Override
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
