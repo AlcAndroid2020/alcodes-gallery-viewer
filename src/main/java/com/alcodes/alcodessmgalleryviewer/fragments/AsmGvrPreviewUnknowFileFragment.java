@@ -3,10 +3,12 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -19,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,6 +34,10 @@ import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import timber.log.Timber;
 
@@ -51,8 +56,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private long downloadID;
     private static final int PERMISSION_STORGE_CODE = 1000;
     public File file;
+    public File desFile;
     public String fileName = "";
-
+    public Uri uri = null;
     public AsmGvrPreviewUnknowFileFragment() {
     }
 
@@ -98,40 +104,49 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
         getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        Uri uri = Uri.parse(mViewPagerURL);
+         uri = Uri.parse(mViewPagerURL);
+
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);
         } else {
             mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
         }
-//
+
         mDataBinding.setBindingCallback(this);
     }
 
     BroadcastReceiver onComplete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
+
             if (downloadID == id) {
+
                 Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
-//                startshare(file);
+
+//                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+//                StrictMode.setVmPolicy(builder.build());
+////                Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
+////                File a = new File(path.toString());//create path from uri
+////                File curentPath = new File(a.getParent());
+//                try (InputStream in = new FileInputStream(file)) {
+//                    try (OutputStream out = new FileOutputStream(desFile)) {
+//                        // Transfer bytes from in to out
+//                        byte[] buf = new byte[1024];
+//                        int len;
+//                        while ((len = in.read(buf)) > 0) {
+//                            out.write(buf, 0, len);
+//                        }
+//                    }
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                handleDownloadedGPXFiles2(Uri.fromFile(desFile));
             }
         }
     };
-
-    private void startshare(File file) {
-        //https://stackoverflow.com/questions/38200282/android-os-fileuriexposedexception-file-storage-emulated-0-test-txt-exposed
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-        Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
-        Intent shareIntent = new Intent("android.intent.action.SEND");
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-        shareIntent.putExtra("android.intent.extra.STREAM", path);
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        shareIntent.setType("application/pdf");
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(Intent.createChooser(shareIntent, "Share..."));
-    }
 
     @Override
     public void onResume() {
@@ -164,7 +179,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         switch (requestCode) {
             case PERMISSION_STORGE_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startDownload();
+//                    startDownload();
                 }
             }
         }
@@ -172,39 +187,33 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-//
-//                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-//                requestPermissions(permission, PERMISSION_STORGE_CODE);
-//            } else {
-//                startDownload();
-//            }
-//
-//        } else {
-//            startDownload();
-//        }
 
-//        file = new File(mViewPagerURL);
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-//        Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
-        Intent shareIntent = new Intent("android.intent.action.SEND");
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-//        shareIntent.putExtra("android.intent.extra.STREAM", path);
-        shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse(mViewPagerURL));
+        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+            Intent shareIntent = new Intent();
+            shareIntent.setType("text/html");
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the URL I'm sharing.");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mViewPagerURL);
+            startActivity(Intent.createChooser(shareIntent, "Share..."));
 
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        shareIntent.setType("application/pdf");
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(Intent.createChooser(shareIntent, "Share..."));
+        } else {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
+            shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse(mViewPagerURL));
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.setType("application/pdf");
+            startActivity(Intent.createChooser(shareIntent, "Share..."));
+        }
+
     }
 
     private void startDownload() {
-
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        file = new File(requireContext().getExternalFilesDir("application/pdf"), fileName);
+        file = new File(requireContext().getExternalCacheDir(), fileName);
+
        /*
        Create a DownloadManager.Request with all the information necessary to start the download
         */
@@ -212,12 +221,57 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 .setTitle(fileName)// Title of the Download Notification
                 .setDescription("Downloading")// Description of the Download Notification
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-
                 .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
                 .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
                 .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
         DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
+
+
+//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL));
+//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+//        request.setTitle("Download");
+//        request.setDescription("Downloading file...");
+//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "" + fileName);
+//
+//        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+//        manager.enqueue(request);
+
+
+    }
+
+    private void handleDownloadedGPXFiles2(Uri selectedFileUri) {
+
+        String displayName = fileName;
+        String fileExtension;
+        ContentResolver contentResolver = getActivity().getContentResolver();
+        Cursor cursor = contentResolver.query(selectedFileUri, null, null, null, null);
+        try {
+
+            File destDirectory = new File(getContext().getExternalCacheDir(), "Imported");
+            File destFile = new File(destDirectory, displayName);
+            FileOutputStream outStream = new FileOutputStream(destFile);
+            InputStream in = getContext().getContentResolver().openInputStream(selectedFileUri);
+            OutputStream out = outStream;
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            out.flush();
+            out.close();
+            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(getContext().getApplicationContext(), "File Import FAILED", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (cursor != null)
+                cursor.close();
+        }
 
 
     }
@@ -226,7 +280,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onOpenWithButtonClicked() {
         String filename = "";
-        Uri uri = Uri.parse(mViewPagerURL);
+        uri = Uri.parse(mViewPagerURL);
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             filename = uri.toString();
         } else {
@@ -265,7 +319,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         startActivity(intent);
     }
 
-
     @Override
     public void onDownloadButtonClicked() {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -279,8 +332,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 //        } else {
 //            startDownload();
 //        }
-
+//        startDownload();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
         startActivityForResult(intent, 41);
 
     }
@@ -291,7 +345,8 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 if (null != data) {
                     Uri uri= data.getData();
 
-                     file = new File(uri.toString());
+                    desFile = new File(uri.toString());
+                    desFile = new File(desFile.getParent());
                     startDownload();
 
                 }
