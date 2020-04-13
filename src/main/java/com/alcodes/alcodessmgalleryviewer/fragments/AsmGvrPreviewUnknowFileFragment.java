@@ -124,26 +124,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
                 Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
 
-//                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-//                StrictMode.setVmPolicy(builder.build());
-////                Uri path = FileProvider.getUriForFile(getActivity(), "com.alcodes.alcodessmgalleryviewer", file);
-////                File a = new File(path.toString());//create path from uri
-////                File curentPath = new File(a.getParent());
-//                try (InputStream in = new FileInputStream(file)) {
-//                    try (OutputStream out = new FileOutputStream(desFile)) {
-//                        // Transfer bytes from in to out
-//                        byte[] buf = new byte[1024];
-//                        int len;
-//                        while ((len = in.read(buf)) > 0) {
-//                            out.write(buf, 0, len);
-//                        }
-//                    }
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-                handleDownloadedGPXFiles2(Uri.fromFile(desFile));
+                handleDownloadedFiles(Uri.fromFile(desFile));
             }
         }
     };
@@ -153,19 +134,14 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         super.onResume();
         Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
 
-        if (mMainSharedViewModel.getDowloadProgress() == null) {
-            file = null;
-        } else {
-            file = mMainSharedViewModel.getDowloadProgress();
-//            startshare(file);
-        }
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
-        mMainSharedViewModel.setDownloadPogress(file);
+
     }
 
     @Override
@@ -241,10 +217,10 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
-    private void handleDownloadedGPXFiles2(Uri selectedFileUri) {
+    private void handleDownloadedFiles(Uri selectedFileUri) {
 
         String displayName = fileName;
-        String fileExtension;
+
         ContentResolver contentResolver = getActivity().getContentResolver();
         Cursor cursor = contentResolver.query(selectedFileUri, null, null, null, null);
         try {
