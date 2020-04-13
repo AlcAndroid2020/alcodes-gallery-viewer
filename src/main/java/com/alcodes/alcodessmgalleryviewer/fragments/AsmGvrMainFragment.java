@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +51,6 @@ public class AsmGvrMainFragment extends Fragment {
     }
 
 
-    @SuppressLint("RestrictedApi")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
-        mActionBar.setShowHideAnimationEnabled(true);
+
 
         return mDataBinding.getRoot();
     }
@@ -95,6 +97,7 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        mMainSharedViewModel.setInternetStatusData(isConnected());
         initIsNetworkConnectedListener();
 
         // Init adapter data.
@@ -123,7 +126,6 @@ public class AsmGvrMainFragment extends Fragment {
         if (UriList != null) {
             for(int i=0;i<UriList.size();i++){
                 data.add(UriList.get(i));
-
             }
         }
 
@@ -146,6 +148,7 @@ public class AsmGvrMainFragment extends Fragment {
                     @Override
                     public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                         if (!internetStatusData.internetStatus) {
+                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -170,6 +173,15 @@ public class AsmGvrMainFragment extends Fragment {
         super.onPause();
 
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
+
+        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     public void initIsNetworkConnectedListener(){

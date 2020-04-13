@@ -5,7 +5,6 @@ import android.widget.Toolbar;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrActivityMainBinding;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.bumptech.glide.Glide;
 
 import androidx.appcompat.app.AppCompatActivity;

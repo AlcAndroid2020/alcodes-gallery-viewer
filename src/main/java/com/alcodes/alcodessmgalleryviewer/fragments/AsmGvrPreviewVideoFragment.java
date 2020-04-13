@@ -14,10 +14,9 @@ import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 import android.widget.Toast;
 
-import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVideoViewModel;
@@ -142,6 +141,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         });
         //Observed page selected and check if played history is present, if present then resume video
 
+        //hide and show menu bar
         mDataBinding.previewVideoRoot.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override

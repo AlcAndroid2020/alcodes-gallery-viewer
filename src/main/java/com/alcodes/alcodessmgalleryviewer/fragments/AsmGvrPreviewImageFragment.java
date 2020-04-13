@@ -10,7 +10,7 @@ import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

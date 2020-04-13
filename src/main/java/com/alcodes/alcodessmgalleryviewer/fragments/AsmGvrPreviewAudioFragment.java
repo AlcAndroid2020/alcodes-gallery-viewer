@@ -3,13 +3,17 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,7 +22,7 @@ import androidx.navigation.Navigation;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
-import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
 import com.bumptech.glide.Glide;
@@ -41,6 +45,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private String mViewPagerURL;
     private Boolean mIsInternetConnected;
     private Boolean mInternetSource;
+    private ActionBar mActionBar;
 
     public AsmGvrPreviewAudioFragment() {
     }
@@ -60,6 +65,8 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewAudioBinding.inflate(inflater, container, false);
+
+        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -114,6 +121,33 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                     }
                 }
             }
+        });
+
+        //hide and show menu bar
+        mDataBinding.previewAudioRoot.setOnTouchListener(new View.OnTouchListener() {
+            private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    if(mActionBar.isShowing()){
+                        mActionBar.hide();
+                    }else{
+                        mActionBar.show();
+                    }
+                    return super.onDoubleTap(e);
+                }
+
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return super.onSingleTapUp(e);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+
         });
 /*
         //Check Internet State
