@@ -3,15 +3,14 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.DocumentsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,7 @@ import com.alcodes.alcodessmgalleryviewer.helper.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,14 +50,16 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
-
+    private Uri dirpath;
     private DownloadManager mgr = null;
     private long downloadID;
     private static final int PERMISSION_STORGE_CODE = 1000;
     public File file;
-    public File desFile;
     public String fileName = "";
     public Uri uri = null;
+
+    private DocumentFile fileuri;
+
     public AsmGvrPreviewUnknowFileFragment() {
     }
 
@@ -124,10 +125,20 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
                 Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
 
-                handleDownloadedFiles(Uri.fromFile(desFile));
+                try {
+                    copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
+                    deleteOriginalFile(getContext(), fileuri.getUri(), fileName);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
+
+    private void deleteOriginalFile(Context context, Uri uri, String fileName) {
+    
+    }
+
 
     @Override
     public void onResume() {
@@ -178,7 +189,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse(mViewPagerURL));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(mViewPagerURL));
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             shareIntent.setType("application/pdf");
             startActivity(Intent.createChooser(shareIntent, "Share..."));
@@ -186,13 +197,58 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
+    public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
+        //String filePath=src.getPath();
+        InputStream inputStream = context.getContentResolver().openInputStream(src);
+        String docId = DocumentsContract.getTreeDocumentId(dirpath);
+        Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
+
+        Uri destUri;
+
+        try {
+            //change to src
+            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+            return null;
+        }
+
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = inputStream;
+
+            os = context.getContentResolver().openOutputStream(destUri, "w");
+
+            byte[] buffer = new byte[1024];
+
+            int length;
+            while ((length = is.read(buffer)) > 0)
+                os.write(buffer, 0, length);
+
+            is.close();
+            os.flush();
+            os.close();
+            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+            return destUri;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
     private void startDownload() {
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(requireContext().getExternalCacheDir(), fileName);
+        fileuri = DocumentFile.fromFile(file);
 
-       /*
-       Create a DownloadManager.Request with all the information necessary to start the download
-        */
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
                 .setTitle(fileName)// Title of the Download Notification
                 .setDescription("Downloading")// Description of the Download Notification
@@ -203,55 +259,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
 
-
-//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL));
-//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-//        request.setTitle("Download");
-//        request.setDescription("Downloading file...");
-//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "" + fileName);
-//
-//        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-//        manager.enqueue(request);
-
-
     }
-
-    private void handleDownloadedFiles(Uri selectedFileUri) {
-
-        String displayName = fileName;
-
-        ContentResolver contentResolver = getActivity().getContentResolver();
-        Cursor cursor = contentResolver.query(selectedFileUri, null, null, null, null);
-        try {
-
-            File destDirectory = new File(getContext().getExternalCacheDir(), "Imported");
-            File destFile = new File(destDirectory, displayName);
-            FileOutputStream outStream = new FileOutputStream(destFile);
-            InputStream in = getContext().getContentResolver().openInputStream(selectedFileUri);
-            OutputStream out = outStream;
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            in.close();
-            out.flush();
-            out.close();
-            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            Toast.makeText(getContext().getApplicationContext(), "File Import FAILED", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (cursor != null)
-                cursor.close();
-        }
-
-
-    }
-
 
     @Override
     public void onOpenWithButtonClicked() {
@@ -297,32 +305,22 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onDownloadButtonClicked() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (getContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED || getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-//                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-//                requestPermissions(permission, PERMISSION_STORGE_CODE);
-//            } else {
-//                startDownload();
-//            }
-//
-//        } else {
-//            startDownload();
-//        }
-//        startDownload();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        startActivityForResult(intent, 42);
 
-        startActivityForResult(intent, 41);
 
     }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 41) {
+            if (requestCode == 42) {
                 if (null != data) {
-                    Uri uri= data.getData();
 
-                    desFile = new File(uri.toString());
-                    desFile = new File(desFile.getParent());
+                    dirpath = data.getData();
+
                     startDownload();
 
                 }
@@ -331,5 +329,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         }
     }
+
 
 }

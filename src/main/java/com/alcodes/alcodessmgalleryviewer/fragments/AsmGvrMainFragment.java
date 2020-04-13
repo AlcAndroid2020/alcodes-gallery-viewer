@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Bundle;
@@ -96,6 +97,7 @@ public class AsmGvrMainFragment extends Fragment {
         ).get(AsmGvrMainSharedViewModel.class);
 
         initIsNetworkConnectedListener();
+        mMainSharedViewModel.setInternetStatusData(isConnected());
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -193,5 +195,13 @@ public class AsmGvrMainFragment extends Fragment {
                     }
             );
         }
+    }
+    public boolean isConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkCapabilities activeNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
+
+        return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 }
