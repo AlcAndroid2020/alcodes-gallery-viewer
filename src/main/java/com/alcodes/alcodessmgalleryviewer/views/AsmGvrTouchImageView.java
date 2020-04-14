@@ -1,6 +1,7 @@
 package com.alcodes.alcodessmgalleryviewer.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.PointF;
@@ -25,7 +26,9 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
 import timber.log.Timber;
@@ -54,7 +57,8 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     boolean disallowZoom = false;
     boolean isErrorImage = false;
     boolean internetAvailable = false;
-    private AsmGvrImageCallback imageCallback;
+
+    private AsmGvrImageCallback mImageCallback;
 
     int viewWidth, viewHeight;
     static final int CLICK = 3;
@@ -78,10 +82,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     }
 
     public void initImageView(Context context, Uri imageUri, boolean internetAvailable, AsmGvrImageCallback imageCallback){
+        this.internetAvailable = internetAvailable;
+        this.mImageCallback = imageCallback;
+
         sharedConstructing(context);
         setZoomForImageFile(imageUri);
-        this.internetAvailable = internetAvailable;
-        this.imageCallback = imageCallback;
         loadIntoGlide(context,imageUri);
     }
 
@@ -243,36 +248,36 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(context.getContentResolver().getType(imageUri));
     }
 
-    public void loadNoInternetConnectionIconIntoGlide(Context context){
-        Glide.with(context)
-                .load(R.drawable.asm_gvr_no_internet_access)
-                .centerInside()
-                .into(this);
-    }
-
     public void loadIntoGlide(Context context, Uri imageUri){
         //PlaceHolder Drawable (Progress Bar)
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
         circularProgressDrawable.setStrokeWidth(5f);
         circularProgressDrawable.setCenterRadius(30f);
         circularProgressDrawable.setColorSchemeColors(ContextCompat.getColor(context, R.color.design_default_color_surface));
-
         circularProgressDrawable.start();
 
         int imgNoInternetAccessDrawable;
+        RequestOptions requestOptions;
 
         if(internetAvailable){
             //General Error Icon
             imgNoInternetAccessDrawable = R.drawable.asm_gvr_ic_error_outline_black_128dp;
+
+            //As the image is in dp unit
+            requestOptions = new RequestOptions().override(128, 128);
         }else{
             //No Internet Access Icon
             imgNoInternetAccessDrawable = R.drawable.asm_gvr_no_internet_access;
+
+            //As the image is in px unit
+            requestOptions = new RequestOptions().override(256, 256);
         }
 
         //Error Drawable (Error Image)
         RequestBuilder<Drawable> requestBuilder =
                 Glide.with(context)
                         .load(imgNoInternetAccessDrawable)
+                        .apply(requestOptions)
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -306,12 +311,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         if(!isErrorImage){
             setScaleType(ScaleType.MATRIX);
         }
-     //   imageCallback.onTouchShowHideActionBar();
     }
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-        imageCallback.onTouchShowHideActionBar();
+        mImageCallback.onTouchShowHideActionBar();
         return false;
     }
 
@@ -378,8 +382,9 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public void onLongPress(MotionEvent e) {
-        //Testing Purposes, Will be Removed Soon
-        resetIamgeToCenter();
+        if(!isErrorImage){
+            mImageCallback.onLongPressDialog();
+        }
     }
 
     @Override

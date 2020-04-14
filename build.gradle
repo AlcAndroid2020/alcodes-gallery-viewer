@@ -53,6 +53,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui:${rootLibraries.androidxNavigationVersion}"
     implementation "androidx.documentfile:documentfile:${rootLibraries.androidxDocumentFileVersion}"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:${rootLibraries.androidxSwipeRefreshLayoutVersion}"
+    implementation "com.afollestad.material-dialogs:core:${rootLibraries.materialDialogVersion}"
     implementation "androidx.viewpager2:viewpager2:${rootLibraries.androidxViewPager2Version}"
 
     implementation "com.jakewharton.timber:timber:${rootLibraries.timberVersion}"

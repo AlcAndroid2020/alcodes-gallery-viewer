@@ -1,14 +1,20 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrDialogImageOptionBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
+import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrDialogImageOptionCallback;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
+import com.alcodes.alcodessmgalleryviewer.dialogs.AsmGvrImageDialog;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
@@ -29,6 +35,7 @@ import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
+    private static final String REQUEST_CODE_IMAGE_DIALOG = "AsmGvrPreviewImageFragment@REQUEST_CODE_IMAGE_DIALOG";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewImageBinding mDataBinding;
@@ -110,7 +117,9 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 // Init image
-                mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),Uri.parse(mMediaConfig.uri),internetStatusData.internetStatus, AsmGvrPreviewImageFragment.this );;
+                mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),
+                        Uri.parse(mMediaConfig.uri),internetStatusData.internetStatus,
+                        AsmGvrPreviewImageFragment.this );
             }
         });
     }
@@ -133,6 +142,16 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             mActionBar.hide();
         }else{
             mActionBar.show();
+        }
+    }
+
+    @Override
+    public void onLongPressDialog() {
+        if(mMediaConfig.fromInternetSource){
+            // Image Load from Internet
+            AsmGvrImageDialog.newInstance(mMediaConfig.uri).show(getParentFragmentManager(), AsmGvrImageDialog.TAG);
+        }else{
+            // Image Load on Local
         }
     }
 }
