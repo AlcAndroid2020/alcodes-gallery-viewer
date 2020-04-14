@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -57,7 +56,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private Uri dirpath;
     private DownloadManager mgr = null;
     private long downloadID;
-    private static final int PERMISSION_STORGE_CODE = 1000;
     public File file;
     public String fileName = "";
     public Uri uri = null;
@@ -86,7 +84,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewUnknownfileBinding.inflate(inflater, container, false);
 
-        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+        mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -100,9 +98,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
-                    if(mActionBar.isShowing()){
+                    if (mActionBar.isShowing()) {
                         mActionBar.hide();
-                    }else{
+                    } else {
                         mActionBar.show();
                     }
                     return super.onSingleTapUp(e);
@@ -151,30 +149,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mDataBinding.setBindingCallback(this);
     }
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        public void onReceive(Context ctxt, Intent intent) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-
-            if (downloadID == id) {
-
-                Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
-
-                try {
-                    copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
-                    deleteOriginalFile(getContext(), fileuri.getUri(), fileName);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-
-    private void deleteOriginalFile(Context context, Uri uri, String fileName) {
-
-    }
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -194,17 +168,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public void onDestroy() {
         super.onDestroy();
         getContext().unregisterReceiver(onComplete);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_STORGE_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    startDownload();
-                }
-            }
-        }
     }
 
     @Override
@@ -232,8 +195,113 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
+    @Override
+    public void onOpenWithButtonClicked() {
+        String filename = "";
+
+        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+            filename = uri.toString();
+        } else {
+            DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
+            filename = f.getName();
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        if (filename.contains(".doc") || filename.contains(".docx")) {
+            intent.setDataAndType(uri, "application/msword");               // Word document
+        } else if (filename.contains(".pdf")) {
+            intent.setDataAndType(uri, "application/pdf");                   // PDF file
+        } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
+            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
+        } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
+            intent.setDataAndType(uri, "application/vnd.ms-excel");         // Excel file
+        } else if (filename.contains(".zip") || filename.contains(".rar")) {
+            intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
+        } else if (filename.contains(".rtf")) {                                     // RTF file
+            intent.setDataAndType(uri, "application/rtf");
+        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
+            intent.setDataAndType(uri, "audio/x-wav");
+        } else if (filename.contains(".gif")) {                                     // GIF file
+            intent.setDataAndType(uri, "image/gif");
+        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
+            intent.setDataAndType(uri, "image/jpeg");
+        } else if (filename.contains(".txt")) {
+            intent.setDataAndType(uri, "text/plain");
+        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
+            intent.setDataAndType(uri, "video/*");
+        } else {
+            intent.setDataAndType(uri, "/");
+        }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDownloadButtonClicked() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        startActivityForResult(intent, 42);
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 42) {
+                if (null != data) {
+                    dirpath = data.getData();
+                    startDownload();
+                }
+            }
+        }
+    }
+
+    private void startDownload() {
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+        file = new File(requireContext().getExternalCacheDir(), fileName);
+        fileuri = DocumentFile.fromFile(file);
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
+                .setTitle(fileName)// Title of the Download Notification
+                .setDescription("Downloading")// Description of the Download Notification
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
+                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
+                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
+        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
+
+    }
+
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
+
+            if (downloadID == id) {
+                Uri movefileuri = null;
+                //Move File to user selected file
+                try {
+                    movefileuri = copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //delete file, after move file complete
+                if (movefileuri != null) {
+                    Uri delfile = fileuri.getUri();
+                    File fdelete = new File(delfile.getPath());
+                    if (fdelete.delete())
+                        Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        }
+    };
+
     public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
-        //String filePath=src.getPath();
         InputStream inputStream = context.getContentResolver().openInputStream(src);
         String docId = DocumentsContract.getTreeDocumentId(dirpath);
         Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
@@ -266,7 +334,8 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             is.close();
             os.flush();
             os.close();
-            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+
             return destUri;
 
         } catch (FileNotFoundException e) {
@@ -276,94 +345,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
 
         return null;
-    }
-
-
-    private void startDownload() {
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        file = new File(requireContext().getExternalCacheDir(), fileName);
-        fileuri = DocumentFile.fromFile(file);
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
-                .setTitle(fileName)// Title of the Download Notification
-                .setDescription("Downloading")// Description of the Download Notification
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
-        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
-        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
 
     }
-
-    @Override
-    public void onOpenWithButtonClicked() {
-        String filename = "";
-        uri = Uri.parse(mViewPagerURL);
-        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-            filename = uri.toString();
-        } else {
-            DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
-            filename = f.getName();
-        }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        if (filename.contains(".doc") || filename.contains(".docx")) {
-            intent.setDataAndType(uri, "application/msword");               // Word document
-        } else if (filename.contains(".pdf")) {
-            intent.setDataAndType(uri, "application/pdf");                   // PDF file
-        } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
-        } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-excel");           // Excel file
-        } else if (filename.contains(".zip") || filename.contains(".rar")) {
-            intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
-        } else if (filename.contains(".rtf")) {                                     // RTF file
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (filename.contains(".gif")) {                                     // GIF file
-            intent.setDataAndType(uri, "image/gif");
-        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-            intent.setDataAndType(uri, "image/jpeg");
-        } else if (filename.contains(".txt")) {
-            intent.setDataAndType(uri, "text/plain");
-        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
-            intent.setDataAndType(uri, "video/*");
-        } else {
-            intent.setDataAndType(uri, "/");
-        }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        startActivity(intent);
-    }
-
-    @Override
-    public void onDownloadButtonClicked() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startActivityForResult(intent, 42);
-
-
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 42) {
-                if (null != data) {
-
-                    dirpath = data.getData();
-
-                    startDownload();
-
-                }
-
-            }
-
-        }
-    }
-
 
 }
