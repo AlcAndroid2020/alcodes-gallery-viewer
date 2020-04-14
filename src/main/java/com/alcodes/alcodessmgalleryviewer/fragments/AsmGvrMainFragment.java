@@ -104,7 +104,7 @@ public class AsmGvrMainFragment extends Fragment {
         List<String> data = new ArrayList<>();
         //Image
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
-        data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FLhshshs_Sulphur_Springs_Tower_tall_pano01.jpg");
+        data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
         data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
         data.add("https://media.giphy.com/media/Pm4ZMaevvoGhXlm714/giphy.gif");
@@ -161,15 +161,6 @@ public class AsmGvrMainFragment extends Fragment {
                     DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
                     mActionBar.setSubtitle(documentFile.getName());
                 }
-
-                if(Uri.parse(data.get(position)).getScheme().contains("http"))
-                {
-                    mActionBar.setSubtitle(data.get(position).substring(data.get(position).lastIndexOf("/")+1));
-                }else{
-                    DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
-                    mActionBar.setSubtitle(documentFile.getName());
-                }
-
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
