@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -97,7 +98,7 @@ public class AsmGvrMainFragment extends Fragment {
 
         mMainSharedViewModel.setInternetStatusData(isConnected());
         initIsNetworkConnectedListener();
-        mMainSharedViewModel.setInternetStatusData(isConnected());
+
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -148,6 +149,15 @@ public class AsmGvrMainFragment extends Fragment {
 
                 // Set fragment number in to menu bar
                 mActionBar.setTitle((position + 1) + "/" + data.size());
+
+                if(Uri.parse(data.get(position)).getScheme().contains("http"))
+                {
+                    mActionBar.setSubtitle(data.get(position).substring(data.get(position).lastIndexOf("/")+1));
+                }else{
+                    DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
+                    mActionBar.setSubtitle(documentFile.getName());
+                }
+
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
