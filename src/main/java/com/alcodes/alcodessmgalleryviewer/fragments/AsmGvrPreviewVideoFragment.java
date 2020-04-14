@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
@@ -94,6 +93,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         mViewPagerUri = Uri.parse(requireArguments().getString(ARG_STRING_FILE_PATH));
         mIsInternetSource = requireArguments().getBoolean(ARG_STRING_IS_INTERNET_SOURCE);
         mFileType = requireArguments().getString(ARG_STRING_FILE_TYPE);
+        // Extract arguments.
 
         // Init Internet Status & Video Caching Notifier
         mDataBinding.previewVideoNotifierRoot.setZ(3);
@@ -169,15 +169,17 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         });
         //Observed page selected and check if played history is present, if present then resume video
 
-        //hide and show menu bar
+        // Hide and show menu bar & notifiers using double tap gesture
         mDataBinding.previewVideoRoot.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     if(mActionBar.isShowing()){
                         mActionBar.hide();
+                        mDataBinding.previewVideoNotifierRoot.setVisibility(View.INVISIBLE);
                     }else{
                         mActionBar.show();
+                        mDataBinding.previewVideoNotifierRoot.setVisibility(View.VISIBLE);
                     }
                     return super.onDoubleTap(e);
                 }
@@ -195,14 +197,12 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             }
 
         });
+        // Hide and show menu bar & notifiers using double tap gesture
 
         startVideoPlayer(mViewPagerUri);
     }
 
     private void startVideoPlayer(Uri uri){
-        Boolean noErrorFlag = true;
-        String fileType = "";
-
         mMediaController = new MediaController(requireActivity());
         // Initialize VideoView with loading bar when video is loading for playing
         mDataBinding.previewVideoView.setZ(0);
@@ -225,6 +225,14 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 } else {
                     mDataBinding.previewVideoView.setVideoURI(uri);
                 }
+
+                // Set initially no internet and no video cache notifier
+                if(!mMainSharedViewModel.getInternetStatusDataLiveData().getValue().internetStatus && mIsInternetSource){
+                    Glide.with(this)
+                            .load(R.drawable.asm_gvr_unable_load)
+                            .into(mDataBinding.previewVideoImageLoading);
+                }
+                // Set initially no internet and no video cache notifier
             }
             //Assigning URI to Video View
 
@@ -237,7 +245,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     //Set video playing visible, set video info image view invisible
 
                     //Start video and check if there is records video playing, resume the video
-                    mp.start();
+                    mDataBinding.previewVideoView.start();
                     if (mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
                         mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                     }
@@ -252,6 +260,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 }
             });
 
+            // Set On Complete video show video cache status
             mDataBinding.previewVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -264,13 +273,14 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     }
                 }
             });
+            // Set On Complete video show video cache status
 
+            //Set Video View buffering listener to show loading bar
             mDataBinding.previewVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
                 @Override
                 public boolean onInfo(MediaPlayer mp, int what, int extra) {
                     switch (what) {
                         //Hide video loading/buffering img
-                        case MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                         case MediaPlayer.MEDIA_INFO_BUFFERING_END: {
                             mDataBinding.previewVideoImageLoading.setZ(0);
                             mDataBinding.previewVideoView.setZ(1);
@@ -289,12 +299,26 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                     .into(mDataBinding.previewVideoImageLoading);
                             return true;
                         }
+                        case MediaPlayer.MEDIA_ERROR_IO:
+                        case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                        case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                        case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:{
+                            mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
+                            Glide.with(requireActivity())
+                                    .load(R.drawable.asm_gvr_unable_load)
+                                    .into(mDataBinding.previewVideoImageLoading);
+                        }
+
                         //Show video loading/buffering img
                     }
                     return false;
                 }
             });
+            //Set Video View buffering listener to show loading bar
 
+            //Set Video View Play & Pause Listener
             mDataBinding.previewVideoView.setPlayPauseListener(new AsmGvrStateBroadcastingVideoView.PlayPauseListener() {
                 @Override
                 public void onPlay() {
@@ -333,7 +357,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     //Add Pause img to show video image aside from media controller
                 }
             });
+            //Set Video View Play & Pause Listener
 
+            //Set Video View on click listener for play video alternative media controller
             mDataBinding.previewVideoImageLoading.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -342,6 +368,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     //Only play video because the image view will not be present because of Z-Index hiding, so no use to pause
                 }
             });
+            //Set Video View on click listener for play video alternative media controller
         }
     }
 

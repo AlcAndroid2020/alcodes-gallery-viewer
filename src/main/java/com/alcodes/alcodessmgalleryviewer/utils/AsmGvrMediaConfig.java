@@ -52,7 +52,7 @@ public class AsmGvrMediaConfig{
         if(cR == null){
             cR = context.getContentResolver();
         }
-        if(uri.getScheme().equals("http") | uri.getScheme().equals("https")){
+        if(uri.getScheme().contains("http")){
             isOnline = true;
             try{
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
