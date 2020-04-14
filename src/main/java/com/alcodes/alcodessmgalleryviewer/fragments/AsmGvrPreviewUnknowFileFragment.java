@@ -198,7 +198,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     @Override
     public void onOpenWithButtonClicked() {
         String filename = "";
-        uri = Uri.parse(mViewPagerURL);
+
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             filename = uri.toString();
         } else {
@@ -213,7 +213,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
             intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
         } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-excel");           // Excel file
+            intent.setDataAndType(uri, "application/vnd.ms-excel");         // Excel file
         } else if (filename.contains(".zip") || filename.contains(".rar")) {
             intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
         } else if (filename.contains(".rtf")) {                                     // RTF file
@@ -231,9 +231,8 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         } else {
             intent.setDataAndType(uri, "/");
         }
-
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
         startActivity(intent);
     }
 
@@ -281,8 +280,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
 
             if (downloadID == id) {
-
-                Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
                 Uri movefileuri = null;
                 //Move File to user selected file
                 try {
@@ -291,13 +288,12 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-
                 //delete file, after move file complete
                 if (movefileuri != null) {
                     Uri delfile = fileuri.getUri();
                     File fdelete = new File(delfile.getPath());
                     if (fdelete.delete())
-                        Toast.makeText(getContext(), "file deleted" + delfile.getPath(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -306,7 +302,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     };
 
     public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
-        //String filePath=src.getPath();
         InputStream inputStream = context.getContentResolver().openInputStream(src);
         String docId = DocumentsContract.getTreeDocumentId(dirpath);
         Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
@@ -339,7 +334,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             is.close();
             os.flush();
             os.close();
-            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
 
             return destUri;
 
@@ -352,6 +347,5 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         return null;
 
     }
-
 
 }
