@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -57,7 +56,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private Uri dirpath;
     private DownloadManager mgr = null;
     private long downloadID;
-    private static final int PERMISSION_STORGE_CODE = 1000;
     public File file;
     public String fileName = "";
     public Uri uri = null;
@@ -86,7 +84,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewUnknownfileBinding.inflate(inflater, container, false);
 
-        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+        mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -100,9 +98,9 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             private GestureDetector gestureDetector = new GestureDetector(requireActivity(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
-                    if(mActionBar.isShowing()){
+                    if (mActionBar.isShowing()) {
                         mActionBar.hide();
-                    }else{
+                    } else {
                         mActionBar.show();
                     }
                     return super.onSingleTapUp(e);
@@ -151,29 +149,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mDataBinding.setBindingCallback(this);
     }
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        public void onReceive(Context ctxt, Intent intent) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-
-            if (downloadID == id) {
-
-                Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
-
-                try {
-                    copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
-                    deleteOriginalFile(getContext(), fileuri.getUri(), fileName);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-
-    private void deleteOriginalFile(Context context, Uri uri, String fileName) {
-
-    }
-
 
     @Override
     public void onResume() {
@@ -194,17 +169,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     public void onDestroy() {
         super.onDestroy();
         getContext().unregisterReceiver(onComplete);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_STORGE_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    startDownload();
-                }
-            }
-        }
     }
 
     @Override
@@ -229,70 +193,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             shareIntent.setType("application/pdf");
             startActivity(Intent.createChooser(shareIntent, "Share..."));
         }
-
-    }
-
-    public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
-        //String filePath=src.getPath();
-        InputStream inputStream = context.getContentResolver().openInputStream(src);
-        String docId = DocumentsContract.getTreeDocumentId(dirpath);
-        Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
-
-        Uri destUri;
-
-        try {
-            //change to src
-            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-
-            return null;
-        }
-
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = inputStream;
-
-            os = context.getContentResolver().openOutputStream(destUri, "w");
-
-            byte[] buffer = new byte[1024];
-
-            int length;
-            while ((length = is.read(buffer)) > 0)
-                os.write(buffer, 0, length);
-
-            is.close();
-            os.flush();
-            os.close();
-            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
-            return destUri;
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-
-    private void startDownload() {
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        file = new File(requireContext().getExternalCacheDir(), fileName);
-        fileuri = DocumentFile.fromFile(file);
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
-                .setTitle(fileName)// Title of the Download Notification
-                .setDescription("Downloading")// Description of the Download Notification
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
-        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
-        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
 
     }
 
@@ -345,7 +245,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivityForResult(intent, 42);
 
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -355,7 +254,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 if (null != data) {
 
                     dirpath = data.getData();
-
                     startDownload();
 
                 }
@@ -365,5 +263,117 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
     }
 
+    private void startDownload() {
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+        file = new File(requireContext().getExternalCacheDir(), fileName);
+        fileuri = DocumentFile.fromFile(file);
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
+                .setTitle(fileName)// Title of the Download Notification
+                .setDescription("Downloading")// Description of the Download Notification
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
+                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
+                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
+        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
+
+    }
+
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
+
+            if (downloadID == id) {
+
+                Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
+
+                Uri copyuri = null;
+                try {
+                    copyuri = copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                if (copyuri != null) {
+                    Uri delfile = fileuri.getUri();
+                    File fdelete = new File(delfile.getPath());
+                    if (fdelete.delete())
+                        Toast.makeText(getContext(), "file deleted" + delfile.getPath(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            deleteOriginalFile(getContext(), fileuri.getUri(), fileName);
+
+        }
+    };
+
+    public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
+        //String filePath=src.getPath();
+        InputStream inputStream = context.getContentResolver().openInputStream(src);
+        String docId = DocumentsContract.getTreeDocumentId(dirpath);
+        Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
+
+        Uri destUri;
+
+        try {
+            //change to src
+            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+            return null;
+        }
+
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = inputStream;
+
+            os = context.getContentResolver().openOutputStream(destUri, "w");
+
+            byte[] buffer = new byte[1024];
+
+            int length;
+            while ((length = is.read(buffer)) > 0)
+                os.write(buffer, 0, length);
+
+            is.close();
+            os.flush();
+            os.close();
+            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
+
+            return destUri;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    private void deleteOriginalFile(Context context, Uri uri, String name) {
+
+        File a = new File(file.getPath());
+        boolean deleted = a.delete();
+        if (!deleted) {
+            boolean deleted2 = false;
+            try {
+                deleted2 = file.getCanonicalFile().delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!deleted2) {
+                boolean deleted3 = getContext().getApplicationContext().deleteFile(file.getName());
+            }
+        }
+
+    }
 
 }
