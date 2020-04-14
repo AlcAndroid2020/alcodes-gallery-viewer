@@ -16,6 +16,7 @@ public class AsmGvrPreviewAudioViewModel extends AndroidViewModel {
         super(application);
     }
 
+    //get current audio position/progress
     public AsmGvrPreviewAudioViewModel.AudioViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {
         Boolean isNoMatchRecords = true;
         AsmGvrPreviewAudioViewModel.AudioViewModel AudioViewModel = new AsmGvrPreviewAudioViewModel.AudioViewModel();
@@ -40,7 +41,7 @@ public class AsmGvrPreviewAudioViewModel extends AndroidViewModel {
 
         return AudioViewModel;
     }
-
+    //set  audio progress/position
     public void setViewPagerVideoViewLiveData(int viewPagerPosition, int currentPlayingPosition) {
         Boolean isPresentRecord = false;
         List<AudioViewModel> audioViewModels;

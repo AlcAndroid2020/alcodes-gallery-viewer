@@ -44,7 +44,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private AsmGvrPreviewAudioViewModel mPreviewAudioViewModel;
     private int mViewPagerPosition;
     private String mViewPagerURL;
-    private Boolean mIsInternetConnected;
     private Boolean mInternetSource;
     private ActionBar mActionBar;
 
@@ -87,7 +86,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_FILEURL);
-        // mInternetSource = Boolean.valueOf(requireArguments().getString(ARG_String_IsInternetSource));
         mInternetSource = checkFileType(mViewPagerURL);
 
         // Init view model.
