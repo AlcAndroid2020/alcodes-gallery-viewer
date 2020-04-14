@@ -10,23 +10,24 @@
         android:background="@color/cardview_dark_background">
 
             <LinearLayout
+                android:id="@+id/preview_video_notifier_root"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="horizontal"
                 android:layout_alignParentRight="true">
                 <ImageView
                     android:id="@+id/preview_video_no_internet"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_margin="20dp"/>
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"/>
 
                 <ImageView
                     android:id="@+id/preview_video_cache"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_margin="20dp"/>
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"/>
             </LinearLayout>
-
 
             <ImageView
                 android:id="@+id/preview_video_image_loading"

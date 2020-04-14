@@ -41,6 +41,7 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
+    private List<String> data;
 
     private ActionBar mActionBar;
 
@@ -89,7 +90,6 @@ public class AsmGvrMainFragment extends Fragment {
                 UriList = bundle.getStringArrayList("urilist");
         }
 
-
         // Init view model.
         mMainSharedViewModel = new ViewModelProvider(
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
@@ -124,6 +124,9 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" );
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4");
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4");
 
         //Other Files
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
