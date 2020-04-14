@@ -1,6 +1,5 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,7 +49,6 @@ public class AsmGvrMainFragment extends Fragment {
     }
 
 
-    @SuppressLint("RestrictedApi")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,7 +56,7 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
-        mActionBar.setShowHideAnimationEnabled(true);
+
 
         return mDataBinding.getRoot();
     }
@@ -96,6 +95,7 @@ public class AsmGvrMainFragment extends Fragment {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        mMainSharedViewModel.setInternetStatusData(isConnected());
         initIsNetworkConnectedListener();
         mMainSharedViewModel.setInternetStatusData(isConnected());
 
@@ -103,6 +103,7 @@ public class AsmGvrMainFragment extends Fragment {
         List<String> data = new ArrayList<>();
         data.add("https://www.w3.org/TR/PNG/iso_8859-1.txt");
         data.add("https://i.pinimg.com/236x/64/84/6d/64846daa5a346126ef31c3f1fcbc4703--winter-wallpapers-wallpapers-ipad.jpg");
+
         data.add("https://upload.wikimedia.org/wikipedia/commons/3/38/Tampa_FL_Sulphur_Springs_Tower_tall_pano01.jpg");
         data.add("https://www.appears-itn.eu/wp-content/uploads/2018/07/long-300x86.jpg");
         data.add("https://images.wallpaperscraft.com/image/snow_snowflake_winter_form_pattern_49405_240x320.jpg");
@@ -110,8 +111,10 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/300px-Rotating_earth_%28large%29.gif");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+
         data.add("https://files.eric.ed.gov/fulltext/ED573583.pdf");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4");
@@ -131,7 +134,6 @@ public class AsmGvrMainFragment extends Fragment {
         if (UriList != null) {
             for(int i=0;i<UriList.size();i++){
                 data.add(UriList.get(i));
-
             }
         }
 
@@ -148,6 +150,15 @@ public class AsmGvrMainFragment extends Fragment {
                 mActionBar.setTitle((position + 1) + "/" + data.size());
 
                 //get internet status from shared view model
+                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+                    @Override
+                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                        if (!internetStatusData.internetStatus) {
+                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
@@ -209,4 +220,5 @@ public class AsmGvrMainFragment extends Fragment {
             );
         }
     }
+
 }
