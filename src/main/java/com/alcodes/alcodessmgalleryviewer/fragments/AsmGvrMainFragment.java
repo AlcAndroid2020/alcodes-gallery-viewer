@@ -98,7 +98,7 @@ public class AsmGvrMainFragment extends Fragment {
 
         mMainSharedViewModel.setInternetStatusData(isConnected());
         initIsNetworkConnectedListener();
-        mMainSharedViewModel.setInternetStatusData(isConnected());
+
 
         // Init adapter data.
         List<String> data = new ArrayList<>();
@@ -161,6 +161,15 @@ public class AsmGvrMainFragment extends Fragment {
                     DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
                     mActionBar.setSubtitle(documentFile.getName());
                 }
+
+                if(Uri.parse(data.get(position)).getScheme().contains("http"))
+                {
+                    mActionBar.setSubtitle(data.get(position).substring(data.get(position).lastIndexOf("/")+1));
+                }else{
+                    DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
+                    mActionBar.setSubtitle(documentFile.getName());
+                }
+
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
