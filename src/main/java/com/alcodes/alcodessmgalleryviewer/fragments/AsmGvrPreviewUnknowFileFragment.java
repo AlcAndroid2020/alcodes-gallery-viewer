@@ -149,7 +149,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mDataBinding.setBindingCallback(this);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -252,14 +251,10 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == 42) {
                 if (null != data) {
-
                     dirpath = data.getData();
                     startDownload();
-
                 }
-
             }
-
         }
     }
 
@@ -288,16 +283,17 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             if (downloadID == id) {
 
                 Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
-
-                Uri copyuri = null;
+                Uri movefileuri = null;
+                //Move File to user selected file
                 try {
-                    copyuri = copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
+                    movefileuri = copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
 
-                if (copyuri != null) {
+                //delete file, after move file complete
+                if (movefileuri != null) {
                     Uri delfile = fileuri.getUri();
                     File fdelete = new File(delfile.getPath());
                     if (fdelete.delete())
@@ -305,7 +301,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 }
             }
 
-            deleteOriginalFile(getContext(), fileuri.getUri(), fileName);
 
         }
     };
@@ -358,22 +353,5 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
-    private void deleteOriginalFile(Context context, Uri uri, String name) {
-
-        File a = new File(file.getPath());
-        boolean deleted = a.delete();
-        if (!deleted) {
-            boolean deleted2 = false;
-            try {
-                deleted2 = file.getCanonicalFile().delete();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (!deleted2) {
-                boolean deleted3 = getContext().getApplicationContext().deleteFile(file.getName());
-            }
-        }
-
-    }
 
 }
