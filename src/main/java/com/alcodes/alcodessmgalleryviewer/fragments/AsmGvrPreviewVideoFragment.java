@@ -91,6 +91,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.asm_gvr_video_fragment_menu, menu);
+        if(!mIsInternetSource){
+            menu.getItem(2).setVisible(false);
+        }
     }
 
     @Override
