@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +15,28 @@ public class AsmGvrMainActivity extends AppCompatActivity {
 
     private AsmGvrActivityMainBinding mDataBinding;
     private NavController mNavController;
+    public static final String EXTRA_INTEGER_SELECTED_THEME = "EXTRA_INTEGER_SELECTED_THEME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        int data = -1;
+
+        if (bundle != null) {
+            //Get File From Previous Main Module Fragment
+            if(bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) != -1){
+                data = bundle.getInt(EXTRA_INTEGER_SELECTED_THEME);
+            }
+        }
+
+        if(data == 1)
+            setTheme(R.style.asm_gvr_apps_theme_semi_transparent);
+        else if (data == 2)
+            setTheme(R.style.asm_gvr_apps_theme_transparent);
+
 
         // Init data binding.
         mDataBinding = AsmGvrActivityMainBinding.inflate(getLayoutInflater());
