@@ -2,22 +2,14 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.provider.DocumentsContract;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,20 +26,17 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnknownfileBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import timber.log.Timber;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
+    private final AsmGvrDownloadConfig mDownloadConfig;
+
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_String_PAGER_FILEURL = "ARG_STRING_PAGER_FILEURL";
     private NavController mNavController;
@@ -67,6 +56,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
 
     public AsmGvrPreviewUnknowFileFragment() {
+        mDownloadConfig = new AsmGvrDownloadConfig();
     }
 
     public static AsmGvrPreviewUnknowFileFragment newInstance(AsmGvrMediaConfig position) {
@@ -143,7 +133,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         ).get(AsmGvrMainSharedViewModel.class);
 
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
-        getContext().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
         uri = Uri.parse(mViewPagerURL);
 
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
@@ -168,91 +158,15 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
-
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getContext().unregisterReceiver(onComplete);
-    }
 
     @Override
     public void onShareButtonClicked() {
-
-        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-            Intent shareIntent = new Intent();
-            shareIntent.setType("text/html");
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the URL I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mViewPagerURL);
-            startActivity(Intent.createChooser(shareIntent, "Share..."));
-
-        } else {
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(mViewPagerURL));
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.setType("application/pdf");
-            startActivity(Intent.createChooser(shareIntent, "Share..."));
-        }
-
+        mDownloadConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
     }
 
     @Override
     public void onOpenWithButtonClicked() {
-        String filename = "";
-
-        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-            filename = uri.toString();
-        } else {
-            DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
-            filename = f.getName();
-        }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        if (filename.contains(".doc") || filename.contains(".docx")) {
-            intent.setDataAndType(uri, "application/msword");               // Word document
-        } else if (filename.contains(".pdf")) {
-            intent.setDataAndType(uri, "application/pdf");                   // PDF file
-        } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
-        } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-excel");         // Excel file
-        } else if (filename.contains(".zip") || filename.contains(".rar")) {
-            intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
-        } else if (filename.contains(".rtf")) {                                     // RTF file
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (filename.contains(".gif")) {                                     // GIF file
-            intent.setDataAndType(uri, "image/gif");
-        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-            intent.setDataAndType(uri, "image/jpeg");
-        } else if (filename.contains(".txt")) {
-            intent.setDataAndType(uri, "text/plain");
-        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
-            intent.setDataAndType(uri, "video/*");
-        } else {
-            intent.setDataAndType(uri, "/");
-        }
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        mDownloadConfig.openWith(getContext(),Uri.parse(mViewPagerURL));
     }
 
     @Override
@@ -261,7 +175,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivityForResult(intent, 42);
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -270,101 +183,11 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             if (requestCode == 42) {
                 if (null != data) {
                     dirpath = data.getData();
-                    startDownload();
+                    mDownloadConfig.startDownload(getContext(), mViewPagerURL,dirpath);
                 }
             }
         }
     }
 
-    private void startDownload() {
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        file = new File(requireContext().getExternalCacheDir(), fileName);
-        fileuri = DocumentFile.fromFile(file);
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
-                .setTitle(fileName)// Title of the Download Notification
-                .setDescription("Downloading")// Description of the Download Notification
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
-        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(DOWNLOAD_SERVICE);
-        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
-
-    }
-
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        public void onReceive(Context ctxt, Intent intent) {
-
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-
-            if (downloadID == id) {
-                Uri movefileuri = null;
-                //Move File to user selected file
-                try {
-                    movefileuri = copyFileToSafFolder(getContext(), fileuri.getUri(), fileName);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                //delete file, after move file complete
-                if (movefileuri != null) {
-                    Uri delfile = fileuri.getUri();
-                    File fdelete = new File(delfile.getPath());
-                    if (fdelete.delete())
-                        Toast.makeText(requireContext(), getResources().getString(R.string.DownloadComplete), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-
-        }
-    };
-
-    public Uri copyFileToSafFolder(Context context, Uri src, String destFileName) throws FileNotFoundException {
-        InputStream inputStream = context.getContentResolver().openInputStream(src);
-        String docId = DocumentsContract.getTreeDocumentId(dirpath);
-        Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
-
-        Uri destUri;
-
-        try {
-            //change to src
-            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-
-            return null;
-        }
-
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = inputStream;
-
-            os = context.getContentResolver().openOutputStream(destUri, "w");
-
-            byte[] buffer = new byte[1024];
-
-            int length;
-            while ((length = is.read(buffer)) > 0)
-                os.write(buffer, 0, length);
-
-            is.close();
-            os.flush();
-            os.close();
-//            Toast.makeText(getContext().getApplicationContext(), "File Import Complete", Toast.LENGTH_LONG).show();
-
-            return destUri;
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
 
 }

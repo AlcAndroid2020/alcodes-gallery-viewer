@@ -33,8 +33,6 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class AsmGvrMainFragment extends Fragment {
 
     public static final String EXTRA_STRING_ARRAY_FILE_URI = "EXTRA_STRING_ARRAY_FILE_URI";
