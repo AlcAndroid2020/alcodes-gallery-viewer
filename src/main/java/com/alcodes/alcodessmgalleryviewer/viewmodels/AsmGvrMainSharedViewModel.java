@@ -13,7 +13,7 @@ import java.io.File;
 public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Integer> mViewPagerPositionLiveData = new MutableLiveData<>(0);
-
+    private final MutableLiveData<Integer> mColorSelectedLiveData=new MutableLiveData<>();
     public static class InternetStatusData {
         public boolean internetStatus;
         public String statusMessage;
@@ -33,6 +33,15 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     public void setViewPagerCurrentPagePosition(int position) {
         mViewPagerPositionLiveData.setValue(position);
+    }
+
+
+
+    public LiveData<Integer> getColorSelectedLiveData() {
+        return mColorSelectedLiveData;
+    }
+    public void setmColorSelectedLiveData(int color) {
+        mColorSelectedLiveData.setValue(color);
     }
 
     public void setInternetStatusData(boolean status) {

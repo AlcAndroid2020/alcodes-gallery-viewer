@@ -9,11 +9,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -66,7 +68,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewAudioBinding.inflate(inflater, container, false);
 
-        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+        mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -100,7 +102,16 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mPreviewAudioViewModel = new ViewModelProvider(mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
                 get(AsmGvrPreviewAudioViewModel.class);
+        //get selected color
+        mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if(integer!=null){
+                    mDataBinding.previewAudioRoot.setBackgroundColor(ContextCompat.getColor(getActivity(),  integer));
 
+                }
+            }
+        });
 
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
@@ -149,7 +160,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             }
 
         });
-
 
 
         //Check Internet State
@@ -273,9 +283,11 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     @Override
     public void onPause() {
         super.onPause();
-        if (mDataBinding.AudioPlayer.isPlaying()) {
-            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
-        }
+        //   if (mDataBinding.AudioPlayer.isPlaying()) {
+        mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+        // }
+
+
     }
 
     @Override

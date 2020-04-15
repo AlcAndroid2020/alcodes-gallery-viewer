@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -109,6 +110,16 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                         mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
                         // TODO this page has been de-selected.
                     }
+                }
+            }
+        });
+        //get selected color
+        mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if(integer!=null){
+                    mDataBinding.touchImageViewPreviewImage.setBackgroundColor(ContextCompat.getColor(getActivity(),  integer));
+
                 }
             }
         });

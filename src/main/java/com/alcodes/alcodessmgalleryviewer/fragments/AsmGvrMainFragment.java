@@ -33,7 +33,6 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
 
 
 public class AsmGvrMainFragment extends Fragment {
@@ -46,7 +45,7 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
     private List<String> data;
-
+    private int color;
     private ActionBar mActionBar;
 
     @Override
@@ -77,6 +76,7 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         //Init data to prevent null pointer exception
         data = new ArrayList<>();
 
@@ -84,11 +84,17 @@ public class AsmGvrMainFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
 
+
         if (bundle != null) {
             //Get File From Previous Main Module Fragment
             if(bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null){
                 data = bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI);
             }
+
+            //getcolor
+            if (bundle.getInt("color") != 0)
+                color = bundle.getInt("color");
+
         }
 
         // Init view model.
@@ -137,6 +143,11 @@ public class AsmGvrMainFragment extends Fragment {
                 }
             }
         });
+
+        //set color
+        if (color != 0)
+            mMainSharedViewModel.setmColorSelectedLiveData(color);
+
     }
 
     @Override
@@ -170,7 +181,7 @@ public class AsmGvrMainFragment extends Fragment {
         return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
-    public void initIsNetworkConnectedListener(){
+    public void initIsNetworkConnectedListener() {
         final ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkRequest.Builder builder = new NetworkRequest.Builder();
 
