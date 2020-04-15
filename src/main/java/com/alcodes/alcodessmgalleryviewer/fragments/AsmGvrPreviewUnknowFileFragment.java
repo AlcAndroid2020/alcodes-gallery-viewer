@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
@@ -81,6 +82,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         return mDataBinding.getRoot();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
