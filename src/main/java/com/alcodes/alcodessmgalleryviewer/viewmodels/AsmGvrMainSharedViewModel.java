@@ -42,7 +42,12 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_internet_access);
         } else
             dataHolder.statusMessage = getApplication().getResources().getString(R.string.asm_gvr_msg_no_internet_access);
-        mInternetStatusData.postValue(dataHolder);
+        if(mInternetStatusData.getValue() == null){
+            mInternetStatusData.setValue(dataHolder);
+        }else{
+            mInternetStatusData.postValue(dataHolder);
+        }
+
     }
 
 
