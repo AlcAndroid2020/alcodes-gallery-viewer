@@ -382,9 +382,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public void onLongPress(MotionEvent e) {
-        if(!isErrorImage){
-            mImageCallback.onLongPressDialog();
-        }
     }
 
     @Override
@@ -403,6 +400,9 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            //While on Pinching, disable sliding.
+            getParent().requestDisallowInterceptTouchEvent(true);
+
             float mScaleFactor = detector.getScaleFactor();
             float origScale = saveScale;
             saveScale *= mScaleFactor;
