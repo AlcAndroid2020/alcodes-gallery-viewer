@@ -13,4 +13,8 @@
     <string name="btnShareWith" tools:ignore="ResourceName">分享</string>
     <string name="btnOpenImageUrl" tools:ignore="ResourceName">打开图像在网络浏览器</string>
     <string name="btnSetWallpaper" tools:ignore="ResourceName">设置为墙纸</string>
+    <string name="asm_gvr_share" tools:ignore="ResourceName">分享</string>
+    <string name="asm_gvr_download" tools:ignore="ResourceName">下载d</string>
+    <string name="asm_gvr_open_with" tools:ignore="ResourceName">其他开启方式</string>
+    <string name="asm_gvr_refresh_video" tools:ignore="ResourceName">刷新视频</string>
 </resources>

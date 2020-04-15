@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,6 +80,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -158,10 +160,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if (internetStatusData.internetStatus) {
-
                     //Internet Connected
-
-
                     //for Online file (url)
                     if (mInternetSource) {
                         loadmusic(Uri.parse(mViewPagerURL), true);
@@ -170,9 +169,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                     }
 
                 } else {
-
                     //No Internet
-
                     //for Online file (url)
                     if (mInternetSource) {
                         if (DownloadManager.getInstance(getContext()).isCached(mViewPagerURL))

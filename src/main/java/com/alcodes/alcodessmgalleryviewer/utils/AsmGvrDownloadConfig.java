@@ -1,12 +1,16 @@
 package com.alcodes.alcodessmgalleryviewer.utils;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
 
@@ -46,8 +50,10 @@ public class AsmGvrDownloadConfig {
     }
 
 
-    public void startDownload(Context context, String uri, Uri dirpath) {
-        mViewPagerURL=uri;
+    public void startDownload(Context context, String uri, Uri path) {
+        mViewPagerURL = uri;
+//        mViewPagerURL="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+        dirpath=path;
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
@@ -61,20 +67,56 @@ public class AsmGvrDownloadConfig {
                 .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);// enqueue puts the download request in
-        Uri movefileuri = null;
-        try {
-            movefileuri = copyFileToSafFolder(context, fileuri.getUri(),dirpath,fileName);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (movefileuri != null) {
-            Uri delfile = fileuri.getUri();
-             new File(delfile.getPath());
 
-        }
+        mgr = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
+        context.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+
     }
 
-    public Uri copyFileToSafFolder(Context context, Uri src,Uri dirpath, String destFileName) throws FileNotFoundException {
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
+            Toast.makeText(ctxt, "wwwwwwwwwwwwwwwww", Toast.LENGTH_SHORT).show();
+
+            if (downloadID == id) {
+                Uri movefileuri = null;
+                //Move File to user selected file
+                try {
+//                    File file=new File(dirpath.getPath());
+//                    File[] list = file.listFiles();
+//
+//                    for (File f: list){
+//                        String name = f.getName();
+//                        if (name==fileName){
+//                            Toast.makeText(ctxt, "hello", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    }
+//
+//
+//                        Toast.makeText(ctxt, fileuri.getName(), Toast.LENGTH_SHORT).show();
+
+                    movefileuri = copyFileToSafFolder(ctxt, fileuri.getUri(), dirpath, fileName);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //delete file, after move file complete
+                if (movefileuri != null) {
+                    Uri delfile = fileuri.getUri();
+                    File fdelete = new File(delfile.getPath());
+                    if (fdelete.delete())
+                        Toast.makeText(ctxt, "ooooooooo", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        }
+    };
+
+    public Uri copyFileToSafFolder(Context context, Uri src, Uri dirpath, String destFileName) throws FileNotFoundException {
         InputStream inputStream = context.getContentResolver().openInputStream(src);
         String docId = DocumentsContract.getTreeDocumentId(dirpath);
         Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
@@ -83,7 +125,7 @@ public class AsmGvrDownloadConfig {
 
         try {
             //change to src
-            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
+            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "/", destFileName);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

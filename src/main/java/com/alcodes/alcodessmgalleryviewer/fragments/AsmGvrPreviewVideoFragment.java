@@ -1,12 +1,17 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +29,7 @@ import androidx.navigation.Navigation;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVideoViewModel;
@@ -31,11 +37,14 @@ import com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
 import com.bumptech.glide.Glide;
 import com.danikula.videocache.HttpProxyCacheServer;
 
+import timber.log.Timber;
+
 public class AsmGvrPreviewVideoFragment extends Fragment{
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_STRING_FILE_PATH = "ARG_STRING_FILE_PATH";
     private static final String ARG_STRING_IS_INTERNET_SOURCE = "ARG_STRING_IS_INTERNET_SOURCE";
     private static final String ARG_STRING_FILE_TYPE = "ARG_STRING_FILE_TYPE";
+    private static final int CHOOSE_DOWNLOAD_FOLDER_REQUEST_CODE = 41;
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewVideoBinding mDataBinding;
@@ -49,6 +58,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private MediaController mMediaController;
     private HttpProxyCacheServer mHttpProxyCacheServer;
     private String mProxyURL = "";
+    private AsmGvrDownloadConfig mDownloadConfig;
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -73,7 +83,43 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         mDataBinding = AsmGvrFragmentPreviewVideoBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+
+        setHasOptionsMenu(true);
         return mDataBinding.getRoot();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.asm_gvr_video_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Refresh Video
+        if(item.getItemId() == R.id.video_fragment_menu_refresh){
+            if(mDataBinding.previewVideoView.isPlaying()){
+                mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+            }
+            startVideoPlayer(mViewPagerUri);
+        }
+        //Refresh Video
+        //Share Video
+        else if (item.getItemId() == R.id.video_fragment_menu_share) {
+            //TODO When Share Utils class is available
+        }//Share Video
+        //Download video to selected directory
+        else if(item.getItemId() == R.id.video_fragment_menu_download){
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(intent, CHOOSE_DOWNLOAD_FOLDER_REQUEST_CODE);
+        }//Download video to selected directory
+        //Open video with other application
+        else if(item.getItemId() == R.id.video_fragment_menu_open_with){
+            //TODO When Open With Utils class is available
+        }
+        //Open video with other application
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -88,6 +134,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if(mDownloadConfig == null){
+            mDownloadConfig = new AsmGvrDownloadConfig();
+        }
+
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerUri = Uri.parse(requireArguments().getString(ARG_STRING_FILE_PATH));
@@ -245,7 +295,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     //Set video playing visible, set video info image view invisible
 
                     //Start video and check if there is records video playing, resume the video
-                    mDataBinding.previewVideoView.start();
                     if (mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
                         mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                     }
@@ -299,18 +348,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                     .into(mDataBinding.previewVideoImageLoading);
                             return true;
                         }
-                        case MediaPlayer.MEDIA_ERROR_IO:
-                        case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                        case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                        case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:{
-                            mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
-                            Glide.with(requireActivity())
-                                    .load(R.drawable.asm_gvr_unable_load)
-                                    .into(mDataBinding.previewVideoImageLoading);
-                        }
-
                         //Show video loading/buffering img
                     }
                     return false;
@@ -369,12 +406,43 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 }
             });
             //Set Video View on click listener for play video alternative media controller
+
+            //Set Video view play back error listener
+            mDataBinding.previewVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    switch(what) {
+                        case MediaPlayer.MEDIA_ERROR_IO:
+                        case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                        case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                        case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: {
+                            mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
+                            Glide.with(requireActivity())
+                                    .load(R.drawable.asm_gvr_unable_load)
+                                    .into(mDataBinding.previewVideoImageLoading);
+                        }
+                    }
+                    return false;
+                }
+            });
+            //Set Video view play back error listener
         }
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        // Resume video here instead of onPrepared to avoid 2 page playing
+        mDataBinding.previewVideoView.start();
+        // Resume video here instead of onPrepared to avoid 2 page playing
+        // Reset media Controller stuck to pause
+        if(mMediaController.isShowing()){
+            mMediaController.hide();
+            mMediaController.show();
+        }
+        // Reset media Controller stuck to pause
     }
 
     @Override
@@ -385,5 +453,19 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
         }
         //Store in ViewModel the video playing position
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            //Start download using Download utils class
+            if (requestCode == CHOOSE_DOWNLOAD_FOLDER_REQUEST_CODE) {
+                if (data != null) {
+                    mDownloadConfig.startDownload(requireActivity(), mViewPagerUri.toString(),data.getData());
+                }
+            }
+            //Start download using Download utils class
+        }
     }
 }
