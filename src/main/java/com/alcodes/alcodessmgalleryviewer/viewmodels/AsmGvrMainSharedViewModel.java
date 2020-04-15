@@ -21,8 +21,6 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
 
     private MutableLiveData<InternetStatusData> mInternetStatusData = new MutableLiveData<>();
 
-    private File downloadedFile;
-
     public AsmGvrMainSharedViewModel(@NonNull Application application) {
         super(application);
     }
