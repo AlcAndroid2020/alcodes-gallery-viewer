@@ -42,7 +42,7 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
     private List<String> data;
-
+    private int color;
     private ActionBar mActionBar;
 
     @Override
@@ -75,6 +75,7 @@ public class AsmGvrMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Uri uri = null;
+
         List<String> UriList = new ArrayList<String>();
 
         //testing uri by using uri from file picker
@@ -88,6 +89,11 @@ public class AsmGvrMainFragment extends Fragment {
             //get multiple file
             if (bundle.getStringArrayList("urilist") != null)
                 UriList = bundle.getStringArrayList("urilist");
+
+            //getcolor
+            if (bundle.getInt("color") != 0)
+                color = bundle.getInt("color");
+
         }
 
         // Init view model.
@@ -113,8 +119,7 @@ public class AsmGvrMainFragment extends Fragment {
         //Audio
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
         data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
-        data.add("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3");
-
+        data.add("http://www.hochmuth.com/mp3/Haydn_Cello_Concerto_D-1.mp3");
         //Video
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
@@ -123,7 +128,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4");
-        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" );
+        data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4");
         data.add("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4");
@@ -141,7 +146,7 @@ public class AsmGvrMainFragment extends Fragment {
 
         // Multiple File
         if (UriList != null) {
-            for(int i=0;i<UriList.size();i++){
+            for (int i = 0; i < UriList.size(); i++) {
                 data.add(UriList.get(i));
             }
         }
@@ -157,10 +162,9 @@ public class AsmGvrMainFragment extends Fragment {
 
                 // Set fragment number in to menu bar
                 mActionBar.setTitle((position + 1) + "/" + data.size());
-                if(Uri.parse(data.get(position)).getScheme().contains("http"))
-                {
-                    mActionBar.setSubtitle(data.get(position).substring(data.get(position).lastIndexOf("/")+1));
-                }else{
+                if (Uri.parse(data.get(position)).getScheme().contains("http")) {
+                    mActionBar.setSubtitle(data.get(position).substring(data.get(position).lastIndexOf("/") + 1));
+                } else {
                     DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), Uri.parse(data.get(position)));
                     mActionBar.setSubtitle(documentFile.getName());
                 }
@@ -190,6 +194,11 @@ public class AsmGvrMainFragment extends Fragment {
                 }
             }
         });
+
+        //set color
+        if (color != 0)
+            mMainSharedViewModel.setmColorSelectedLiveData(color);
+
     }
 
     @Override
@@ -206,7 +215,7 @@ public class AsmGvrMainFragment extends Fragment {
         mDataBinding.viewPager.unregisterOnPageChangeCallback(mViewPager2OnPageChangeCallback);
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -215,7 +224,7 @@ public class AsmGvrMainFragment extends Fragment {
         return activeNetwork != null && activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
-    public void initIsNetworkConnectedListener(){
+    public void initIsNetworkConnectedListener() {
         final ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkRequest.Builder builder = new NetworkRequest.Builder();
 
