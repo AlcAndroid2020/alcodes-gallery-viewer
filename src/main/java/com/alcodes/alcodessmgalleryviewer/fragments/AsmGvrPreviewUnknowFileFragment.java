@@ -179,7 +179,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the URL I'm sharing.");
             shareIntent.putExtra(Intent.EXTRA_TEXT, mViewPagerURL);
-            startActivity(Intent.createChooser(shareIntent, "Share..."));
+            startActivity(Intent.createChooser(shareIntent, "Share With..."));
 
         } else {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -190,7 +190,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(mViewPagerURL));
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             shareIntent.setType("application/pdf");
-            startActivity(Intent.createChooser(shareIntent, "Share..."));
+            startActivity(Intent.createChooser(shareIntent, "Share With..."));
         }
 
     }
