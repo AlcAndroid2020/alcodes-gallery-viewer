@@ -28,6 +28,7 @@ import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrIma
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView;
 import com.bumptech.glide.Glide;
@@ -254,7 +255,7 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
     }
 
     private void shareImageToOthers(){
-        new AsmGvrDownloadConfig().shareWith(requireContext(), Uri.parse(mMediaConfig.uri));
+        new AsmGvrShareConfig().shareWith(requireContext(), Uri.parse(mMediaConfig.uri));
     }
 
     @Override
