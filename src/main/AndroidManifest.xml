@@ -14,8 +14,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".activities.AsmGvrMainActivity"
-            android:theme="@style/asm_gvr_apps_theme">
+            android:name=".activities.AsmGvrMainActivity">
 
             <intent-filter>
                 <category android:name="android.intent.category.BROWSABLE" />

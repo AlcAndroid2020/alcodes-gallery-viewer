@@ -1,23 +1,35 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.annotation.SuppressLint;
+import android.app.WallpaperColors;
+import android.app.WallpaperManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
 import com.alcodes.alcodessmgalleryviewer.R;
-import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrDialogImageOptionBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
-import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrDialogImageOptionCallback;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
-import com.alcodes.alcodessmgalleryviewer.dialogs.AsmGvrImageDialog;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,17 +37,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import java.io.IOException;
+
 import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
-    private static final String REQUEST_CODE_IMAGE_DIALOG = "AsmGvrPreviewImageFragment@REQUEST_CODE_IMAGE_DIALOG";
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewImageBinding mDataBinding;
@@ -64,12 +78,13 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         return fragment;
     }
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewImageBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+
+        setHasOptionsMenu(true);
 
         return mDataBinding.getRoot();
     }
@@ -80,6 +95,33 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
 
         // Init navigation component.
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.asm_gvr_image_menu, menu);
+
+        if(mMediaConfig.fromInternetSource){
+            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(true);
+        }else{
+            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(false);
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if(itemId == R.id.menu_item_open_image_on_browser) {
+            // Open image on Browser is Pressed
+            openImageOnWebBrowser();
+        }else if(itemId == R.id.menu_item_set_as_wallpaper) {
+            //Set image as wallpaper is Pressed
+            setImageAsWallPaper();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -103,12 +145,20 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             public void onChanged(Integer integer) {
                 if (integer != null) {
                     if (integer == mViewPagerPosition) {
-                        // TODO this page has been selected.
                     } else {
                         //Before leaving this fragment, Reset the scale and position it at Center
                         mDataBinding.touchImageViewPreviewImage.resetIamgeToCenter();
-                        // TODO this page has been de-selected.
                     }
+                }
+            }
+        });
+        //get selected color
+        mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if(integer!=null){
+                    mDataBinding.touchImageViewPreviewImage.setBackgroundColor(ContextCompat.getColor(getActivity(),  integer));
+
                 }
             }
         });
@@ -118,22 +168,12 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 // Init image
                 mDataBinding.touchImageViewPreviewImage.initImageView(getContext(),
-                        Uri.parse(mMediaConfig.uri),internetStatusData.internetStatus,
-                        AsmGvrPreviewImageFragment.this );
+                        Uri.parse(mMediaConfig.uri), internetStatusData.internetStatus,
+                        AsmGvrPreviewImageFragment.this);
             }
         });
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //Timber.e("d;;Child fragment at: %s entering onResume", mViewPagerPosition);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        //Timber.e("d;;Child fragment at: %s entering onPause", mViewPagerPosition);
+        Timber.e("Check: "+ mMediaConfig.uri);
     }
 
     @Override
@@ -145,13 +185,32 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         }
     }
 
-    @Override
-    public void onLongPressDialog() {
-        if(mMediaConfig.fromInternetSource){
-            // Image Load from Internet
-            AsmGvrImageDialog.newInstance(mMediaConfig.uri).show(getParentFragmentManager(), AsmGvrImageDialog.TAG);
-        }else{
-            // Image Load on Local
-        }
+    private void openImageOnWebBrowser(){
+        //Open Browser
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mMediaConfig.uri));
+        requireActivity().startActivity(browserIntent);
+    }
+
+    private void setImageAsWallPaper(){
+        final WallpaperManager wallpaperManager = WallpaperManager.getInstance(requireContext());
+
+        //To get bitmap and set it as wallpaper with Wallpaper Manager
+        Glide.with(requireContext()).asBitmap().load(Uri.parse(mMediaConfig.uri)).listener(new RequestListener<Bitmap>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                try {
+                    //Set Wallpaper
+                    wallpaperManager.setBitmap(resource);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        }).submit();
     }
 }

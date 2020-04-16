@@ -12,5 +12,9 @@
     <string name="btnShareWith" tools:ignore="ResourceName">Share With</string>
     <string name="btnOpenImageUrl" tools:ignore="ResourceName">Open image in web browser</string>
     <string name="btnSetWallpaper" tools:ignore="ResourceName">Set image as wallpaper</string>
+    <string name="asm_gvr_share">Share</string>
+    <string name="asm_gvr_download">Download</string>
+    <string name="asm_gvr_open_with">Open with...</string>
+    <string name="asm_gvr_refresh_video">Refresh Video</string>
 
 </resources>

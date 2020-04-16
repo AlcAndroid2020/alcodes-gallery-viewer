@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,11 +10,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -66,7 +69,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mDataBinding = AsmGvrFragmentPreviewAudioBinding.inflate(inflater, container, false);
 
-        mActionBar = ((AppCompatActivity)requireActivity()).getSupportActionBar();
+        mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         return mDataBinding.getRoot();
     }
@@ -79,6 +82,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -100,7 +104,16 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mPreviewAudioViewModel = new ViewModelProvider(mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
                 get(AsmGvrPreviewAudioViewModel.class);
+        //get selected color
+        mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if(integer!=null){
+                    mDataBinding.previewAudioRoot.setBackgroundColor(ContextCompat.getColor(getActivity(),  integer));
 
+                }
+            }
+        });
 
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
@@ -151,17 +164,13 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         });
 
 
-
         //Check Internet State
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
 
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if (internetStatusData.internetStatus) {
-
                     //Internet Connected
-
-
                     //for Online file (url)
                     if (mInternetSource) {
                         loadmusic(Uri.parse(mViewPagerURL), true);
@@ -170,9 +179,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                     }
 
                 } else {
-
                     //No Internet
-
                     //for Online file (url)
                     if (mInternetSource) {
                         if (DownloadManager.getInstance(getContext()).isCached(mViewPagerURL))
@@ -273,9 +280,11 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     @Override
     public void onPause() {
         super.onPause();
-        if (mDataBinding.AudioPlayer.isPlaying()) {
-            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
-        }
+        //   if (mDataBinding.AudioPlayer.isPlaying()) {
+        mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+        // }
+
+
     }
 
     @Override
