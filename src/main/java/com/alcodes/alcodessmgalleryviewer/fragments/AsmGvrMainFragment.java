@@ -2,13 +2,13 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -32,7 +32,6 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.Context.MODE_PRIVATE;
 
 public class AsmGvrMainFragment extends Fragment {
 
@@ -44,8 +43,10 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
     private List<String> data;
+    private int getThemeData = 0;
     private int color;
     private ActionBar mActionBar;
+    public static final String EXTRA_INTEGER_SELECTED_THEME = "EXTRA_INTEGER_SELECTED_THEME";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,12 +57,27 @@ public class AsmGvrMainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Init data binding;
-        mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+        setHasOptionsMenu(true);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        // Init data binding;
+        mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+
         return mDataBinding.getRoot();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -79,6 +95,7 @@ public class AsmGvrMainFragment extends Fragment {
         //Init data to prevent null pointer exception
         data = new ArrayList<>();
 
+
         //testing uri by using uri from file picker
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
@@ -88,12 +105,13 @@ public class AsmGvrMainFragment extends Fragment {
             //Get File From Previous Main Module Fragment
             if (bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null) {
                 data = bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI);
+                getThemeData = bundle.getInt(EXTRA_INTEGER_SELECTED_THEME);
             }
 
             //getcolor
-        if(bundle!=null)
-            if(bundle.getInt("color")!=0)
-                color=bundle.getInt("color");
+            if (bundle != null)
+                if (bundle.getInt("color") != 0)
+                    color = bundle.getInt("color");
         }
 
         // Init view model.
@@ -115,7 +133,10 @@ public class AsmGvrMainFragment extends Fragment {
                 super.onPageSelected(position);
 
                 // Set fragment number in to menu bar
-                mActionBar.setTitle((position + 1) + "/" + data.size());
+                if (getThemeData != 2)
+                    mActionBar.setTitle((position + 1) + "/" + data.size());
+                else
+                    mActionBar.setTitle("");
 
                 //get internet status from shared view model
                 mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
@@ -148,7 +169,6 @@ public class AsmGvrMainFragment extends Fragment {
             mMainSharedViewModel.setmColorSelectedLiveData(color);
 
     }
-
 
 
     @Override
