@@ -30,12 +30,14 @@ public class AsmGvrMainActivity extends AppCompatActivity {
             if(bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) != -1){
                 data = bundle.getInt(EXTRA_INTEGER_SELECTED_THEME);
             }
+
         }
 
         if(data == 1)
             setTheme(R.style.asm_gvr_apps_theme_semi_transparent);
         else if (data == 2)
             setTheme(R.style.asm_gvr_apps_theme_transparent);
+
 
 
         // Init data binding.

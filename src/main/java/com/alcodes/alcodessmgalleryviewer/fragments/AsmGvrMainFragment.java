@@ -2,11 +2,11 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,6 +31,8 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class AsmGvrMainFragment extends Fragment {
 
@@ -85,14 +86,14 @@ public class AsmGvrMainFragment extends Fragment {
 
         if (bundle != null) {
             //Get File From Previous Main Module Fragment
-            if(bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null){
+            if (bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null) {
                 data = bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI);
             }
 
             //getcolor
-            if (bundle.getInt("color") != 0)
-                color = bundle.getInt("color");
-
+        if(bundle!=null)
+            if(bundle.getInt("color")!=0)
+                color=bundle.getInt("color");
         }
 
         // Init view model.
@@ -148,6 +149,8 @@ public class AsmGvrMainFragment extends Fragment {
 
     }
 
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -170,7 +173,7 @@ public class AsmGvrMainFragment extends Fragment {
         data.clear();
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
