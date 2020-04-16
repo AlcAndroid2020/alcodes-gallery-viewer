@@ -10,7 +10,6 @@ public class AsmGvrOpenWithConfig {
     public AsmGvrOpenWithConfig() {
     }
 
-
     public void openWith(Context context, Uri uri) {
         String filename = "";
 

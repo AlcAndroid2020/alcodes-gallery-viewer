@@ -6,8 +6,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -19,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -52,24 +56,10 @@ public class AsmGvrDownloadConfig {
 
     public void startDownload(Context context, String uri, Uri path) {
         mViewPagerURL = uri;
-//        mViewPagerURL="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
         dirpath = path;
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
-
-//        DocumentFile documentFile = DocumentFile.fromTreeUri(context, dirpath);
-//        DocumentFile[] files = documentFile.listFiles();
-//        if (files != null && files.length > 0) {
-//
-//            for (DocumentFile file : files) {
-//                Toast.makeText(context, file.getName(), Toast.LENGTH_SHORT).show();
-//                if (file.getName()!=fileName){
-//
-//                    fileName="test";
-//                }
-//            }
-//        }
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
                 .setTitle(fileName)// Title of the Download Notification
@@ -94,7 +84,29 @@ public class AsmGvrDownloadConfig {
 
             if (downloadID == id) {
                 Uri movefileuri = null;
-                //Move File to user selected file
+                DocumentFile documentFile = DocumentFile.fromTreeUri(ctxt, dirpath);
+                DocumentFile[] files = documentFile.listFiles();
+                if (files != null && files.length > 0) {
+                    for (DocumentFile file : files) {
+                        String name = getFileName(ctxt, file.getUri());
+                        boolean resultOfComparison = name.equals(fileName);
+                        if (resultOfComparison == true) {
+                            int i = 1;
+                            fileName = fileName.substring(0, fileName.lastIndexOf("."));
+                            Matcher m = Pattern.compile("\\((.*?)\\)").matcher(fileName);
+                            if (m.find()) {
+                                i++;
+//                                fileName = fileName.replaceAll("\\s*\\([^\\)]*\\)\\s*", "") + "(" + i + ")" + ".pdf";
+                                fileName = fileName.replaceAll("\\s*\\([^\\)]*\\)\\s*",  "(" + i + ")" + ".pdf");
+                            }
+                            else {
+                                fileName = fileName + "(" + i + ")" + ".pdf";
+                            }
+                        }
+//                        fileName = fileName.replaceAll("\\s*\\([^\\)]*\\)\\s*",  "(" + i + ")" + ".pdf");
+
+                    }
+                }
                 try {
                     movefileuri = copyFileToSafFolder(ctxt, fileuri.getUri(), dirpath, fileName);
 
@@ -114,30 +126,39 @@ public class AsmGvrDownloadConfig {
         }
     };
 
+    public String getFileName(Context context, Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
     public Uri copyFileToSafFolder(Context context, Uri src, Uri dirpath, String destFileName) throws FileNotFoundException {
         InputStream inputStream = context.getContentResolver().openInputStream(src);
         String docId = DocumentsContract.getTreeDocumentId(dirpath);
         Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
         Uri a;
         Uri destUri = null;
-        DocumentFile documentFile = DocumentFile.fromTreeUri(context, dirpath);
-        DocumentFile[] files = documentFile.listFiles();
-        if (files != null && files.length > 0) {
-
-            for (DocumentFile file : files) {
-                Toast.makeText(context, file.getName(), Toast.LENGTH_SHORT).show();
-
-                if (file.getUri() == destUri) {
-
-                    fileName = "test";
-                }
-            }
-        }
 
 
         try {
             //change to src
-            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", fileName);
+            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -172,7 +193,6 @@ public class AsmGvrDownloadConfig {
         return null;
 
     }
-
 
 
 }
