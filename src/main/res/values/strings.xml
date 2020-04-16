@@ -10,11 +10,13 @@
     <string name="btnDownload" tools:ignore="ResourceName">Download</string>
     <string name="btnOpenWith" tools:ignore="ResourceName">Open With</string>
     <string name="btnShareWith" tools:ignore="ResourceName">Share With</string>
-    <string name="btnOpenImageUrl" tools:ignore="ResourceName">Open image in web browser</string>
-    <string name="btnSetWallpaper" tools:ignore="ResourceName">Set image as wallpaper</string>
     <string name="asm_gvr_share">Share</string>
     <string name="asm_gvr_download">Download</string>
     <string name="asm_gvr_open_with">Open with...</string>
     <string name="asm_gvr_refresh_video">Refresh Video</string>
-
+    <string name="menuItemOpenImageUrl" tools:ignore="ResourceName">Open image in web browser</string>
+    <string name="menuItemSetWallpaper" tools:ignore="ResourceName">Set image as wallpaper</string>
+    <string name="menuItemSaveImage" tools:ignore="ResourceName">Save image</string>
+    <string name="menuItemShareImage" tools:ignore="ResourceName">Share image</string>
+    <string name="text_view_for_details" tools:ignore="ResourceName">Details</string>
 </resources>

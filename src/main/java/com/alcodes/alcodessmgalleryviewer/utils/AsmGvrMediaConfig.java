@@ -4,11 +4,15 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
+
+import androidx.documentfile.provider.DocumentFile;
 
 public class AsmGvrMediaConfig{
     private int position;
     private String uri;
     private String fileType;
+    private String fileName;
     private Boolean fromInternetSource;
     private ContentResolver cR;
 
@@ -33,6 +37,18 @@ public class AsmGvrMediaConfig{
 
     public String getFileType() {
         return fileType;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(Context context) {
+        if(fromInternetSource){
+            this.fileName = URLUtil.guessFileName(uri, null, MimeTypeMap.getFileExtensionFromUrl(uri));
+        }else{
+            this.fileName = DocumentFile.fromSingleUri(context, Uri.parse(uri)).getName();
+        }
     }
 
     public void setFileType(String fileType) {
