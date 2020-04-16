@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
@@ -174,66 +173,6 @@ public class AsmGvrDownloadConfig {
 
     }
 
-    public void openWith(Context context, Uri uri) {
-        String filename = "";
 
-        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-            filename = uri.toString();
-        } else {
-            DocumentFile f = DocumentFile.fromSingleUri(context, uri);
-            filename = f.getName();
-        }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        if (filename.contains(".doc") || filename.contains(".docx")) {
-            intent.setDataAndType(uri, "application/msword");               // Word document
-        } else if (filename.contains(".pdf")) {
-            intent.setDataAndType(uri, "application/pdf");                   // PDF file
-        } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");    // Powerpoint file
-        } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-excel");         // Excel file
-        } else if (filename.contains(".zip") || filename.contains(".rar")) {
-            intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
-        } else if (filename.contains(".rtf")) {                                     // RTF file
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (filename.contains(".gif")) {                                     // GIF file
-            intent.setDataAndType(uri, "image/gif");
-        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-            intent.setDataAndType(uri, "image/jpeg");
-        } else if (filename.contains(".txt")) {
-            intent.setDataAndType(uri, "text/plain");
-        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
-            intent.setDataAndType(uri, "video/*");
-        } else {
-            intent.setDataAndType(uri, "/");
-        }
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
 
-    public void shareWith(Context context, Uri uri) {
-
-        if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
-            Intent shareIntent = new Intent();
-            shareIntent.setType("text/html");
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "This is the URL I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, uri.toString());
-            context.startActivity(Intent.createChooser(shareIntent, "Share With..."));
-
-        } else {
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "This is the file I'm sharing.");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.setType("application/pdf");
-            context.startActivity(Intent.createChooser(shareIntent, "Share With..."));
-        }
-    }
 }

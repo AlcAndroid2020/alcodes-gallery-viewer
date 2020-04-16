@@ -26,6 +26,8 @@ import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewUnkno
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.UnknownFileCallback;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 import java.io.File;
@@ -34,7 +36,8 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private final AsmGvrDownloadConfig mDownloadConfig;
-
+    private final AsmGvrShareConfig mShareConfig;
+    private final AsmGvrOpenWithConfig mOpenWithConfig;
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_String_PAGER_FILEURL = "ARG_STRING_PAGER_FILEURL";
     private NavController mNavController;
@@ -55,7 +58,10 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     public AsmGvrPreviewUnknowFileFragment() {
         mDownloadConfig = new AsmGvrDownloadConfig();
+        mShareConfig = new AsmGvrShareConfig();
+        mOpenWithConfig = new AsmGvrOpenWithConfig();
     }
+
 
     public static AsmGvrPreviewUnknowFileFragment newInstance(AsmGvrMediaConfig position) {
         Bundle args = new Bundle();
@@ -142,12 +148,12 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-        mDownloadConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
+        mShareConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
     }
 
     @Override
     public void onOpenWithButtonClicked() {
-        mDownloadConfig.openWith(getContext(),Uri.parse(mViewPagerURL));
+        mOpenWithConfig.openWith(getContext(),Uri.parse(mViewPagerURL));
     }
 
     @Override
