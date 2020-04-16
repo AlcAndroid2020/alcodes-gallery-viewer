@@ -33,7 +33,11 @@ public class AsmGvrOpenWithConfig {
             intent.setDataAndType(uri, "application/x-wav");                  // WAV audio file
         } else if (filename.contains(".rtf")) {                                     // RTF file
             intent.setDataAndType(uri, "application/rtf");
-        } else if (filename.contains(".wav") || filename.contains(".mp3")) {        // WAV audio file
+        } else if (filename.contains(".wav") || filename.contains(".mp3") ||
+                filename.contains(".m4a") || filename.contains(".flac") || filename.contains(".gsm")
+                || filename.contains(".mkv") || filename.contains(".ogg") || filename.contains(".mid")
+                || filename.contains(".mxmf") || filename.contains(".xmf") || filename.contains(".ota")
+                || filename.contains(".imy")) {        // WAV audio file
             intent.setDataAndType(uri, "audio/x-wav");
         } else if (filename.contains(".gif")) {                                     // GIF file
             intent.setDataAndType(uri, "image/gif");
@@ -41,7 +45,9 @@ public class AsmGvrOpenWithConfig {
             intent.setDataAndType(uri, "image/jpeg");
         } else if (filename.contains(".txt")) {
             intent.setDataAndType(uri, "text/plain");
-        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg") || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")) {
+        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg")
+                || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")
+                || filename.contains(".webm")) {
             intent.setDataAndType(uri, "video/*");
         } else {
             intent.setDataAndType(uri, "/");
