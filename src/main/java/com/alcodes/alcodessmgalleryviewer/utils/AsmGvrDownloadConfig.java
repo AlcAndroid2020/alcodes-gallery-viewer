@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.documentfile.provider.DocumentFile;
@@ -21,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -34,6 +35,8 @@ public class AsmGvrDownloadConfig {
     private DocumentFile fileuri;
     private ContentResolver cR;
     private String mViewPagerURL;
+    public Uri movefileuri = null;
+    boolean resultOfComparison = false;
 
     public File getFile() {
         return file;
@@ -43,7 +46,6 @@ public class AsmGvrDownloadConfig {
         this.file = file;
     }
 
-
     public Uri getUri() {
         return uri;
     }
@@ -51,27 +53,53 @@ public class AsmGvrDownloadConfig {
     public AsmGvrDownloadConfig() {
     }
 
-
     public void startDownload(Context context, String uri, Uri path) {
+        if (checkDuplicate(context, path) == true) {
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+            builder.setTitle("Download Warning");
+            builder.setMessage("The File U Already Download, Are u Want To Downlod Again?");
+            builder.setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Download(context, uri, path);
+                }
+            });
+            builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+
+        } else {
+            Download(context, uri, path);
+        }
+    }
+
+    public boolean checkDuplicate(Context context, Uri path) {
+
+        DocumentFile documentFile = DocumentFile.fromTreeUri(context, path);
+        DocumentFile[] files = documentFile.listFiles();
+        if (files != null && files.length > 0) {
+            for (DocumentFile f : files) {
+                if (f.getName().equals(fileName)) {
+                    resultOfComparison = true;
+                } else {
+                    resultOfComparison = false;
+                }
+            }
+        }
+        return resultOfComparison;
+    }
+
+    public void Download(Context context, String uri, Uri path) {
         mViewPagerURL = uri;
-//        mViewPagerURL="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
         dirpath = path;
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
-
-//        DocumentFile documentFile = DocumentFile.fromTreeUri(context, dirpath);
-//        DocumentFile[] files = documentFile.listFiles();
-//        if (files != null && files.length > 0) {
-//
-//            for (DocumentFile file : files) {
-//                Toast.makeText(context, file.getName(), Toast.LENGTH_SHORT).show();
-//                if (file.getName()!=fileName){
-//
-//                    fileName="test";
-//                }
-//            }
-//        }
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mViewPagerURL))
                 .setTitle(fileName)// Title of the Download Notification
@@ -85,19 +113,33 @@ public class AsmGvrDownloadConfig {
 
         mgr = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
         context.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
-
     }
 
     BroadcastReceiver onComplete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
-
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-
             if (downloadID == id) {
-                Uri movefileuri = null;
-                //Move File to user selected file
+                DocumentFile documentFile = DocumentFile.fromTreeUri(ctxt, dirpath);
+                DocumentFile[] files = documentFile.listFiles();
+                if (files != null && files.length > 0) {
+                    for (DocumentFile file : files) {
+                        boolean resultOfComparison = file.getName().equals(fileName);
+                        if (resultOfComparison == true) {
+                            int i = 1;
+                            fileName = fileName.substring(0, fileName.lastIndexOf("."));
+                            Matcher m = Pattern.compile("\\((.*?)\\)").matcher(fileName);
+                            if (m.find()) {
+                                ++i;
+                                fileName = fileName.replaceAll("\\s*\\([^\\)]*\\)\\s*", "(" + i + ")" + ".pdf");
+
+                            } else {
+                                fileName = fileName + "(" + i + ")" + ".pdf";
+                            }
+                        }
+                    }
+                }
                 try {
+
                     movefileuri = copyFileToSafFolder(ctxt, fileuri.getUri(), dirpath, fileName);
 
                 } catch (FileNotFoundException e) {
@@ -106,7 +148,9 @@ public class AsmGvrDownloadConfig {
                 //delete file, after move file complete
                 if (movefileuri != null) {
                     Uri delfile = fileuri.getUri();
+
                     File fdelete = new File(delfile.getPath());
+
                     if (fdelete.delete()) {
                         AlertDialog alertDialog = new AlertDialog.Builder(ctxt)
 
@@ -115,10 +159,11 @@ public class AsmGvrDownloadConfig {
                                 .setPositiveButton("Ok",null)
                                 .show();
                     }
+
+
+
                 }
             }
-
-
         }
     };
 
@@ -126,26 +171,11 @@ public class AsmGvrDownloadConfig {
         InputStream inputStream = context.getContentResolver().openInputStream(src);
         String docId = DocumentsContract.getTreeDocumentId(dirpath);
         Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(dirpath, docId);
-        Uri a;
         Uri destUri = null;
-        DocumentFile documentFile = DocumentFile.fromTreeUri(context, dirpath);
-        DocumentFile[] files = documentFile.listFiles();
-        if (files != null && files.length > 0) {
-
-            for (DocumentFile file : files) {
-                Toast.makeText(context, file.getName(), Toast.LENGTH_SHORT).show();
-
-                if (file.getUri() == destUri) {
-
-                    fileName = "test";
-                }
-            }
-        }
-
 
         try {
             //change to src
-            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", fileName);
+            destUri = DocumentsContract.createDocument(context.getContentResolver(), dirUri, "*/*", destFileName);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -176,9 +206,7 @@ public class AsmGvrDownloadConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return null;
-
     }
 
 
