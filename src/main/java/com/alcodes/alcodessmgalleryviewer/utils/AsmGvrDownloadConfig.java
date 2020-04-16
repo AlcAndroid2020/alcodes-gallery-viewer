@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.documentfile.provider.DocumentFile;
 
 import java.io.File;
@@ -105,8 +107,14 @@ public class AsmGvrDownloadConfig {
                 if (movefileuri != null) {
                     Uri delfile = fileuri.getUri();
                     File fdelete = new File(delfile.getPath());
-                    if (fdelete.delete())
-                        Toast.makeText(ctxt, "ooooooooo", Toast.LENGTH_SHORT).show();
+                    if (fdelete.delete()) {
+                        AlertDialog alertDialog = new AlertDialog.Builder(ctxt)
+
+                                .setTitle("Download Completed!")
+                            .setMessage("Your file have downloaded!")
+                                .setPositiveButton("Ok",null)
+                                .show();
+                    }
                 }
             }
 
@@ -172,7 +180,6 @@ public class AsmGvrDownloadConfig {
         return null;
 
     }
-
 
 
 }

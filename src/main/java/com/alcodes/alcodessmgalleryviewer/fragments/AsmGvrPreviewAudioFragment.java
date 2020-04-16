@@ -1,11 +1,16 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +30,10 @@ import androidx.navigation.Navigation;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewAudioBinding;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
 import com.bumptech.glide.Glide;
@@ -49,6 +57,9 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private String mViewPagerURL;
     private Boolean mInternetSource;
     private ActionBar mActionBar;
+    private AsmGvrDownloadConfig mGvrDownloadConfig;
+    private AsmGvrShareConfig mGvrShareConfig;
+    private AsmGvrOpenWithConfig mGvrOpenWithConfig;
 
     public AsmGvrPreviewAudioFragment() {
     }
@@ -70,9 +81,43 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mDataBinding = AsmGvrFragmentPreviewAudioBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+        setHasOptionsMenu(true);
 
         return mDataBinding.getRoot();
     }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.asm_gvr_audio_menu, menu);
+        if(!mInternetSource)
+            menu.findItem(R.id.audio_menu_download).setVisible(false);
+
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if(itemId == R.id.audio_menu_open_with) {
+            //open audio with other app
+          mGvrOpenWithConfig.openWith(getContext(),Uri.parse(mViewPagerURL));
+
+        }else if(itemId == R.id.audio_menu_download) {
+            //open file picker to select folder to download
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(intent, 42);
+        }
+        else if(itemId==R.id.audio_menu_share){
+            //share audio
+          mGvrShareConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
+
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -86,6 +131,14 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if(mGvrDownloadConfig == null)
+           mGvrDownloadConfig = new AsmGvrDownloadConfig();
+
+        if(mGvrShareConfig == null)
+           mGvrShareConfig = new AsmGvrShareConfig();
+
+        if(mGvrOpenWithConfig==null)
+            mGvrOpenWithConfig=new AsmGvrOpenWithConfig();
 
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
@@ -284,11 +337,24 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
         // }
 
-
     }
+
 
     @Override
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
 
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            //Start download using Download utils class
+            if (requestCode == 42) {
+                if (data != null) {
+                   mGvrDownloadConfig.startDownload(requireActivity(),mViewPagerURL,data.getData());
+                }
+            }
+            //Start download using Download utils class
+        }
     }
 }
