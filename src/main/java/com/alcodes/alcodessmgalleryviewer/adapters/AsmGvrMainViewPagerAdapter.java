@@ -51,6 +51,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
         mMediaConfig.setFromInternetSource(isOnline);
         mMediaConfig.setPosition(position);
         mMediaConfig.setUri(data);
+        mMediaConfig.setFileName(fragment.requireContext());
 
         if(fileType.startsWith("image")){
             return AsmGvrPreviewImageFragment.newInstance(mMediaConfig);

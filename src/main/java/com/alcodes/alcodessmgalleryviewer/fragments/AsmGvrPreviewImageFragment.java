@@ -1,6 +1,7 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -16,15 +17,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.LinearLayout;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -50,6 +55,7 @@ import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
+    private static final int OPEN_DIRECTORY_REQUEST_CODE = 50;
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewImageBinding mDataBinding;
@@ -69,6 +75,7 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         mediaConfigModel.fileType = mediaConfig.getFileType();
         mediaConfigModel.fromInternetSource = mediaConfig.getFromInternetSource();
         mediaConfigModel.uri = mediaConfig.getUri();
+        mediaConfigModel.fileName = mediaConfig.getFileName();
 
         args.putString(ARG_JSON_STRING_MEDIACONFIG_MODEL, new Gson().toJson(mediaConfigModel));
 
@@ -100,13 +107,16 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.asm_gvr_image_menu, menu);
+        boolean setVisible;
 
         if(mMediaConfig.fromInternetSource){
-            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(true);
+            setVisible = true;
         }else{
-            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(false);
+            setVisible = false;
         }
 
+        menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(setVisible);
+        menu.findItem(R.id.menu_save_image).setVisible(setVisible);
     }
 
     @Override
@@ -119,6 +129,15 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         }else if(itemId == R.id.menu_item_set_as_wallpaper) {
             //Set image as wallpaper is Pressed
             setImageAsWallPaper();
+        }else if(itemId == R.id.menu_save_image){
+            //Open SAF to select directory and save the images
+            saveImageIntoDevice();
+        }else if(itemId == R.id.menu_share_image){
+            //Share images
+            shareImageToOthers();
+        }else if(itemId == R.id.menu_details){
+            //Show Details
+            onSlideImageDetailUp(mDataBinding.touchImageViewPreviewImage);
         }
 
         return super.onOptionsItemSelected(item);
@@ -173,7 +192,22 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             }
         });
 
-        Timber.e("Check: "+ mMediaConfig.uri);
+        //Init View
+        mDataBinding.Temp1.setText(mMediaConfig.uri);
+        mDataBinding.Temp2.setText(mMediaConfig.fileName);
+        mDataBinding.Temp3.setText(mMediaConfig.fileType);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == OPEN_DIRECTORY_REQUEST_CODE){
+                if(data != null){
+                    new AsmGvrDownloadConfig().startDownload(requireContext(), mMediaConfig.uri, data.getData());
+                }
+            }
+        }
     }
 
     @Override
@@ -212,5 +246,44 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 return false;
             }
         }).submit();
+    }
+
+    private void saveImageIntoDevice(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE);
+    }
+
+    private void shareImageToOthers(){
+        new AsmGvrDownloadConfig().shareWith(requireContext(), Uri.parse(mMediaConfig.uri));
+    }
+
+    @Override
+    public void onSlideImageDetailUp(AsmGvrTouchImageView imageView) {
+        mDataBinding.linearLayoutImageDetail.setVisibility(View.VISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                mDataBinding.linearLayoutImageDetail.getHeight(),            // fromYDelta
+                0);// toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.linearLayoutImageDetail.setAnimation(animation);
+
+        imageView.setIsDetailShown(true);
+    }
+
+    @Override
+    public void onSlideImageDetailDown(AsmGvrTouchImageView imageView) {
+        mDataBinding.linearLayoutImageDetail.setVisibility(View.INVISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                0,            // fromYDelta
+                mDataBinding.linearLayoutImageDetail.getHeight()); // toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.linearLayoutImageDetail.setAnimation(animation);
+
+        imageView.setIsDetailShown(false);
     }
 }

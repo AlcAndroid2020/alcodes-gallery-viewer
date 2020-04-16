@@ -35,9 +35,15 @@ import timber.log.Timber;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
-public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatImageView implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatImageView
+        implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     Matrix matrix;
+
+    //Swipe Properties
+    private static final int SWIPE_MIN_DISTANCE = 60;
+    //private static final int SWIPE_MAX_OFF_PATH = 62;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 1;
 
     // We can be in one of these 3 states
     static final int NONE = 0;
@@ -51,12 +57,14 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     float minScale = 1f;
     float maxScale = 4f;
     float[] m;
+    int slideDistanceCahce = 0;
 
     //Flag
     boolean reachEndImage = false;
     boolean disallowZoom = false;
     boolean isErrorImage = false;
     boolean internetAvailable = false;
+    boolean isDetailShown = false;
 
     private AsmGvrImageCallback mImageCallback;
 
@@ -146,8 +154,15 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
                             if(saveScale == 1.0){
                                 //Not in Zooming
-                                //Slide Left/Right to Previous/Next Picture
-                                getParent().requestDisallowInterceptTouchEvent(false);
+                                if(isDetailShown){
+                                    //Detail is Showing
+                                    //Disable sliding to next image
+                                    getParent().requestDisallowInterceptTouchEvent(true);
+                                }else{
+                                    //Enable sliding to next image
+                                    getParent().requestDisallowInterceptTouchEvent(false);
+                                }
+
                             }else{
                                 //In Zooming
                                 if((origWidth * saveScale) <= viewWidth){
@@ -313,6 +328,14 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         }
     }
 
+    public void setIsDetailShown(boolean isDetailShown){
+        this.isDetailShown = isDetailShown;
+    }
+
+    public boolean getIsDetailShown(){
+        return isDetailShown;
+    }
+
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         mImageCallback.onTouchShowHideActionBar();
@@ -321,10 +344,15 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
+
+        if(isDetailShown){
+            //Disallow double tap when details is shown.
+            return false;
+        }
+
         // Double tap is detected
         float origScale = saveScale;
         float mScaleFactor;
-
 
         if (saveScale == minScale) {
             //Current Scale is Equal Minimum Scale
@@ -386,6 +414,19 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if(saveScale != 1){
+            //Not showing details when in zoom.
+            return false;
+        }
+
+        if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+            // Swipe Up
+            mImageCallback.onSlideImageDetailUp(this);
+        }else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
+            // Swipe Down
+            mImageCallback.onSlideImageDetailDown(this);
+        }
+
         return false;
     }
 
@@ -400,6 +441,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            if(isDetailShown){
+                //Not allow pinch while detail is shown
+                return false;
+            }
+
             //While on Pinching, disable sliding.
             getParent().requestDisallowInterceptTouchEvent(true);
 
