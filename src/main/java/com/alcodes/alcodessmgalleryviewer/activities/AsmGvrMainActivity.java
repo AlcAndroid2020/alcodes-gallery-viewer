@@ -23,20 +23,18 @@ public class AsmGvrMainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        int data = -1;
-
         if (bundle != null) {
             //Get File From Previous Main Module Fragment
             if(bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) != -1){
-                data = bundle.getInt(EXTRA_INTEGER_SELECTED_THEME);
+                if (bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) == 1){
+                    setTheme(R.style.asm_gvr_apps_theme_semi_transparent);
+                }else if (bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) == 2){
+                    setTheme(R.style.asm_gvr_apps_theme_transparent);
+                }else {
+                    setTheme(R.style.asm_gvr_apps_default);
+                }
             }
         }
-
-        if(data == 1)
-            setTheme(R.style.asm_gvr_apps_theme_semi_transparent);
-        else if (data == 2)
-            setTheme(R.style.asm_gvr_apps_theme_transparent);
-
 
         // Init data binding.
         mDataBinding = AsmGvrActivityMainBinding.inflate(getLayoutInflater());
