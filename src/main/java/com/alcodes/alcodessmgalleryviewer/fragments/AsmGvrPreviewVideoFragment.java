@@ -31,6 +31,8 @@ import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVideoViewModel;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView;
@@ -59,6 +61,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private HttpProxyCacheServer mHttpProxyCacheServer;
     private String mProxyURL = "";
     private AsmGvrDownloadConfig mDownloadConfig;
+    private AsmGvrShareConfig mShareConfig;
+    private AsmGvrOpenWithConfig mOpenWithConfig;
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -108,7 +112,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         //Refresh Video
         //Share Video
         else if (item.getItemId() == R.id.video_fragment_menu_share) {
-            //TODO When Share Utils class is available
+            mShareConfig.shareWith(requireActivity(), mViewPagerUri);
         }//Share Video
         //Download video to selected directory
         else if(item.getItemId() == R.id.video_fragment_menu_download){
@@ -119,7 +123,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         }//Download video to selected directory
         //Open video with other application
         else if(item.getItemId() == R.id.video_fragment_menu_open_with){
-            //TODO When Open With Utils class is available
+            mOpenWithConfig.openWith(requireActivity(), mViewPagerUri);
         }
         //Open video with other application
         return super.onOptionsItemSelected(item);
@@ -137,9 +141,16 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // Action Bar Menu Features Initialization
         if(mDownloadConfig == null){
             mDownloadConfig = new AsmGvrDownloadConfig();
         }
+        if (mShareConfig == null) {
+            mShareConfig = new AsmGvrShareConfig();
+        }
+        if(mOpenWithConfig == null){
+            mOpenWithConfig = new AsmGvrOpenWithConfig();
+        }// Action Bar Menu Features Initialization
 
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);

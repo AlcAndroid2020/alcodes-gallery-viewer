@@ -188,9 +188,6 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //Clear the data
-        data.clear();
     }
 
     public boolean isConnected() {
