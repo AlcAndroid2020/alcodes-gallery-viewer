@@ -3,7 +3,6 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,9 +43,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.HttpProxyCacheServer;
 
-import java.util.HashMap;
-
-import timber.log.Timber;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class AsmGvrPreviewVideoFragment extends Fragment{
@@ -78,6 +74,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private FFmpegMediaMetadataRetriever mFFmpegMMR;
     private Boolean videoErrorFlag = false;
     private Boolean isDetailsShowing = false;
+    private AsmGvrCircularProgressBar mCircularProgressBar;
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -179,6 +176,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         if(mFFmpegMMR == null){
             mFFmpegMMR = new FFmpegMediaMetadataRetriever();
         }
+        if(mCircularProgressBar == null){
+            mCircularProgressBar = new AsmGvrCircularProgressBar(requireActivity());
+        }
         // Action Bar Menu Features and FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
 
         // Extract arguments.
@@ -231,6 +231,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if(internetStatusData.internetStatus){
                     mDataBinding.previewVideoNoInternet.setVisibility(View.INVISIBLE);
+                    mDataBinding.previewVideoView.start();
                     if(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
                         mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                     }
@@ -357,7 +358,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         mDataBinding.previewVideoImageLoading.setZ(1);
         mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
         Glide.with(this)
-                .load(new AsmGvrCircularProgressBar(requireContext()))
+                .load(mCircularProgressBar)
                 .into(mDataBinding.previewVideoImageLoading);
         // Initialize VideoView with loading bar when video is loading for playing
 
@@ -451,7 +452,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                 mDataBinding.previewVideoView.setZ(0);
                                 mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                                 Glide.with(requireActivity())
-                                        .load(new AsmGvrCircularProgressBar(requireContext()))
+                                        .load(mCircularProgressBar)
                                         .into(mDataBinding.previewVideoImageLoading);
                                 return true;
                             }
