@@ -37,18 +37,6 @@ public class AsmGvrDownloadConfig {
     public Uri movefileuri = null;
     boolean resultOfComparison = false;
 
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public Uri getUri() {
-        return uri;
-    }
-
     public AsmGvrDownloadConfig() {
     }
 
@@ -93,8 +81,18 @@ public class AsmGvrDownloadConfig {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String NewName = input.getText().toString();
+
                 fileName = NewName + ".pdf";
-                Download(context, uri, path);
+                if (checkDuplicate(context, path) == false) {
+                    Download(context, uri, path);
+                } else {
+                    AlertDialog alertDialog = new AlertDialog.Builder(context)
+
+                            .setTitle(context.getString(R.string.DownloadDetail))
+                            .setMessage(context.getString(R.string.NameRepeat))
+                            .setPositiveButton(context.getString(R.string.Okay), null)
+                            .show();
+                }
             }
         });
         builder.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
@@ -103,9 +101,7 @@ public class AsmGvrDownloadConfig {
                 dialog.cancel();
             }
         });
-
         builder.show();
-
     }
 
     public boolean checkDuplicate(Context context, Uri path) {
@@ -149,7 +145,6 @@ public class AsmGvrDownloadConfig {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
             if (downloadID == id) {
                 try {
-
                     movefileuri = copyFileToSafFolder(ctxt, fileuri.getUri(), dirpath, fileName);
 
                 } catch (FileNotFoundException e) {
@@ -169,7 +164,6 @@ public class AsmGvrDownloadConfig {
                                 .setPositiveButton(ctxt.getString(R.string.Okay), null)
                                 .show();
                     }
-
                 }
             }
         }

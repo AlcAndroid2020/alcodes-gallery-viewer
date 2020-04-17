@@ -25,7 +25,22 @@
     <string name="Cancel" tools:ignore="ResourceName">Cancel</string>
     <string name="DownloadDetail" tools:ignore="ResourceName">Download Detail</string>
     <string name="confirmdownload" tools:ignore="ResourceName">The File U Already Download, Are u Want To Downlod Again?</string>
+    <string name="FileName" tools:ignore="ResourceName">File Name: </string>
+    <string name="FileType" tools:ignore="ResourceName">File Type: </string>
     <string name="NewName" tools:ignore="ResourceName">New Name</string>
+    <string name="NameRepeat" tools:ignore="ResourceName">Name Repeated</string>
+    <string name="Word" tools:ignore="ResourceName">Word Document</string>
+    <string name="pdf" tools:ignore="ResourceName">PDF File</string>
+    <string name="powerpoint" tools:ignore="ResourceName">Power Point Document</string>
+    <string name="excel" tools:ignore="ResourceName">Excel File</string>
+    <string name="zip" tools:ignore="ResourceName">Zip File</string>
+    <string name="rtf" tools:ignore="ResourceName">RTD File</string>
+    <string name="audio" tools:ignore="ResourceName">Audio File</string>
+    <string name="gif" tools:ignore="ResourceName">GIF File</string>
+    <string name="image" tools:ignore="ResourceName">Image File</string>
+    <string name="text" tools:ignore="ResourceName">Text File</string>
+    <string name="video" tools:ignore="ResourceName">Video File</string>
+    <string name="unknown" tools:ignore="ResourceName">Unknown File</string>
 
 
 </resources>
