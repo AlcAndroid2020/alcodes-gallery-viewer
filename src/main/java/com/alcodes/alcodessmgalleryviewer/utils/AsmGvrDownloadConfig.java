@@ -55,44 +55,20 @@ public class AsmGvrDownloadConfig {
     }
 
     public void startDownload(Context context, String uri, Uri path) {
-        mViewPagerURL = uri;
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
 
         if (checkDuplicate(context, path) == true) {
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
             builder.setIcon(android.R.drawable.ic_dialog_alert);
             builder.setTitle("Download Warning");
-            builder.setMessage("The File U Already Download, Are You Want To Downlod Again?");
-            builder.setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+            builder.setMessage("The File U Already Download, Are u Want To Downlod Again?");
+            builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
-                    builder.setTitle("New Name");
-                    final EditText input = new EditText(context);
-                    builder.setView(input);
-
-                    builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String NewName = input.getText().toString();
-                            fileName=NewName+".pdf";
-                            Download(context, uri, path);
-
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builder.show();
 //                    Download(context, uri, path);
+                    RenameFile(context,uri, path);
                 }
             });
-            builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -101,8 +77,39 @@ public class AsmGvrDownloadConfig {
             builder.show();
 
         } else {
+                    mViewPagerURL = uri;
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
             Download(context, uri, path);
+
         }
+    }
+
+    private void RenameFile(Context context,String uri, Uri path) {
+        mViewPagerURL = uri;
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setTitle("New Name");
+        final EditText input = new EditText(context);
+        builder.setView(input);
+
+        builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String NewName = input.getText().toString();
+                fileName=NewName+".pdf";
+                Download(context, uri, path);
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
     }
 
     public boolean checkDuplicate(Context context, Uri path) {
@@ -122,8 +129,9 @@ public class AsmGvrDownloadConfig {
     }
 
     public void Download(Context context, String uri, Uri path) {
-
+        mViewPagerURL = uri;
         dirpath = path;
+//        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
 
@@ -234,6 +242,5 @@ public class AsmGvrDownloadConfig {
         }
         return null;
     }
-
 
 }
