@@ -271,13 +271,26 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
     }
 
     private void initView(){
-        if(mMediaConfig.fromInternetSource){
-            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(mMediaConfig.uri);
-        }else{
-            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(Uri.parse(mMediaConfig.uri).getPath());
+        String fileLocation;
+        String fileName = mMediaConfig.fileName;
+        String fileType;
+
+        try{
+            if(mMediaConfig.fromInternetSource){
+                fileLocation = mMediaConfig.uri;
+                fileType = mDataBinding.touchImageViewPreviewImage.getImageFileExtensionURL(Uri.parse(mMediaConfig.uri));
+            }else{
+                fileLocation = Uri.parse(mMediaConfig.uri).getPath();
+                fileType = mDataBinding.touchImageViewPreviewImage.getImageFileExtensionURI(Uri.parse(mMediaConfig.uri));
+            }
+
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(fileLocation);
+            mDataBinding.includedPanelFileDetails.textViewFileName.setText(fileName);
+            mDataBinding.includedPanelFileDetails.textViewFileType.setText(mMediaConfig.fileType+"/"+fileType);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        mDataBinding.includedPanelFileDetails.textViewFileName.setText(mMediaConfig.fileName);
-        mDataBinding.includedPanelFileDetails.textViewFileType.setText(mMediaConfig.fileType);
+
     }
 
     private void openImageOnWebBrowser(){
