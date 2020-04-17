@@ -2,15 +2,18 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -62,7 +65,6 @@ public class AsmGvrMainFragment extends Fragment {
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         // Init data binding;
         mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
@@ -138,17 +140,6 @@ public class AsmGvrMainFragment extends Fragment {
                 else
                     mActionBar.setTitle("");
 
-                //get internet status from shared view model
-                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
-                    @Override
-                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
-                        if (!internetStatusData.internetStatus) {
-                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
         };
@@ -159,7 +150,7 @@ public class AsmGvrMainFragment extends Fragment {
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if (!internetStatusData.internetStatus) {
-
+                    Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -167,7 +158,6 @@ public class AsmGvrMainFragment extends Fragment {
         //set color
         if (color != 0)
             mMainSharedViewModel.setmColorSelectedLiveData(color);
-
     }
 
 
