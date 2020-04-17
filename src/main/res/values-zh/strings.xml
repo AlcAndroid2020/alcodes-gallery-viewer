@@ -42,4 +42,9 @@
     <string name="text" tools:ignore="ResourceName">文字档</string>
     <string name="video" tools:ignore="ResourceName">影片</string>
     <string name="unknown" tools:ignore="ResourceName">不明文件</string>
+    <string name="filename" tools:ignore="ResourceName">文件名</string>
+    <string name="filetype" tools:ignore="ResourceName">文件种类</string>
+    <string name="lastmodif" tools:ignore="ResourceName">最后修改</string>
+    <string name="path" tools:ignore="ResourceName">文件处</string>
+    <string name="file_size" tools:ignore="ResourceName">文件大小</string>
 </resources>
