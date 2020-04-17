@@ -19,4 +19,5 @@
     <string name="menuItemSaveImage" tools:ignore="ResourceName">Save image</string>
     <string name="menuItemShareImage" tools:ignore="ResourceName">Share image</string>
     <string name="text_view_for_details" tools:ignore="ResourceName">Details</string>
+    <string name="asm_gvr_video_details">Video Details</string>
 </resources>

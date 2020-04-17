@@ -138,17 +138,6 @@ public class AsmGvrMainFragment extends Fragment {
                 else
                     mActionBar.setTitle("");
 
-                //get internet status from shared view model
-                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
-                    @Override
-                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
-                        if (!internetStatusData.internetStatus) {
-                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
         };
@@ -159,7 +148,7 @@ public class AsmGvrMainFragment extends Fragment {
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if (!internetStatusData.internetStatus) {
-
+                    Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });

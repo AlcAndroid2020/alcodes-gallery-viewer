@@ -75,7 +75,7 @@ public class AsmGvrMediaConfig{
                 fileType = fileType.substring(0, fileType.lastIndexOf("/"));
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                return "";
             }
         }else{
             isOnline = false;

@@ -113,8 +113,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         else if(itemId==R.id.audio_menu_share){
             //share audio
           mGvrShareConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
-
-
         }
 
         return super.onOptionsItemSelected(item);
