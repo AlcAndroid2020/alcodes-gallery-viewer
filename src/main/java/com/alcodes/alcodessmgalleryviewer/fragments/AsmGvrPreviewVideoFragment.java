@@ -44,6 +44,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.HttpProxyCacheServer;
 
+import java.util.HashMap;
+
 import timber.log.Timber;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
@@ -74,7 +76,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private AsmGvrShareConfig mShareConfig;
     private AsmGvrOpenWithConfig mOpenWithConfig;
     private FFmpegMediaMetadataRetriever mFFmpegMMR;
-    private MediaMetadataRetriever mMMR;
     private Boolean videoErrorFlag = false;
     private Boolean isDetailsShowing = false;
 
@@ -175,9 +176,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         if(mOpenWithConfig == null){
             mOpenWithConfig = new AsmGvrOpenWithConfig();
         }
-        if(mFFmpegMMR == null & mMMR == null){
+        if(mFFmpegMMR == null){
             mFFmpegMMR = new FFmpegMediaMetadataRetriever();
-            mMMR = new MediaMetadataRetriever();
         }
         // Action Bar Menu Features and FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
 
@@ -324,11 +324,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private void initVideoDetails(Uri uri){
         if(mIsInternetSource){
             mFFmpegMMR.setDataSource(uri.toString());
-            mMMR.setDataSource(uri.toString());
             mDataBinding.videoViewFileSize.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE));
         }else{
             mFFmpegMMR.setDataSource(requireActivity(), uri);
-            mMMR.setDataSource(requireActivity(), uri);
             DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), uri);
             mDataBinding.videoViewFileSize.setText(documentFile.length()+"");
         }
@@ -336,9 +334,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         if(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null){
             mDataBinding.videoViewDateRoot.setVisibility(View.VISIBLE);
             mDataBinding.videoViewDate.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME));
-        }else if(mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE) != null){
-            mDataBinding.videoViewDateRoot.setVisibility(View.VISIBLE);
-            mDataBinding.videoViewDate.setText(mMMR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE));
         }else{
             mDataBinding.videoViewDateRoot.setVisibility(View.GONE);
         }
