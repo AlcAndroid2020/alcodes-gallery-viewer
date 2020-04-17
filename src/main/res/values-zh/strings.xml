@@ -12,7 +12,7 @@
     <string name="btnOpenWith" tools:ignore="ResourceName">其他开启方式</string>
     <string name="btnShareWith" tools:ignore="ResourceName">分享</string>
     <string name="asm_gvr_share" tools:ignore="ResourceName">分享</string>
-    <string name="asm_gvr_download" tools:ignore="ResourceName">下载d</string>
+    <string name="asm_gvr_download" tools:ignore="ResourceName">下载</string>
     <string name="asm_gvr_open_with" tools:ignore="ResourceName">其他开启方式</string>
     <string name="asm_gvr_refresh_video" tools:ignore="ResourceName">刷新视频</string>
     <string name="menuItemOpenImageUrl" tools:ignore="ResourceName">打开图像在网络浏览器</string>
@@ -20,4 +20,12 @@
     <string name="menuItemSaveImage" tools:ignore="ResourceName">保存图片</string>
     <string name="menuItemShareImage" tools:ignore="ResourceName">分享图片</string>
     <string name="text_view_for_details" tools:ignore="ResourceName">详情</string>
+    <string name="filename" tools:ignore="ResourceName">文件名</string>
+    <string name="filetype" tools:ignore="ResourceName">文件种类</string>
+    <string name="lastmodif" tools:ignore="ResourceName">最后修改</string>
+    <string name="path" tools:ignore="ResourceName">文件处</string>
+    <string name="file_size" tools:ignore="ResourceName">文件大小</string>
+    <string name="Okay" tools:ignore="ResourceName">好</string>
+
+
 </resources>

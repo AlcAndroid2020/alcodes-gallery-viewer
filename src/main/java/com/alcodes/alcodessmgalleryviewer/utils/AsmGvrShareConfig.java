@@ -1,9 +1,19 @@
 package com.alcodes.alcodessmgalleryviewer.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.StrictMode;
+import android.provider.Settings;
+import android.widget.Toast;
+
+import androidx.documentfile.provider.DocumentFile;
+
+import java.io.File;
 
 public class AsmGvrShareConfig {
 
@@ -32,4 +42,7 @@ public class AsmGvrShareConfig {
             context.startActivity(Intent.createChooser(shareIntent, "Share With..."));
         }
     }
+
+
+
 }

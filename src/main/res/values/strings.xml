@@ -19,4 +19,13 @@
     <string name="menuItemSaveImage" tools:ignore="ResourceName">Save image</string>
     <string name="menuItemShareImage" tools:ignore="ResourceName">Share image</string>
     <string name="text_view_for_details" tools:ignore="ResourceName">Details</string>
+    <string name="filename" tools:ignore="ResourceName">File Name</string>
+    <string name="filetype" tools:ignore="ResourceName">File Type</string>
+    <string name="lastmodif" tools:ignore="ResourceName">Last Modified</string>
+    <string name="path" tools:ignore="ResourceName">Path</string>
+    <string name="file_size" tools:ignore="ResourceName">File Size</string>
+    <string name="Okay" tools:ignore="ResourceName">Okay</string>
+
+
+
 </resources>
