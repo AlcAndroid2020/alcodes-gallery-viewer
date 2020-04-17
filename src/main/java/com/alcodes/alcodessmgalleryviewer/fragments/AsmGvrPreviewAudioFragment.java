@@ -36,7 +36,9 @@ import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrPreviewAudioViewModel;
+import com.alcodes.alcodessmgalleryviewer.views.AsmGvrCircularProgressBar;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.CacheListener;
 import com.vincan.medialoader.DownloadManager;
 import com.vincan.medialoader.MediaLoader;
@@ -276,10 +278,8 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mDataBinding.AudioPlayer.setZ(0);
         mDataBinding.loadgif.setZ(1);
         Glide.with(this)
-                .asGif()
-                .load(R.drawable.loading)
+                .load(new AsmGvrCircularProgressBar(requireContext()))
                 .into(mDataBinding.loadgif);
-
 
         //initiz video view/load music
         mediaController.setAnchorView(mDataBinding.AudioPlayer);
@@ -319,7 +319,11 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private void showErrorMsg() {
 
         mDataBinding.AudioPlayer.setVisibility(View.GONE);
-        mDataBinding.loadgif.setImageResource(R.drawable.asm_gvr_no_internet);
+        Glide.with(requireContext())
+                .load(R.drawable.asm_gvr_no_wifi)
+                .apply(new RequestOptions().override(256,256))
+                .centerInside()
+                .into(mDataBinding.loadgif);
 
     }
 

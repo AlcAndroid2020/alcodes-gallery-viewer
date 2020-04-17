@@ -35,8 +35,10 @@ import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrStateBroadcastingVideoViewModel;
+import com.alcodes.alcodessmgalleryviewer.views.AsmGvrCircularProgressBar;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.HttpProxyCacheServer;
 
 import timber.log.Timber;
@@ -273,8 +275,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         mDataBinding.previewVideoImageLoading.setZ(1);
         mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
         Glide.with(this)
-                .asGif()
-                .load(R.raw.loading)
+                .load(new AsmGvrCircularProgressBar(requireContext()))
                 .into(mDataBinding.previewVideoImageLoading);
         // Initialize VideoView with loading bar when video is loading for playing
 
@@ -294,6 +295,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 if(!mMainSharedViewModel.getInternetStatusDataLiveData().getValue().internetStatus && mIsInternetSource){
                     Glide.with(this)
                             .load(R.drawable.asm_gvr_unable_load)
+                            .apply(new RequestOptions().override(256,256))
+                            .centerInside()
                             .into(mDataBinding.previewVideoImageLoading);
                 }
                 // Set initially no internet and no video cache notifier
@@ -357,8 +360,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                             mDataBinding.previewVideoView.setZ(0);
                             mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                             Glide.with(requireActivity())
-                                    .asGif()
-                                    .load(R.raw.loading)
+                                    .load(new AsmGvrCircularProgressBar(requireContext()))
                                     .into(mDataBinding.previewVideoImageLoading);
                             return true;
                         }
@@ -379,6 +381,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                     Glide.with(requireActivity())
                             .load(R.drawable.play)
+                            .apply(new RequestOptions().override(256,256))
+                            .centerInside()
                             .into(mDataBinding.previewVideoImageLoading);
                     //Add Play img to show video image aside from media controller
                     //Check if video is playing to not accidentally hide image view, then delay 1.5 seconds to remove play img for video viewing experience
@@ -404,6 +408,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                     Glide.with(requireActivity())
                             .load(R.drawable.pause)
+                            .apply(new RequestOptions().override(256,256))
+                            .centerInside()
                             .into(mDataBinding.previewVideoImageLoading);
                     //Add Pause img to show video image aside from media controller
                 }
@@ -435,6 +441,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                             mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                             Glide.with(requireActivity())
                                     .load(R.drawable.asm_gvr_unable_load)
+                                    .apply(new RequestOptions().override(256,256))
+                                    .centerInside()
                                     .into(mDataBinding.previewVideoImageLoading);
                         }
                     }

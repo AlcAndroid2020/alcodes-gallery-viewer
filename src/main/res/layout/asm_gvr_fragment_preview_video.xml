@@ -33,6 +33,7 @@
                 android:id="@+id/preview_video_image_loading"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
+                android:scaleType="centerInside"
                 android:layout_centerInParent="true" />
 
             <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView

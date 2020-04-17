@@ -56,6 +56,7 @@ import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
+    private static final String OUTSTATE_IMAGE_DETAIL_IS_SHOWN = "OUTSTATE_IMAGE_DETAIL_IS_SHOWN";
     private static final int OPEN_DIRECTORY_REQUEST_CODE = 50;
 
     private NavController mNavController;
@@ -121,6 +122,14 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Any rotation happens will close/open the detail panel when its original is close/open state
+        outState.putBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN, mDataBinding.touchImageViewPreviewImage.getIsDetailShown());
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
 
@@ -159,6 +168,19 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
 
+        //Init Saved instance State
+        if(savedInstanceState != null){
+            if(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN)){
+                //Image Detail is Shown, then after rotate should be shown
+                mDataBinding.touchImageViewPreviewImage.setIsDetailShown(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN));
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
+            }else{
+                //Image Detail is not Shown, then after rotate should not be shown
+                mDataBinding.touchImageViewPreviewImage.setIsDetailShown(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN));
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
+            }
+        }
+
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
             @Override
@@ -194,9 +216,7 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         });
 
         //Init View
-        mDataBinding.Temp1.setText(mMediaConfig.uri);
-        mDataBinding.Temp2.setText(mMediaConfig.fileName);
-        mDataBinding.Temp3.setText(mMediaConfig.fileType);
+        initView();
     }
 
     @Override
@@ -218,6 +238,46 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         }else{
             mActionBar.show();
         }
+    }
+
+    @Override
+    public void onSlideImageDetailUp(AsmGvrTouchImageView imageView) {
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight(),            // fromYDelta
+                0);// toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+
+        imageView.setIsDetailShown(true);
+    }
+
+    @Override
+    public void onSlideImageDetailDown(AsmGvrTouchImageView imageView) {
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                0,            // fromYDelta
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight()); // toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+
+        imageView.setIsDetailShown(false);
+    }
+
+    private void initView(){
+        if(mMediaConfig.fromInternetSource){
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(mMediaConfig.uri);
+        }else{
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(Uri.parse(mMediaConfig.uri).getPath());
+        }
+        mDataBinding.includedPanelFileDetails.textViewFileName.setText(mMediaConfig.fileName);
+        mDataBinding.includedPanelFileDetails.textViewFileType.setText(mMediaConfig.fileType);
     }
 
     private void openImageOnWebBrowser(){
@@ -256,35 +316,5 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
 
     private void shareImageToOthers(){
         new AsmGvrShareConfig().shareWith(requireContext(), Uri.parse(mMediaConfig.uri));
-    }
-
-    @Override
-    public void onSlideImageDetailUp(AsmGvrTouchImageView imageView) {
-        mDataBinding.linearLayoutImageDetail.setVisibility(View.VISIBLE);
-        TranslateAnimation animation = new TranslateAnimation(
-                0,                 // fromXDelta
-                0,                   // toXDelta
-                mDataBinding.linearLayoutImageDetail.getHeight(),            // fromYDelta
-                0);// toYDelta
-        animation.setDuration(500);
-        animation.setFillAfter(true);
-        mDataBinding.linearLayoutImageDetail.setAnimation(animation);
-
-        imageView.setIsDetailShown(true);
-    }
-
-    @Override
-    public void onSlideImageDetailDown(AsmGvrTouchImageView imageView) {
-        mDataBinding.linearLayoutImageDetail.setVisibility(View.INVISIBLE);
-        TranslateAnimation animation = new TranslateAnimation(
-                0,                 // fromXDelta
-                0,                   // toXDelta
-                0,            // fromYDelta
-                mDataBinding.linearLayoutImageDetail.getHeight()); // toYDelta
-        animation.setDuration(500);
-        animation.setFillAfter(true);
-        mDataBinding.linearLayoutImageDetail.setAnimation(animation);
-
-        imageView.setIsDetailShown(false);
     }
 }

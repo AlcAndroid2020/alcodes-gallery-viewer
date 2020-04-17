@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
@@ -42,7 +43,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     //Swipe Properties
     private static final int SWIPE_MIN_DISTANCE = 60;
-    //private static final int SWIPE_MAX_OFF_PATH = 62;
+    private static final int SWIPE_MAX_OFF_PATH = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 1;
 
     // We can be in one of these 3 states
@@ -251,7 +252,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         String fileType;
         try{
             fileType = MimeTypeMap.getFileExtensionFromUrl(String.valueOf(imageUri)).toLowerCase();
-            //fileType = fileType.substring(fileType.lastIndexOf("/")+1);
             return fileType;
         } catch (Exception e) {
             e.printStackTrace();
@@ -264,35 +264,22 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     }
 
     public void loadIntoGlide(Context context, Uri imageUri){
-        //PlaceHolder Drawable (Progress Bar)
-        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
-        circularProgressDrawable.setStrokeWidth(5f);
-        circularProgressDrawable.setCenterRadius(30f);
-        circularProgressDrawable.setColorSchemeColors(ContextCompat.getColor(context, R.color.design_default_color_surface));
-        circularProgressDrawable.start();
-
         int imgNoInternetAccessDrawable;
         RequestOptions requestOptions;
 
         if(internetAvailable){
             //General Error Icon
-            imgNoInternetAccessDrawable = R.drawable.asm_gvr_ic_error_outline_black_128dp;
-
-            //As the image is in dp unit
-            requestOptions = new RequestOptions().override(128, 128);
-        }else{
+            imgNoInternetAccessDrawable = R.drawable.asm_gvr_unable_load;
+        }else {
             //No Internet Access Icon
-            imgNoInternetAccessDrawable = R.drawable.asm_gvr_no_internet_access;
-
-            //As the image is in px unit
-            requestOptions = new RequestOptions().override(256, 256);
+            imgNoInternetAccessDrawable = R.drawable.asm_gvr_no_wifi;
         }
 
         //Error Drawable (Error Image)
         RequestBuilder<Drawable> requestBuilder =
                 Glide.with(context)
                         .load(imgNoInternetAccessDrawable)
-                        .apply(requestOptions)
+                        .apply(new RequestOptions().override(256, 256))
                         .listener(new RequestListener<Drawable>() {
                             @Override
                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -311,7 +298,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
         Glide.with(context)
                 .load(imageUri)
-                .placeholder(circularProgressDrawable)
+                .placeholder(new AsmGvrCircularProgressBar(context))
                 .transition(withCrossFade())
                 .error(requestBuilder)
                 .fitCenter()
@@ -416,6 +403,11 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if(saveScale != 1){
             //Not showing details when in zoom.
+            return false;
+        }
+
+        if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH){
+            //Swipe Left or Right will not take any action
             return false;
         }
 

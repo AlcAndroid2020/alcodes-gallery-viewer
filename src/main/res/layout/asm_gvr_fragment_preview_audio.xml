@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:id="@+id/loadgif"
+            android:scaleType="centerInside"
             android:layout_centerInParent="true"/>
         <VideoView
             android:id="@+id/Audio_player"
