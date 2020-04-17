@@ -15,6 +15,8 @@ import android.widget.EditText;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import com.alcodes.alcodessmgalleryviewer.R;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,15 +57,15 @@ public class AsmGvrDownloadConfig {
         if (checkDuplicate(context, path) == true) {
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
             builder.setIcon(android.R.drawable.ic_dialog_alert);
-            builder.setTitle("Download Warning");
-            builder.setMessage("The File U Already Download, Are u Want To Downlod Again?");
-            builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            builder.setTitle(context.getString(R.string.DownloadDetail));
+            builder.setMessage(context.getString(R.string.confirmdownload));
+            builder.setPositiveButton(context.getString(R.string.Okay), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     RenameFile(context, uri, path);
                 }
             });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -83,20 +85,19 @@ public class AsmGvrDownloadConfig {
         mViewPagerURL = uri;
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
-        builder.setTitle("New Name");
+        builder.setTitle(context.getString(R.string.NewName));
         final EditText input = new EditText(context);
         builder.setView(input);
 
-        builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(context.getString(R.string.Okay), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String NewName = input.getText().toString();
                 fileName = NewName + ".pdf";
                 Download(context, uri, path);
-
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -163,9 +164,9 @@ public class AsmGvrDownloadConfig {
                     if (fdelete.delete()) {
                         AlertDialog alertDialog = new AlertDialog.Builder(ctxt)
 
-                                .setTitle("Download Completed!")
-                                .setMessage("Your file have downloaded!")
-                                .setPositiveButton("Ok", null)
+                                .setTitle(ctxt.getString(R.string.DownloadComplete))
+                                .setMessage(ctxt.getString(R.string.DownloadCompleteMessage))
+                                .setPositiveButton(ctxt.getString(R.string.Okay), null)
                                 .show();
                     }
 
