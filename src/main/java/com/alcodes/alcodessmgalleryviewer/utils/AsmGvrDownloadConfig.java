@@ -1,5 +1,6 @@
 package com.alcodes.alcodessmgalleryviewer.utils;
 
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -11,8 +12,8 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.EditText;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.documentfile.provider.DocumentFile;
 
 import java.io.File;
@@ -54,15 +55,41 @@ public class AsmGvrDownloadConfig {
     }
 
     public void startDownload(Context context, String uri, Uri path) {
+        mViewPagerURL = uri;
+        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+
         if (checkDuplicate(context, path) == true) {
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
             builder.setIcon(android.R.drawable.ic_dialog_alert);
             builder.setTitle("Download Warning");
-            builder.setMessage("The File U Already Download, Are u Want To Downlod Again?");
+            builder.setMessage("The File U Already Download, Are You Want To Downlod Again?");
             builder.setNegativeButton("Okay", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Download(context, uri, path);
+
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+                    builder.setTitle("New Name");
+                    final EditText input = new EditText(context);
+                    builder.setView(input);
+
+                    builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String NewName = input.getText().toString();
+                            fileName=NewName+".pdf";
+                            Download(context, uri, path);
+
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+//                    Download(context, uri, path);
                 }
             });
             builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
@@ -95,9 +122,8 @@ public class AsmGvrDownloadConfig {
     }
 
     public void Download(Context context, String uri, Uri path) {
-        mViewPagerURL = uri;
+
         dirpath = path;
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
 
@@ -160,7 +186,7 @@ public class AsmGvrDownloadConfig {
                                 .show();
                     }
 
-
+//                    fdelete.delete();
 
                 }
             }
