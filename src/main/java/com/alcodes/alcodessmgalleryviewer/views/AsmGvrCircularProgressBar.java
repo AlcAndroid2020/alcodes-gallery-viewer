@@ -12,7 +12,6 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 
 public class AsmGvrCircularProgressBar extends CircularProgressDrawable {
 
-    private AsmGvrMainSharedViewModel mMainSharedViewModel;
     private int[] mRgbColor = {
             Color.WHITE,
             Color.CYAN,

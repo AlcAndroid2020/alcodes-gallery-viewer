@@ -68,6 +68,7 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
     boolean isDetailShown = false;
 
     private AsmGvrImageCallback mImageCallback;
+    private AsmGvrCircularProgressBar mCircularProgressBar;
 
     int viewWidth, viewHeight;
     static final int CLICK = 3;
@@ -114,7 +115,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
         setScaleType(ScaleType.MATRIX);
 
         setOnTouchListener(new OnTouchListener() {
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 mScaleDetector.onTouchEvent(event);
@@ -163,7 +163,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                                     //Enable sliding to next image
                                     getParent().requestDisallowInterceptTouchEvent(false);
                                 }
-
                             }else{
                                 //In Zooming
                                 if((origWidth * saveScale) <= viewWidth){
@@ -181,7 +180,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                                     }
                                 }
                             }
-
                         }
                         break;
 
@@ -200,7 +198,6 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                 }
 
                 setImageMatrix(matrix);
-                invalidate();
                 return true; // indicate event was handled
             }
 
@@ -321,6 +318,10 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
 
     public boolean getIsDetailShown(){
         return isDetailShown;
+    }
+
+    public void setCircularProgressBar(AsmGvrCircularProgressBar mCircularProgressBar) {
+        this.mCircularProgressBar = mCircularProgressBar;
     }
 
     @Override
