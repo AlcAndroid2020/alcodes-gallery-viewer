@@ -68,14 +68,14 @@ public class AsmGvrMediaConfig{
         if(cR == null){
             cR = context.getContentResolver();
         }
-        if(uri.getScheme().contains("http")){
+        if(uri.getScheme().contains("http") || uri.getScheme().contains("https")){
             isOnline = true;
             try{
                 fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
                 fileType = fileType.substring(0, fileType.lastIndexOf("/"));
             } catch (Exception e) {
                 e.printStackTrace();
-                return "";
+                return "/online";
             }
         }else{
             isOnline = false;
