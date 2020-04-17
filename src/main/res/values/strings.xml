@@ -7,6 +7,7 @@
     <string name="asm_gvr_msg_internet_access">Internet Access</string>
     <string name="asm_gvr_msg_no_internet_access">No Internet Access</string>
     <string name="DownloadComplete" tools:ignore="ResourceName">Download Complete</string>
+    <string name="DownloadCompleteMessage" tools:ignore="ResourceName">Your file have downloaded!</string>
     <string name="btnDownload" tools:ignore="ResourceName">Download</string>
     <string name="btnOpenWith" tools:ignore="ResourceName">Open With</string>
     <string name="btnShareWith" tools:ignore="ResourceName">Share With</string>
@@ -18,6 +19,27 @@
     <string name="menuItemSetWallpaper" tools:ignore="ResourceName">Set image as wallpaper</string>
     <string name="menuItemSaveImage" tools:ignore="ResourceName">Save image</string>
     <string name="menuItemShareImage" tools:ignore="ResourceName">Share image</string>
+
     <string name="text_view_for_details" tools:ignore="ResourceName">Details</string>
     <string name="asm_gvr_video_details">Video Details</string>
+    <string name="Okay" tools:ignore="ResourceName">Okay</string>
+    <string name="Cancel" tools:ignore="ResourceName">Cancel</string>
+    <string name="DownloadDetail" tools:ignore="ResourceName">Download Detail</string>
+    <string name="confirmdownload" tools:ignore="ResourceName">The File U Already Download, Are u Want To Downlod Again?</string>
+    <string name="FileName" tools:ignore="ResourceName">File Name: </string>
+    <string name="FileType" tools:ignore="ResourceName">File Type: </string>
+    <string name="NewName" tools:ignore="ResourceName">New Name</string>
+    <string name="NameRepeat" tools:ignore="ResourceName">Name Repeated</string>
+    <string name="Word" tools:ignore="ResourceName">Word Document</string>
+    <string name="pdf" tools:ignore="ResourceName">PDF File</string>
+    <string name="powerpoint" tools:ignore="ResourceName">Power Point Document</string>
+    <string name="excel" tools:ignore="ResourceName">Excel File</string>
+    <string name="zip" tools:ignore="ResourceName">Zip File</string>
+    <string name="rtf" tools:ignore="ResourceName">RTD File</string>
+    <string name="audio" tools:ignore="ResourceName">Audio File</string>
+    <string name="gif" tools:ignore="ResourceName">GIF File</string>
+    <string name="image" tools:ignore="ResourceName">Image File</string>
+    <string name="text" tools:ignore="ResourceName">Text File</string>
+    <string name="video" tools:ignore="ResourceName">Video File</string>
+    <string name="unknown" tools:ignore="ResourceName">Unknown File</string>
 </resources>

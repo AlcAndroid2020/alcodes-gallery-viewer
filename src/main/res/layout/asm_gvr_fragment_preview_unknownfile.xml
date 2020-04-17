@@ -12,6 +12,7 @@
 
 
     <LinearLayout
+
         android:id="@+id/preview_unknown_file_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,6 +20,25 @@
         android:background="@color/cardview_dark_background"
         android:gravity="center"
         android:padding="16dp">
+
+
+        <TextView
+            android:id="@+id/FileTypeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30sp"
+            android:textSize="30sp"
+            tools:text="File Type" />
+
+        <TextView
+            android:id="@+id/FileNameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30sp"
+            android:textSize="30sp"
+            tools:text="File Name:" />
 
         <Button
             android:id="@+id/btnShareWith"

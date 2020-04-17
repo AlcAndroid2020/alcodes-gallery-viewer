@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +54,8 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private DownloadManager mgr = null;
     private long downloadID;
     public File file;
-    public String fileName = "";
+    public String filename = "";
+    public String filetype="";
     public Uri uri = null;
     private DocumentFile fileuri;
 
@@ -121,9 +124,6 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         });
 
 
-
-
-
         // Init navigation component.
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
     }
@@ -143,21 +143,27 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mgr = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
 
         uri = Uri.parse(mViewPagerURL);
+        String URLfileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
 
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+            filename = uri.toString();
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);
         } else {
+            DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
+            filename = f.getName();
             mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
         }
 
+        mDataBinding.FileTypeView.setText(getResources().getString(R.string.FileType) + checkFileType(filename));
+        mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) + URLfileName);
         mDataBinding.setBindingCallback(this);
 
         //get selected color
         mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                if(integer!=null){
-                    mDataBinding.previewUnknownFileRoot.setBackgroundColor(ContextCompat.getColor(getActivity(),  integer));
+                if (integer != null) {
+                    mDataBinding.previewUnknownFileRoot.setBackgroundColor(ContextCompat.getColor(getActivity(), integer));
 
                 }
             }
@@ -166,15 +172,50 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     }
 
+    private String checkFileType(String filename) {
+        if (filename.contains(".doc") || filename.contains(".docx")) {
+            filetype = getResources().getString(R.string.Word);
+        } else if (filename.contains(".pdf")) {
+            filetype = getResources().getString(R.string.pdf);
+        } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
+            filetype = getResources().getString(R.string.powerpoint);
+        } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
+            filetype = getResources().getString(R.string.excel);
+        } else if (filename.contains(".zip") || filename.contains(".rar")) {
+            filetype = getResources().getString(R.string.zip);
+        } else if (filename.contains(".rtf")) {
+            filetype = getResources().getString(R.string.rtf);
+        } else if (filename.contains(".wav") || filename.contains(".mp3") ||
+                filename.contains(".m4a") || filename.contains(".flac") || filename.contains(".gsm")
+                || filename.contains(".mkv") || filename.contains(".ogg") || filename.contains(".mid")
+                || filename.contains(".mxmf") || filename.contains(".xmf") || filename.contains(".ota")
+                || filename.contains(".imy")) {
+            filetype = getResources().getString(R.string.audio);
+        } else if (filename.contains(".gif")) {
+            filetype = getResources().getString(R.string.gif);
+        } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
+            filetype = getResources().getString(R.string.image);
+        } else if (filename.contains(".txt")) {
+            filetype = getResources().getString(R.string.text);
+        } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename.contains(".mpeg")
+                || filename.contains(".mpe") || filename.contains(".mp4") || filename.contains(".avi")
+                || filename.contains(".webm")) {
+            filetype = getResources().getString(R.string.video);
+        } else {
+            filetype = getResources().getString(R.string.unknown);
+        }
+        return filetype;
+    }
+
 
     @Override
     public void onShareButtonClicked() {
-        mShareConfig.shareWith(getContext(),Uri.parse(mViewPagerURL));
+        mShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
     }
 
     @Override
     public void onOpenWithButtonClicked() {
-        mOpenWithConfig.openWith(getContext(),Uri.parse(mViewPagerURL));
+        mOpenWithConfig.openWith(getContext(), Uri.parse(mViewPagerURL));
     }
 
     @Override
@@ -191,7 +232,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
             if (requestCode == 42) {
                 if (null != data) {
                     dirpath = data.getData();
-                    mDownloadConfig.startDownload(getContext(), mViewPagerURL,dirpath);
+                    mDownloadConfig.startDownload(getContext(), mViewPagerURL, dirpath);
                 }
             }
         }

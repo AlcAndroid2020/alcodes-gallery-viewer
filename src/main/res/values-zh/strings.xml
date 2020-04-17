@@ -8,11 +8,12 @@
     <string name="asm_gvr_msg_internet_access">网络链接</string>
     <string name="asm_gvr_msg_no_internet_access">无网络链接</string>
     <string name="DownloadComplete" tools:ignore="ResourceName">下载完毕</string>
+    <string name="DownloadCompleteMessage" tools:ignore="ResourceName">您的文件已下载</string>
     <string name="btnDownload" tools:ignore="ResourceName">下载</string>
     <string name="btnOpenWith" tools:ignore="ResourceName">其他开启方式</string>
     <string name="btnShareWith" tools:ignore="ResourceName">分享</string>
     <string name="asm_gvr_share" tools:ignore="ResourceName">分享</string>
-    <string name="asm_gvr_download" tools:ignore="ResourceName">下载d</string>
+    <string name="asm_gvr_download" tools:ignore="ResourceName">下载</string>
     <string name="asm_gvr_open_with" tools:ignore="ResourceName">其他开启方式</string>
     <string name="asm_gvr_refresh_video" tools:ignore="ResourceName">刷新视频</string>
     <string name="menuItemOpenImageUrl" tools:ignore="ResourceName">打开图像在网络浏览器</string>
@@ -21,4 +22,24 @@
     <string name="menuItemShareImage" tools:ignore="ResourceName">分享图片</string>
     <string name="text_view_for_details" tools:ignore="ResourceName">详情</string>
     <string name="asm_gvr_video_details" tools:ignore="ResourceName">影片详细</string>
+    <string name="Okay" tools:ignore="ResourceName">确认</string>
+    <string name="Cancel" tools:ignore="ResourceName">取消</string>
+    <string name="DownloadDetail" tools:ignore="ResourceName">下载详情</string>
+    <string name="confirmdownload" tools:ignore="ResourceName">文件已下载，您是否要重新下载？</string>
+    <string name="FileName" tools:ignore="ResourceName">文件名称: </string>
+    <string name="FileType" tools:ignore="ResourceName">文件类型: </string>
+    <string name="NewName" tools:ignore="ResourceName">新名称</string>
+    <string name="NameRepeat" tools:ignore="ResourceName">名称重复</string>
+    <string name="Word" tools:ignore="ResourceName">文档文件</string>
+    <string name="pdf" tools:ignore="ResourceName">PDF 文件</string>
+    <string name="powerpoint" tools:ignore="ResourceName">幻灯片文档</string>
+    <string name="excel" tools:ignore="ResourceName">表格文档</string>
+    <string name="zip" tools:ignore="ResourceName">压缩文件</string>
+    <string name="rtf" tools:ignore="ResourceName">RTD 文件</string>
+    <string name="audio" tools:ignore="ResourceName">音响文件</string>
+    <string name="gif" tools:ignore="ResourceName">GIF 文件</string>
+    <string name="image" tools:ignore="ResourceName">图片</string>
+    <string name="text" tools:ignore="ResourceName">文字档</string>
+    <string name="video" tools:ignore="ResourceName">影片</string>
+    <string name="unknown" tools:ignore="ResourceName">不明文件</string>
 </resources>
