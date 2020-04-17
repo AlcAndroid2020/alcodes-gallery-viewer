@@ -21,7 +21,6 @@
     <string name="menuItemShareImage" tools:ignore="ResourceName">Share image</string>
     <string name="text_view_for_details" tools:ignore="ResourceName">Details</string>
     <string name="asm_gvr_video_details">Video Details</string>
-    <string name="Okay" tools:ignore="ResourceName">Okay</string>
     <string name="Cancel" tools:ignore="ResourceName">Cancel</string>
     <string name="DownloadDetail" tools:ignore="ResourceName">Download Detail</string>
     <string name="confirmdownload" tools:ignore="ResourceName">The File U Already Download, Are u Want To Downlod Again?</string>
@@ -46,4 +45,5 @@
     <string name="lastmodif" tools:ignore="ResourceName">Last Modified</string>
     <string name="path" tools:ignore="ResourceName">Path</string>
     <string name="file_size" tools:ignore="ResourceName">File Size</string>
+    <string name="Okay" tools:ignore="ResourceName">Okay</string>
 </resources>

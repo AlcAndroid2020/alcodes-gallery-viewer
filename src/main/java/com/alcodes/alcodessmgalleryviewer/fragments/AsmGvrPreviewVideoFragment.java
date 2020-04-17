@@ -369,6 +369,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         //Assigning URI to Video View
         if(uri != null) {
             if (mFileType.equals("video")) {
+                mDataBinding.previewVideoView.setMediaController(mMediaController);
+                mMediaController.setAnchorView(mDataBinding.previewVideoView);
                 if (mIsInternetSource) {
                     mProxyURL = mHttpProxyCacheServer.getProxyUrl(uri.toString(),true);
                     mDataBinding.previewVideoView.setVideoURI(Uri.parse(mProxyURL));
@@ -393,10 +395,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     initVideoDetails(uri);
                     //Init video details
                 }
-
-                // Set initially no internet and no video cache notifier
-
-                // Set initially no internet and no video cache notifier
             }
             //Assigning URI to Video View
 
@@ -409,16 +407,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
                         //Set video playing visible, set video info image view invisible
 
-                        //Set Media Controller to video view only if video sized changed
-                        mp.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-                            @Override
-                            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                                mDataBinding.previewVideoView.setMediaController(mMediaController);
-                                mMediaController.setAnchorView(mDataBinding.previewVideoView);
-                            }
-                        });
-                        //Set Media Controller to video view only if video sized changed
-                        mp.start();
                         //Start video and check if there is records video playing, resume the video
                         if (mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
                             mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
