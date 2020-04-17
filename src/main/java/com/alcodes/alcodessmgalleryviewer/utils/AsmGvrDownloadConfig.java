@@ -3,7 +3,6 @@ package com.alcodes.alcodessmgalleryviewer.utils;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,8 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -34,7 +31,6 @@ public class AsmGvrDownloadConfig {
     public String fileName = "";
     public Uri uri = null;
     private DocumentFile fileuri;
-    private ContentResolver cR;
     private String mViewPagerURL;
     public Uri movefileuri = null;
     boolean resultOfComparison = false;
@@ -64,8 +60,7 @@ public class AsmGvrDownloadConfig {
             builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-//                    Download(context, uri, path);
-                    RenameFile(context,uri, path);
+                    RenameFile(context, uri, path);
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -77,14 +72,14 @@ public class AsmGvrDownloadConfig {
             builder.show();
 
         } else {
-                    mViewPagerURL = uri;
-        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
+            mViewPagerURL = uri;
+            fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
             Download(context, uri, path);
 
         }
     }
 
-    private void RenameFile(Context context,String uri, Uri path) {
+    private void RenameFile(Context context, String uri, Uri path) {
         mViewPagerURL = uri;
         fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
@@ -96,7 +91,7 @@ public class AsmGvrDownloadConfig {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String NewName = input.getText().toString();
-                fileName=NewName+".pdf";
+                fileName = NewName + ".pdf";
                 Download(context, uri, path);
 
             }
@@ -131,7 +126,6 @@ public class AsmGvrDownloadConfig {
     public void Download(Context context, String uri, Uri path) {
         mViewPagerURL = uri;
         dirpath = path;
-//        fileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
         file = new File(context.getExternalCacheDir(), fileName);
         fileuri = DocumentFile.fromFile(file);
 
@@ -153,25 +147,6 @@ public class AsmGvrDownloadConfig {
         public void onReceive(Context ctxt, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
             if (downloadID == id) {
-                DocumentFile documentFile = DocumentFile.fromTreeUri(ctxt, dirpath);
-                DocumentFile[] files = documentFile.listFiles();
-                if (files != null && files.length > 0) {
-                    for (DocumentFile file : files) {
-                        boolean resultOfComparison = file.getName().equals(fileName);
-                        if (resultOfComparison == true) {
-                            int i = 1;
-                            fileName = fileName.substring(0, fileName.lastIndexOf("."));
-                            Matcher m = Pattern.compile("\\((.*?)\\)").matcher(fileName);
-                            if (m.find()) {
-                                ++i;
-                                fileName = fileName.replaceAll("\\s*\\([^\\)]*\\)\\s*", "(" + i + ")" + ".pdf");
-
-                            } else {
-                                fileName = fileName + "(" + i + ")" + ".pdf";
-                            }
-                        }
-                    }
-                }
                 try {
 
                     movefileuri = copyFileToSafFolder(ctxt, fileuri.getUri(), dirpath, fileName);
@@ -189,12 +164,10 @@ public class AsmGvrDownloadConfig {
                         AlertDialog alertDialog = new AlertDialog.Builder(ctxt)
 
                                 .setTitle("Download Completed!")
-                            .setMessage("Your file have downloaded!")
-                                .setPositiveButton("Ok",null)
+                                .setMessage("Your file have downloaded!")
+                                .setPositiveButton("Ok", null)
                                 .show();
                     }
-
-//                    fdelete.delete();
 
                 }
             }
