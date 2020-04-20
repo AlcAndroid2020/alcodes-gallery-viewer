@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrFileDetailsHelper;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrCircularProgressBar;
@@ -28,6 +29,7 @@ public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
     private AsmGvrDownloadConfig mDownloadConfig;
     private AsmGvrShareConfig mShareConfig;
     private FFmpegMediaMetadataRetriever mFFmpegMMR;
+    private AsmGvrFileDetailsHelper mFileDetailsHelper;
 
     public AsmGvrStateBroadcastingVideoViewModel(@NonNull Application application) {
         super(application);
@@ -81,6 +83,14 @@ public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
 
     public void setCircularProgressBar(Context context) {
         mCircularProgressBar = new AsmGvrCircularProgressBar(context);
+    }
+
+    public AsmGvrFileDetailsHelper getFileDetailsHelper() {
+        return mFileDetailsHelper;
+    }
+
+    public void setFileDetailsHelper() {
+        mFileDetailsHelper = new AsmGvrFileDetailsHelper();
     }
 
     public VideoViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {

@@ -37,7 +37,7 @@
                 android:scaleType="centerInside"
                 android:layout_centerInParent="true" />
 
-            <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
+        <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
                 android:id="@+id/preview_video_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

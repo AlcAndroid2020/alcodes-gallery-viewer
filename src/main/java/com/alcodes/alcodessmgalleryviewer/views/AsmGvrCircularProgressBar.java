@@ -29,8 +29,5 @@ public class AsmGvrCircularProgressBar extends CircularProgressDrawable {
 
         //Set Progress Bar Color
         setColorSchemeColors(mRgbColor);
-
-        //Start it
-        start();
     }
 }
