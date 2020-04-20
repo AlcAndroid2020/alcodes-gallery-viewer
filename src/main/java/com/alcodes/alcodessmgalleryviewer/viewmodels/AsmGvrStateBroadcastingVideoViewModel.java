@@ -9,19 +9,60 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.views.AsmGvrCircularProgressBar;
 import com.danikula.videocache.HttpProxyCacheServer;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import wseemann.media.FFmpegMediaMetadataRetriever;
+
 public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
     private final MutableLiveData<List<VideoViewModel>> mViewPagerVideoViewLiveData = new MutableLiveData<>();
     private HttpProxyCacheServer httpProxyCacheServer;
     private AsmGvrCircularProgressBar mCircularProgressBar;
+    private AsmGvrOpenWithConfig mOpenWithConfig;
+    private AsmGvrDownloadConfig mDownloadConfig;
+    private AsmGvrShareConfig mShareConfig;
+    private FFmpegMediaMetadataRetriever mFFmpegMMR;
 
     public AsmGvrStateBroadcastingVideoViewModel(@NonNull Application application) {
         super(application);
+    }
+
+    public AsmGvrOpenWithConfig getOpenWithConfig() {
+        return mOpenWithConfig;
+    }
+
+    public void setOpenWithConfig() {
+        mOpenWithConfig = new AsmGvrOpenWithConfig();
+    }
+
+    public AsmGvrDownloadConfig getDownloadConfig() {
+        return mDownloadConfig;
+    }
+
+    public void setDownloadConfig() {
+        mDownloadConfig = new AsmGvrDownloadConfig();
+    }
+
+    public AsmGvrShareConfig getShareConfig() {
+        return mShareConfig;
+    }
+
+    public void setShareConfig() {
+        mShareConfig = new AsmGvrShareConfig();
+    }
+
+    public FFmpegMediaMetadataRetriever getFFmpegMMR() {
+        return mFFmpegMMR;
+    }
+
+    public void setFFmpegMMR() {
+        mFFmpegMMR = new FFmpegMediaMetadataRetriever();
     }
 
     public void initHttpProxyCacheServer(Context context){

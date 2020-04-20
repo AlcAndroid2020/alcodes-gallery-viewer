@@ -68,6 +68,7 @@ dependencies {
     implementation "com.vincan:medialoader:${rootLibraries.medialoaderVersion}"
 
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-core:${rootLibraries.FFmpegMediaMetadataRetrievercore}"
+    implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-x86:${rootLibraries.FFmpegMediaMetadataRetrieverx86}"
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-x86_64:${rootLibraries.FFmpegMediaMetadataRetrieverx86_64}"
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-arm64-v8a:${rootLibraries.FFmpegMediaMetadataRetriever_arm64_v8a}"
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-armeabi-v7a:${rootLibraries.FFmpegMediaMetadataRetriever_armeabi_v7a}"

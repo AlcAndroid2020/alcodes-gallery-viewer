@@ -43,6 +43,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.HttpProxyCacheServer;
 
+import java.text.DecimalFormat;
+
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class AsmGvrPreviewVideoFragment extends Fragment{
@@ -163,21 +165,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // Action Bar Menu Features and FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
-        if(mDownloadConfig == null){
-            mDownloadConfig = new AsmGvrDownloadConfig();
-        }
-        if (mShareConfig == null) {
-            mShareConfig = new AsmGvrShareConfig();
-        }
-        if(mOpenWithConfig == null){
-            mOpenWithConfig = new AsmGvrOpenWithConfig();
-        }
-        if(mFFmpegMMR == null){
-            mFFmpegMMR = new FFmpegMediaMetadataRetriever();
-        }
-        // Action Bar Menu Features and FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
-
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerUri = Uri.parse(requireArguments().getString(ARG_STRING_FILE_PATH));
@@ -214,7 +201,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         ).get(AsmGvrStateBroadcastingVideoViewModel.class);
         // Init view model.
 
-        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
         if(mStateBroadcastingVideoViewModel.getHttpProxyCacheServer() == null){
             mStateBroadcastingVideoViewModel.initHttpProxyCacheServer(requireActivity());
         }
@@ -228,7 +215,39 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 mCircularProgressBar = mStateBroadcastingVideoViewModel.getCircularProgressBar();
             }
         }
-        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar
+        if(mDownloadConfig == null){
+            if(mStateBroadcastingVideoViewModel.getDownloadConfig() == null){
+                mStateBroadcastingVideoViewModel.setDownloadConfig();
+                mDownloadConfig = mStateBroadcastingVideoViewModel.getDownloadConfig();
+            }else{
+                mDownloadConfig = mStateBroadcastingVideoViewModel.getDownloadConfig();
+            }
+        }
+        if(mShareConfig == null){
+            if(mStateBroadcastingVideoViewModel.getShareConfig() == null){
+                mStateBroadcastingVideoViewModel.setShareConfig();
+                mShareConfig = mStateBroadcastingVideoViewModel.getShareConfig();
+            }else{
+                mShareConfig = mStateBroadcastingVideoViewModel.getShareConfig();
+            }
+        }
+        if(mOpenWithConfig == null){
+            if(mStateBroadcastingVideoViewModel.getOpenWithConfig() == null){
+                mStateBroadcastingVideoViewModel.setOpenWithConfig();
+                mOpenWithConfig = mStateBroadcastingVideoViewModel.getOpenWithConfig();
+            }else{
+                mOpenWithConfig = mStateBroadcastingVideoViewModel.getOpenWithConfig();
+            }
+        }
+        if(mFFmpegMMR == null){
+            if(mStateBroadcastingVideoViewModel.getFFmpegMMR() == null){
+                mStateBroadcastingVideoViewModel.setFFmpegMMR();
+                mFFmpegMMR = mStateBroadcastingVideoViewModel.getFFmpegMMR();
+            }else{
+                mFFmpegMMR = mStateBroadcastingVideoViewModel.getFFmpegMMR();
+            }
+        }
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
 
         //Observed Internet Status, if internet not present video is not played and no internet img will be shown (For URL only for now)
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
@@ -330,11 +349,11 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private void initVideoDetails(Uri uri){
         if(mIsInternetSource){
             mFFmpegMMR.setDataSource(uri.toString());
-            mDataBinding.videoViewFileSize.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE));
+            mDataBinding.videoViewFileSize.setText(fileSizeBytesConverter(Long.parseLong(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)), "MB"));
         }else{
             mFFmpegMMR.setDataSource(requireActivity(), uri);
             DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), uri);
-            mDataBinding.videoViewFileSize.setText(documentFile.length()+"");
+            mDataBinding.videoViewFileSize.setText(fileSizeBytesConverter(documentFile.length(), "MB"));
         }
 
         if(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null){
@@ -613,5 +632,19 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             animation.setFillAfter(true);
             mDataBinding.rootVideoDetails.setAnimation(animation);
         }
+    }
+
+    public String fileSizeBytesConverter(long size, String convertTo) {
+        if (size <= 0)
+            return "0";
+
+        int digitGroups = 0;
+        if(convertTo.equals("MB")){
+            digitGroups = 2;
+        }else if(convertTo.equals("KB")) {
+            digitGroups = 1;
+        }
+
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + convertTo;
     }
 }
