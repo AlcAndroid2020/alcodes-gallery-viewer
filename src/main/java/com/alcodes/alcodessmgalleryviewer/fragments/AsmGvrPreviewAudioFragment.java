@@ -2,7 +2,6 @@ package com.alcodes.alcodessmgalleryviewer.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -15,12 +14,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
@@ -50,10 +49,14 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import wseemann.media.FFmpegMediaMetadataRetriever;
+
 public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListener {
 
     private static final String ARG_INT_PAGER_POSITION = "ARG_INT_PAGER_POSITION";
     private static final String ARG_String_FILEURL = "ARG_STRING_PAGER_FILEURL";
+    private static final String ARG_STRING_FILE_TYPE = "ARG_STRING_FILE_TYPE";
+    private static final String ARG_STRING_FILE_NAME = "ARG_STRING_FILE_NAME";
     private static final String ARG_String_IsInternetSource = "ARG_String_IsInternetSource ";
 
     private NavController mNavController;
@@ -67,6 +70,14 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     private AsmGvrDownloadConfig mGvrDownloadConfig;
     private AsmGvrShareConfig mGvrShareConfig;
     private AsmGvrOpenWithConfig mGvrOpenWithConfig;
+    private Boolean IsSlideUp = false;
+    private FFmpegMediaMetadataRetriever mFFmpegMMR;
+    private String ProxyUrl = null;
+    private String mFileType;
+    private String mFileName;
+    private static final int SWIPE_MIN_DISTANCE = 60;
+    private static final int SWIPE_MAX_OFF_PATH = 120;
+
 
     public AsmGvrPreviewAudioFragment() {
     }
@@ -76,6 +87,8 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         args.putInt(ARG_INT_PAGER_POSITION, position.getPosition());
         args.putString(ARG_String_FILEURL, position.getUri());
         args.putString(ARG_String_IsInternetSource, position.getFromInternetSource().toString());
+        args.putString(ARG_STRING_FILE_TYPE, position.getFileType());
+        args.putString(ARG_STRING_FILE_NAME, position.getFileName());
         AsmGvrPreviewAudioFragment fragment = new AsmGvrPreviewAudioFragment();
         fragment.setArguments(args);
 
@@ -99,10 +112,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         if (!mInternetSource) {
             //for local file hide download option
             menu.findItem(R.id.audio_menu_download).setVisible(false);
-        } else {
-            //for online hide file details
-            menu.findItem(R.id.audio_menu_details).setVisible(false);
-
         }
 
 
@@ -125,31 +134,130 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         } else if (itemId == R.id.audio_menu_share) {
             //share audio
             mGvrShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
-        }
-        else if (itemId == R.id.audio_menu_details) {
+        } else if (itemId == R.id.audio_menu_details) {
             //show audio file details
-            showdetails();
+
+            //check if details is shown
+            if (!IsSlideUp) {
+                //show details
+                onSlideAudioDetailUp(true);
+                IsSlideUp = true;
+            } else {
+                //hide details
+                onSlideAudioDetailUp(false);
+                IsSlideUp = false;
+            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onSlideAudioDetailUp(Boolean isSlidedUP) {
+
+        //slide up
+        if (isSlidedUP) {
+
+            mDataBinding.rootAudioDetails.setVisibility(View.VISIBLE);
+            TranslateAnimation animation = new TranslateAnimation(
+                    0,                 // fromXDelta
+                    0,                   // toXDelta
+                    mDataBinding.rootAudioDetails.getHeight(),            // fromYDelta
+                    0);// toYDelta
+            animation.setDuration(500);
+            animation.setFillAfter(true);
+            mDataBinding.rootAudioDetails.setAnimation(animation);
+        } else {
+            //slide down / close details
+            mDataBinding.rootAudioDetails.setVisibility(View.INVISIBLE);
+            TranslateAnimation animation = new TranslateAnimation(
+                    0,                 // fromXDelta
+                    0,                   // toXDelta
+                    0,            // fromYDelta
+                    mDataBinding.rootAudioDetails.getHeight()); // toYDelta
+            animation.setDuration(500);
+            animation.setFillAfter(true);
+            mDataBinding.rootAudioDetails.setAnimation(animation);
+        }
+
     }
 
 
     private void showdetails() {
         // show audio file details
-        Uri uri = Uri.parse(mViewPagerURL);
-        DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
-        String line1 = getResources().getString(R.string.filename) + ": " + df.getName() + "\n";
-        String line2 = getResources().getString(R.string.filetype) + ": " + df.getType() + "\n";
-        String size = "";
-        //format size
-        if (df.length() > 0) {
+
+        //for local file
+        if (!mInternetSource) {
+            Uri uri = Uri.parse(mViewPagerURL);
+            DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
+            mDataBinding.audioViewFileName.setText(mFileName);
+            mDataBinding.audioViewRes.setText(df.getType());
+            String size = "";
+            //format size
+
+
+            size = createFileSizeLabel(df.length());
+            mDataBinding.audioViewFileSize.setText(size);
+
+            mDataBinding.audioViewDuration.setText(createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+            //format date
+            Date d = new Date(df.lastModified());
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            String newDate = formatter.format(d);
+            mDataBinding.audioDate.setText(newDate);
+            mDataBinding.audioViewPath.setText(uri.getPath());
+
+        } else {
+            //for  url file
+
+            mFFmpegMMR.setDataSource(ProxyUrl);
+
+            mDataBinding.audioViewFileName.setText(mFileName);
+            mDataBinding.audioViewDuration.setText(createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+            String extension = ProxyUrl.substring(ProxyUrl.lastIndexOf(".") + 1);
+            mDataBinding.audioViewRes.setText("audio / " + extension);
+            mDataBinding.audioViewPath.setText(ProxyUrl);
+            String mSize = createFileSizeLabel(Long.valueOf(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)));
+            mDataBinding.audioViewFileSize.setText(mSize);
+            mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME);
+            if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null)
+                mDataBinding.audioDate.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME));
+            else
+                mDataBinding.audioDateRoot.setVisibility(View.GONE);
+
+        }
+
+    }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Init navigation component.
+        mNavController = Navigation.findNavController(requireParentFragment().requireView());
+    }
+
+    private String createTimeLabel(int time) {
+        String timelabel = "";
+        int min = time / 1000 / 60;
+        int sec = time / 1000 % 60;
+        timelabel = min + ":";
+        if (sec < 10)
+            timelabel += "0";
+        timelabel += sec;
+        return timelabel;
+    }
+
+
+    private String createFileSizeLabel(long mSize) {
+        String size;
+        if (mSize > 0) {
 
             //convert bytes to mb size
             DecimalFormat format = new DecimalFormat("#.##");
             long MiB = 1024 * 1024;
             long KiB = 1024;
 
-            double length = Double.parseDouble(String.valueOf(df.length()));
+            double length = Double.parseDouble(String.valueOf(mSize));
 
             if (length > KiB) {
                 size = format.format(length / KiB) + " KB";
@@ -162,38 +270,9 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         } else
             size = "0 MB";
 
-        String line3 =  getResources().getString(R.string.file_size)+": "+ size + "\n";
-
-        //format date
-        Date d = new Date(df.lastModified());
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        String newDate = formatter.format(d);
-        String line4 = getResources().getString(R.string.lastmodif) + ": " + newDate + "\n";
-        String line5 = getResources().getString(R.string.path) + ": " + uri.getPath() + "\n";
-
-
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-
-
-                .setNegativeButton( getResources().getString(R.string.Okay), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setMessage(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + line5).show();
-
-
+        return size;
     }
 
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Init navigation component.
-        mNavController = Navigation.findNavController(requireParentFragment().requireView());
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -208,10 +287,19 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         if (mGvrOpenWithConfig == null)
             mGvrOpenWithConfig = new AsmGvrOpenWithConfig();
 
+        if (savedInstanceState != null) {
+
+            if (savedInstanceState.getBoolean("IsDetailShown")) {
+                onSlideAudioDetailUp(true);
+                IsSlideUp = true;
+            }
+        }
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerURL = requireArguments().getString(ARG_String_FILEURL);
         mInternetSource = checkFileType(mViewPagerURL);
+        mFileType = requireArguments().getString(ARG_STRING_FILE_TYPE);
+        mFileName = requireArguments().getString(ARG_STRING_FILE_NAME);
 
         // Init view model.
 
@@ -225,6 +313,19 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mPreviewAudioViewModel = new ViewModelProvider(mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).
                 get(AsmGvrPreviewAudioViewModel.class);
+
+
+        //for get details for url file
+        if (mFFmpegMMR == null) {
+            if (mPreviewAudioViewModel.getFFmpegMMR() == null) {
+                mPreviewAudioViewModel.setFFmpegMMR();
+                mFFmpegMMR = mPreviewAudioViewModel.getFFmpegMMR();
+            } else {
+                mFFmpegMMR = mPreviewAudioViewModel.getFFmpegMMR();
+            }
+        }
+
+
         //get selected color
         mMainSharedViewModel.getColorSelectedLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
@@ -275,6 +376,28 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                 public boolean onSingleTapUp(MotionEvent e) {
                     return super.onSingleTapUp(e);
                 }
+
+                @Override
+                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+
+                    if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH) {
+                        //Swipe Left or Right will not take any action
+                        return false;
+                    }
+
+                    if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+                        // Swipe Up
+                        onSlideAudioDetailUp(true);
+                    } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
+                        // Swipe Down
+                        onSlideAudioDetailUp(false);
+
+                    }
+
+                    return super.onFling(e1, e2, velocityX, velocityY);
+                }
+
             });
 
             @Override
@@ -282,6 +405,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
                 gestureDetector.onTouchEvent(event);
                 return true;
             }
+
 
         });
 
@@ -302,6 +426,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
                 } else {
                     //No Internet
+
                     //for Online file (url)
                     if (mInternetSource) {
                         if (DownloadManager.getInstance(getContext()).isCached(mViewPagerURL))
@@ -339,7 +464,6 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
         MediaController mediaController = new MediaController(getContext());
 
-        //loading dialog
 
         //initiz video view/load music
         mDataBinding.AudioPlayer.setZ(0);
@@ -357,6 +481,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             //cache audio
             String proxyUrl = MediaLoader.getInstance(getContext()).getProxyUrl(uri.toString());
             mDataBinding.AudioPlayer.setVideoURI(Uri.parse(proxyUrl));
+            ProxyUrl = proxyUrl;
             //video path
 
         } else {
@@ -372,6 +497,8 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
                 //set music icon
                 mDataBinding.AudioPlayer.setForeground(getContext().getDrawable(R.drawable.asm_gvr_music_icon));
+                //set details
+                showdetails();
 
                 //get progress if screen rotated and slide to other page
                 if (mPreviewAudioViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1) {
@@ -380,6 +507,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
             }
         });
+
     }
 
 
@@ -388,7 +516,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
         mDataBinding.AudioPlayer.setVisibility(View.GONE);
         Glide.with(requireContext())
                 .load(R.drawable.asm_gvr_no_wifi)
-                .apply(new RequestOptions().override(256,256))
+                .apply(new RequestOptions().override(256, 256))
                 .centerInside()
                 .into(mDataBinding.loadgif);
 
@@ -398,16 +526,24 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
     @Override
     public void onResume() {
         super.onResume();
+
         mDataBinding.AudioPlayer.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
+        if (mDataBinding.AudioPlayer.isPlaying())
+            mPreviewAudioViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.AudioPlayer.getCurrentPosition());
 
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("IsDetailShown", IsSlideUp);
+    }
 
     @Override
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
