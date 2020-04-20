@@ -4,15 +4,18 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import wseemann.media.FFmpegMediaMetadataRetriever;
+
 public class AsmGvrPreviewAudioViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> mViewPagerPositionLiveData = new MutableLiveData<>(0);
     private final MutableLiveData<List<AudioViewModel>> mViewPagerVideoViewLiveData = new MutableLiveData<>();
+    private FFmpegMediaMetadataRetriever mFFmpegMMR;
+    private Boolean isDetailShown=false;
     public AsmGvrPreviewAudioViewModel(@NonNull Application application) {
         super(application);
     }
@@ -21,20 +24,20 @@ public class AsmGvrPreviewAudioViewModel extends AndroidViewModel {
     public AsmGvrPreviewAudioViewModel.AudioViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {
         Boolean isNoMatchRecords = true;
         AsmGvrPreviewAudioViewModel.AudioViewModel AudioViewModel = new AsmGvrPreviewAudioViewModel.AudioViewModel();
-        if(mViewPagerVideoViewLiveData.getValue() != null && mViewPagerVideoViewLiveData.getValue().size() != 0){
-            for(AsmGvrPreviewAudioViewModel.AudioViewModel records : mViewPagerVideoViewLiveData.getValue()){
-                if(records.viewPagerPosition == mViewPagerPosition){
+        if (mViewPagerVideoViewLiveData.getValue() != null && mViewPagerVideoViewLiveData.getValue().size() != 0) {
+            for (AsmGvrPreviewAudioViewModel.AudioViewModel records : mViewPagerVideoViewLiveData.getValue()) {
+                if (records.viewPagerPosition == mViewPagerPosition) {
                     AudioViewModel = records;
                     isNoMatchRecords = false;
                     break;
                 }
             }
-            if(isNoMatchRecords){
+            if (isNoMatchRecords) {
                 AudioViewModel.currentPlayingPosition = -1;
                 AudioViewModel.viewPagerPosition = -1;
             }
 
-        }else{
+        } else {
             //Values -1 for null value store in Live Data
             AudioViewModel.currentPlayingPosition = -1;
             AudioViewModel.viewPagerPosition = -1;
@@ -42,35 +45,52 @@ public class AsmGvrPreviewAudioViewModel extends AndroidViewModel {
 
         return AudioViewModel;
     }
+
     //set  audio progress/position
     public void setViewPagerVideoViewLiveData(int viewPagerPosition, int currentPlayingPosition) {
         Boolean isPresentRecord = false;
         List<AudioViewModel> audioViewModels;
-      AudioViewModel audioViewModel = new AudioViewModel();
+        AudioViewModel audioViewModel = new AudioViewModel();
         audioViewModel.viewPagerPosition = viewPagerPosition;
         audioViewModel.currentPlayingPosition = currentPlayingPosition;
 
-        if(mViewPagerVideoViewLiveData.getValue() == null){
+        if (mViewPagerVideoViewLiveData.getValue() == null) {
             audioViewModels = new ArrayList<>();
             audioViewModels.add(audioViewModel);
-        }else{
+        } else {
             audioViewModels = mViewPagerVideoViewLiveData.getValue();
-            for(int i=0; i < audioViewModels.size();i++){
-                if(audioViewModels.get(i).viewPagerPosition == viewPagerPosition){
+            for (int i = 0; i < audioViewModels.size(); i++) {
+                if (audioViewModels.get(i).viewPagerPosition == viewPagerPosition) {
                     isPresentRecord = true;
                     audioViewModels.get(i).currentPlayingPosition = currentPlayingPosition;
                     break;
                 }
             }
-            if(!isPresentRecord){
+            if (!isPresentRecord) {
                 audioViewModels.add(audioViewModel);
             }
         }
 
-       mViewPagerVideoViewLiveData.setValue(audioViewModels);
+        mViewPagerVideoViewLiveData.setValue(audioViewModels);
     }
 
-    public class AudioViewModel{
+    public FFmpegMediaMetadataRetriever getFFmpegMMR() {
+        return mFFmpegMMR;
+    }
+
+    public void setFFmpegMMR() {
+        mFFmpegMMR = new FFmpegMediaMetadataRetriever();
+    }
+
+    public Boolean getDetailShown() {
+        return isDetailShown;
+    }
+
+    public void setDetailShown(Boolean detailShown) {
+        isDetailShown = detailShown;
+    }
+
+    public class AudioViewModel {
         public int viewPagerPosition;
         public int currentPlayingPosition;
     }
