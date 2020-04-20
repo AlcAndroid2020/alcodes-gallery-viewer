@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -210,20 +211,33 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-        mShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
+        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
+        if(checkFile != null)
+            mShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
+        else
+            Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onOpenWithButtonClicked() {
-        mOpenWithConfig.openWith(getContext(), Uri.parse(mViewPagerURL));
+        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
+        if(checkFile != null)
+            mOpenWithConfig.openWith(getContext(), Uri.parse(mViewPagerURL));
+        else
+            Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDownloadButtonClicked() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startActivityForResult(intent, 42);
+        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
+        if(checkFile != null) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(intent, 42);
+        }
+        else
+            Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
