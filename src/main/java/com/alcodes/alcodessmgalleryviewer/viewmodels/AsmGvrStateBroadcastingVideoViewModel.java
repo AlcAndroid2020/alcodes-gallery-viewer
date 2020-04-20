@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alcodes.alcodessmgalleryviewer.R;
+import com.alcodes.alcodessmgalleryviewer.views.AsmGvrCircularProgressBar;
 import com.danikula.videocache.HttpProxyCacheServer;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
     private final MutableLiveData<List<VideoViewModel>> mViewPagerVideoViewLiveData = new MutableLiveData<>();
     private HttpProxyCacheServer httpProxyCacheServer;
+    private AsmGvrCircularProgressBar mCircularProgressBar;
 
     public AsmGvrStateBroadcastingVideoViewModel(@NonNull Application application) {
         super(application);
@@ -30,6 +32,14 @@ public class AsmGvrStateBroadcastingVideoViewModel extends AndroidViewModel {
 
     public HttpProxyCacheServer getHttpProxyCacheServer() {
         return httpProxyCacheServer;
+    }
+
+    public AsmGvrCircularProgressBar getCircularProgressBar() {
+        return mCircularProgressBar;
+    }
+
+    public void setCircularProgressBar(Context context) {
+        mCircularProgressBar = new AsmGvrCircularProgressBar(context);
     }
 
     public VideoViewModel getViewPagerVideoViewCurrentPlayingPosition(int mViewPagerPosition) {

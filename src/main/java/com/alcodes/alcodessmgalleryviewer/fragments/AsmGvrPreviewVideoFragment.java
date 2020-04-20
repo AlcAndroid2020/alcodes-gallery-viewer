@@ -176,9 +176,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         if(mFFmpegMMR == null){
             mFFmpegMMR = new FFmpegMediaMetadataRetriever();
         }
-        if(mCircularProgressBar == null){
-            mCircularProgressBar = new AsmGvrCircularProgressBar(requireActivity());
-        }
         // Action Bar Menu Features and FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
 
         // Extract arguments.
@@ -217,13 +214,21 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         ).get(AsmGvrStateBroadcastingVideoViewModel.class);
         // Init view model.
 
-        // Init HttpProxyCacheServer for VideoView
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar
         if(mStateBroadcastingVideoViewModel.getHttpProxyCacheServer() == null){
             mStateBroadcastingVideoViewModel.initHttpProxyCacheServer(requireActivity());
         }
-
         mHttpProxyCacheServer = mStateBroadcastingVideoViewModel.getHttpProxyCacheServer();
-        // HttpProxyCacheServer for VideoView
+
+        if(mCircularProgressBar == null){
+            if(mStateBroadcastingVideoViewModel.getCircularProgressBar() == null){
+                mStateBroadcastingVideoViewModel.setCircularProgressBar(requireActivity());
+                mCircularProgressBar = mStateBroadcastingVideoViewModel.getCircularProgressBar();
+            }else{
+                mCircularProgressBar = mStateBroadcastingVideoViewModel.getCircularProgressBar();
+            }
+        }
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar
 
         //Observed Internet Status, if internet not present video is not played and no internet img will be shown (For URL only for now)
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
