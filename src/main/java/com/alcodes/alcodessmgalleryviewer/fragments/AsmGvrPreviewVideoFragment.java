@@ -32,6 +32,7 @@ import androidx.navigation.Navigation;
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewVideoBinding;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrFileDetailsHelper;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
@@ -77,6 +78,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private Boolean videoErrorFlag = false;
     private Boolean isDetailsShowing = false;
     private AsmGvrCircularProgressBar mCircularProgressBar;
+    private Uri mVideoUri;
+    private Boolean isDetailsInitializedBefore = false;
+    private AsmGvrFileDetailsHelper mFileDetailsHelper;
 
     public AsmGvrPreviewVideoFragment() {
     }
@@ -143,6 +147,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         //Open video with other application
         else if(item.getItemId() == R.id.video_fragment_menu_details){
             if(!isDetailsShowing){
+                if(!isDetailsInitializedBefore){
+                    initVideoDetails(mVideoUri);
+                    isDetailsInitializedBefore = true;
+                }
                 initSlideVideoDetails(true);
                 isDetailsShowing = true;
             }else{
@@ -201,7 +209,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         ).get(AsmGvrStateBroadcastingVideoViewModel.class);
         // Init view model.
 
-        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver, and FileDetailsHelper Initialization
         if(mStateBroadcastingVideoViewModel.getHttpProxyCacheServer() == null){
             mStateBroadcastingVideoViewModel.initHttpProxyCacheServer(requireActivity());
         }
@@ -247,7 +255,15 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 mFFmpegMMR = mStateBroadcastingVideoViewModel.getFFmpegMMR();
             }
         }
-        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver Initialization
+        if(mFileDetailsHelper == null){
+            if(mStateBroadcastingVideoViewModel.getFileDetailsHelper() == null){
+                mStateBroadcastingVideoViewModel.setFileDetailsHelper();
+                mFileDetailsHelper = mStateBroadcastingVideoViewModel.getFileDetailsHelper();
+            }else{
+                mFileDetailsHelper = mStateBroadcastingVideoViewModel.getFileDetailsHelper();
+            }
+        }
+        // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver, and FileDetailsHelper Initialization
 
         //Observed Internet Status, if internet not present video is not played and no internet img will be shown (For URL only for now)
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
@@ -255,7 +271,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if(internetStatusData.internetStatus){
                     mDataBinding.previewVideoNoInternet.setVisibility(View.INVISIBLE);
-                    mDataBinding.previewVideoView.start();
+//                    mDataBinding.previewVideoView.start();
                     if(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition != -1){
                         mDataBinding.previewVideoView.seekTo(mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition);
                     }
@@ -320,6 +336,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
                         // Swipe Up
                         if(!isDetailsShowing){
+                            if(!isDetailsInitializedBefore){
+                                initVideoDetails(mVideoUri);
+                                isDetailsInitializedBefore= true;
+                            }
                             initSlideVideoDetails(true);
                             isDetailsShowing = true;
                         }
@@ -347,41 +367,68 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     }
 
     private void initVideoDetails(Uri uri){
-        if(mIsInternetSource){
-            mFFmpegMMR.setDataSource(uri.toString());
-            mDataBinding.videoViewFileSize.setText(fileSizeBytesConverter(Long.parseLong(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)), "MB"));
-        }else{
-            mFFmpegMMR.setDataSource(requireActivity(), uri);
-            DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), uri);
-            mDataBinding.videoViewFileSize.setText(fileSizeBytesConverter(documentFile.length(), "MB"));
+        try {
+            //Set Data Source for FFmpeg to get datasource for details displaying
+            if (mIsInternetSource) {
+                mFFmpegMMR.setDataSource(uri.toString());
+                //Extract metadata of file size
+                mDataBinding.videoViewFileSize.setText(String.format("File Size: %s",
+                        mFileDetailsHelper.fileSizeBytesConverter(Long.parseLong(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)), "MB")));
+                //Extract metadata of file size
+            } else {
+                mFFmpegMMR.setDataSource(requireActivity(), uri);
+                //Extract metadata of file size
+                DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), uri);
+                mDataBinding.videoViewFileSize.setText(String.format("File Size: %s", mFileDetailsHelper.fileSizeBytesConverter(documentFile.length(), "MB")));
+                //Extract metadata of file size
+            }
+            //Set Data Source for FFmpeg to get datasource for details displaying
+
+            //Extract Creation Date if available
+            if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null) {
+                mDataBinding.videoViewDateRoot.setVisibility(View.VISIBLE);
+                mDataBinding.videoViewDate.setText(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME)));
+            } else {
+                mDataBinding.videoViewDateRoot.setVisibility(View.GONE);
+            }
+            //Extract Creation Date if available
+
+            //Display URL/URI & filename for details displaying
+            mDataBinding.videoViewPath.setText(String.format("Path: %s", uri.toString()));
+            mDataBinding.videoViewFileName.setText(String.format("Name: %s", mFileName));
+            //Display URL/URI & filename for details displaying
+
+            //Extract video duration for details displaying
+            mDataBinding.videoViewDuration.setText(String.format("Duration: %s",
+                    mFileDetailsHelper.createTimeLabel(Integer.parseInt(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)))));
+            //Extract video duration for details displaying
+
+            //Extract Video Resolution for details displaying
+            mDataBinding.videoViewRes.setText(String.format("Resolution: %sX%s",
+                    mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH),
+                    mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
+            //Extract Video Resolution for details displaying
+
+            //Extract Video & Audio Codec for details displaying
+            mDataBinding.videoViewVideoCodec.setText(String.format("Video Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_CODEC)));
+            mDataBinding.videoViewAudioCodec.setText(String.format("Audio Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_AUDIO_CODEC)));
+            //Extract Video & Audio Codec for details displaying
+
+            //Extract Video Frame Rate for details displaying
+            mDataBinding.videoViewFrameRate.setText(String.format("Frame per second: %s FPS", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FRAMERATE)));
+            //Extract Video Frame Rate for details displaying
+        }catch(Exception e){
+            e.printStackTrace();
         }
-
-        if(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null){
-            mDataBinding.videoViewDateRoot.setVisibility(View.VISIBLE);
-            mDataBinding.videoViewDate.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME));
-        }else{
-            mDataBinding.videoViewDateRoot.setVisibility(View.GONE);
-        }
-
-        mDataBinding.videoViewPath.setText(uri.toString());
-        mDataBinding.videoViewFileName.setText(mFileName);
-        mDataBinding.videoViewDuration.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION));
-        mDataBinding.videoViewRes.setText(String.format("%sX%s",
-                mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH),
-                mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
-        mDataBinding.videoViewVideoCodec.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_CODEC));
-        mDataBinding.videoViewAudioCodec.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_AUDIO_CODEC));
-        mDataBinding.videoViewFrameRate.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FRAMERATE));
-
     }
 
     private void startVideoPlayer(Uri uri){
         mMediaController = new MediaController(requireActivity());
         // Initialize VideoView with loading bar when video is loading for playing
         mDataBinding.previewVideoView.setZ(0);
-        mDataBinding.previewVideoImageLoading.setZ(1);
         mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
-        Glide.with(this)
+        Glide.with(requireActivity())
+                .asGif()
                 .load(mCircularProgressBar)
                 .into(mDataBinding.previewVideoImageLoading);
         // Initialize VideoView with loading bar when video is loading for playing
@@ -396,24 +443,34 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     mDataBinding.previewVideoView.setVideoURI(Uri.parse(mProxyURL));
 
                     if(!mMainSharedViewModel.getInternetStatusDataLiveData().getValue().internetStatus && mIsInternetSource){
-                        Glide.with(this)
+                        Glide.with(requireActivity())
                                 .load(R.drawable.asm_gvr_unable_load)
                                 .apply(new RequestOptions().override(256,256))
                                 .centerInside()
                                 .into(mDataBinding.previewVideoImageLoading);
+                        mCircularProgressBar.stop();
                         videoErrorFlag = true;
                     }else{
                         videoErrorFlag = false;
                         mDataBinding.previewVideoImageLoading.setVisibility(View.GONE);
-                        //Init video details
-                        initVideoDetails(Uri.parse(mProxyURL));
-                        //Init video details
+                        mCircularProgressBar.stop();
+                        if(mVideoUri == null){
+                            mVideoUri = Uri.parse(mProxyURL);
+                        }else{
+                            if(mVideoUri != Uri.parse(mProxyURL)){
+                                mVideoUri = Uri.parse(mProxyURL);
+                            }
+                        }
                     }
                 } else {
                     mDataBinding.previewVideoView.setVideoURI(uri);
-                    //Init video details
-                    initVideoDetails(uri);
-                    //Init video details
+                    if(mVideoUri == null){
+                        mVideoUri = uri;
+                    }else{
+                        if(mVideoUri != uri){
+                            mVideoUri = uri;
+                        }
+                    }
                 }
             }
             //Assigning URI to Video View
@@ -424,6 +481,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     public void onPrepared(MediaPlayer mp) {
                         //Set video playing visible, set video info image view invisible
                         mDataBinding.previewVideoImageLoading.setVisibility(View.GONE);
+                        mCircularProgressBar.stop();
                         mDataBinding.previewVideoView.setVisibility(View.VISIBLE);
                         //Set video playing visible, set video info image view invisible
 
@@ -467,6 +525,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                 mDataBinding.previewVideoImageLoading.setZ(0);
                                 mDataBinding.previewVideoView.setZ(1);
                                 mDataBinding.previewVideoImageLoading.setVisibility(View.GONE);
+                                mCircularProgressBar.stop();
                                 return true;
                             }
                             //Hide video loading/buffering img
@@ -476,8 +535,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                 mDataBinding.previewVideoView.setZ(0);
                                 mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                                 Glide.with(requireActivity())
+                                        .asGif()
                                         .load(mCircularProgressBar)
                                         .into(mDataBinding.previewVideoImageLoading);
+                                mCircularProgressBar.start();
                                 return true;
                             }
                             //Show video loading/buffering img
@@ -495,6 +556,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         mDataBinding.previewVideoImageLoading.setZ(1);
                         mDataBinding.previewVideoView.setZ(0);
                         mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
+                        mCircularProgressBar.stop();
                         Glide.with(requireActivity())
                                 .load(R.drawable.play)
                                 .apply(new RequestOptions().override(256,256))
@@ -510,6 +572,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                     mDataBinding.previewVideoImageLoading.setZ(0);
                                     mDataBinding.previewVideoView.setZ(1);
                                     mDataBinding.previewVideoImageLoading.setVisibility(View.GONE);
+                                    mCircularProgressBar.stop();
                                 }
                             }, 1500);
                         }
@@ -632,19 +695,5 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             animation.setFillAfter(true);
             mDataBinding.rootVideoDetails.setAnimation(animation);
         }
-    }
-
-    public String fileSizeBytesConverter(long size, String convertTo) {
-        if (size <= 0)
-            return "0";
-
-        int digitGroups = 0;
-        if(convertTo.equals("MB")){
-            digitGroups = 2;
-        }else if(convertTo.equals("KB")) {
-            digitGroups = 1;
-        }
-
-        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + convertTo;
     }
 }
