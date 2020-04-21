@@ -293,9 +293,12 @@ public class AsmGvrTouchImageView extends androidx.appcompat.widget.AppCompatIma
                         })
                         .centerInside();
 
+        AsmGvrCircularProgressBar circularProgressBar = new AsmGvrCircularProgressBar(context);
+        circularProgressBar.start();
+
         Glide.with(context)
                 .load(imageUri)
-                .placeholder(new AsmGvrCircularProgressBar(context))
+                .placeholder(circularProgressBar)
                 .transition(withCrossFade())
                 .error(requestBuilder)
                 .fitCenter()
