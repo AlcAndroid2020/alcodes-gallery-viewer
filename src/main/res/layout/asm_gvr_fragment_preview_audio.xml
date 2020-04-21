@@ -75,7 +75,7 @@
                     android:id="@+id/audio_view_path_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_name"
+                    android:src="@drawable/asm_gvr_file_location"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"/>
 
@@ -97,7 +97,7 @@
                     android:id="@+id/audio_view_file_name_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_type"
+                    android:src="@drawable/asm_gvr_file_name"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"/>
 
@@ -119,7 +119,7 @@
                     android:id="@+id/audio_view_duration_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_type"
+                    android:src="@drawable/asm_gvr_time"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"/>
 
@@ -141,7 +141,7 @@
                     android:id="@+id/audio_view_res_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_type"
+                    android:src="@drawable/asm_gvr_resolution"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"/>
 
@@ -167,7 +167,7 @@
                     android:id="@+id/audio_view_file_size_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_type"
+                    android:src="@drawable/asm_gvr_file_size"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"/>
 
