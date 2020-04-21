@@ -160,7 +160,7 @@
                         android:id="@+id/video_view_res_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/asm_gvr_file_type"
+                        android:src="@drawable/asm_gvr_file_resolution_icon"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"/>
 
@@ -182,7 +182,7 @@
                         android:id="@+id/video_view_video_codec_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/asm_gvr_file_type"
+                        android:src="@drawable/asm_gvr_videocode_icon"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"/>
 
@@ -204,7 +204,7 @@
                         android:id="@+id/video_view_audio_codec_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/asm_gvr_file_type"
+                        android:src="@drawable/asm_gvr_file_audiocodec_icon"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"/>
 
@@ -226,7 +226,8 @@
                         android:id="@+id/video_view_frame_rate_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/asm_gvr_file_type"
+                        android:src="@drawable/asm_gvr_file_framerate_icon"
+
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"/>
 
@@ -246,9 +247,10 @@
 
                     <ImageView
                         android:id="@+id/video_view_file_size_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/asm_gvr_file_type"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+
+                        android:src="@drawable/asm_gvr_file_size_icon"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"/>
 

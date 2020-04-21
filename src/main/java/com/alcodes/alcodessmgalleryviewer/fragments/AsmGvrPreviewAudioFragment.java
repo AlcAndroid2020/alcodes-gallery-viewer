@@ -186,10 +186,11 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
         //for local file
         if (!mInternetSource) {
+
             Uri uri = Uri.parse(mViewPagerURL);
             DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
             mDataBinding.audioViewFileName.setText(mFileName);
-            mDataBinding.audioViewRes.setText(df.getType());
+            mDataBinding.audioViewFiletype.setText(df.getType());
             String size = "";
             //format size
 
@@ -197,7 +198,7 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             size = createFileSizeLabel(df.length());
             mDataBinding.audioViewFileSize.setText(size);
 
-            mDataBinding.audioViewDuration.setText(createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+            mDataBinding.audioViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
             //format date
             Date d = new Date(df.lastModified());
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -211,15 +212,17 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
             mFFmpegMMR.setDataSource(ProxyUrl);
 
             mDataBinding.audioViewFileName.setText(mFileName);
-            mDataBinding.audioViewDuration.setText(createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+            mDataBinding.audioViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
             String extension = ProxyUrl.substring(ProxyUrl.lastIndexOf(".") + 1);
-            mDataBinding.audioViewRes.setText("audio / " + extension);
+            mDataBinding.audioViewFiletype.setText("audio / " + extension);
             mDataBinding.audioViewPath.setText(ProxyUrl);
             String mSize = createFileSizeLabel(Long.valueOf(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)));
             mDataBinding.audioViewFileSize.setText(mSize);
+
             mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME);
             if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null)
-                mDataBinding.audioDate.setText(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME));
+                mDataBinding.audioDate.setText(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME)));
+
             else
                 mDataBinding.audioDateRoot.setVisibility(View.GONE);
 
@@ -259,13 +262,15 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
             double length = Double.parseDouble(String.valueOf(mSize));
 
-            if (length > KiB) {
+          /*  if (length > KiB) {
                 size = format.format(length / KiB) + " KB";
             }
             if (length > MiB) {
                 size = format.format(length / MiB) + " MB";
             } else
                 size = format.format(length) + " B";
+*/
+            size = format.format(length / MiB) + " MB";
 
         } else
             size = "0 MB";
