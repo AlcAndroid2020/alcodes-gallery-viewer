@@ -125,6 +125,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         if(item.getItemId() == R.id.video_fragment_menu_refresh){
             if(mDataBinding.previewVideoView.isPlaying()){
                 mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+            }else if(!mDataBinding.previewVideoView.isPlaying() & mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition >= -1){
+                mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
             }
             startVideoPlayer(mViewPagerUri);
         }
@@ -263,6 +265,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 mFileDetailsHelper = mStateBroadcastingVideoViewModel.getFileDetailsHelper();
             }
         }
+
+
         // Init HttpProxyCacheServer for VideoView & Circular Progress Bar, Action Bar Menu Features, FFmpegMediaMetaDataReceiver & MediaMetaDataReceiver, and FileDetailsHelper Initialization
 
         //Observed Internet Status, if internet not present video is not played and no internet img will be shown (For URL only for now)
@@ -279,6 +283,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     startVideoPlayer(mViewPagerUri);
                 }else{
                     if(mDataBinding.previewVideoView.isPlaying()){
+                        mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+                    }
+                    else if(!mDataBinding.previewVideoView.isPlaying() & mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition >= -1){
                         mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
                     }
                     mDataBinding.previewVideoNoInternet.setVisibility(View.VISIBLE);
@@ -298,6 +305,9 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         }
                     } else {
                         if(mDataBinding.previewVideoView.isPlaying()){
+                            mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+                        }
+                        else if(!mDataBinding.previewVideoView.isPlaying() & mStateBroadcastingVideoViewModel.getViewPagerVideoViewCurrentPlayingPosition(mViewPagerPosition).currentPlayingPosition >= -1){
                             mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
                         }
                     }
@@ -654,6 +664,8 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         super.onPause();
         //Store in ViewModel the video playing position
         if(mDataBinding.previewVideoView.isPlaying()){
+            mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
+        }else if(!mDataBinding.previewVideoView.isPlaying() && mDataBinding.previewVideoView.getCurrentPosition() > 0){
             mStateBroadcastingVideoViewModel.setViewPagerVideoViewLiveData(mViewPagerPosition, mDataBinding.previewVideoView.getCurrentPosition());
         }
         //Store in ViewModel the video playing position

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    xmlns:tools="http://schemas.android.com/tools">
+    >
 
     <data></data>
 
@@ -12,35 +11,37 @@
         android:layout_height="match_parent"
 
         android:background="@color/cardview_dark_background">
+
         <ImageView
+            android:id="@+id/loadgif"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:id="@+id/loadgif"
-            android:scaleType="centerInside"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:scaleType="centerInside" />
+
         <VideoView
             android:id="@+id/Audio_player"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true" />
 
         <LinearLayout
             android:id="@+id/root_audio_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentBottom="true"
-            android:visibility="invisible"
+            android:background="@color/cardview_dark_background"
+            android:orientation="vertical"
             android:padding="16dp"
-            android:background="@color/cardview_dark_background">
+            android:visibility="invisible">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/text_view_for_details"
+                android:textColor="@color/design_default_color_background"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/design_default_color_background" />
+                android:textStyle="bold" />
 
             <RelativeLayout
                 android:id="@+id/audio_date_root"
@@ -52,16 +53,16 @@
                     android:id="@+id/audio_date_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_location"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_file_location" />
 
                 <TextView
                     android:id="@+id/audio_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_date_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_date_icon"
                     android:textColor="@color/design_default_color_background" />
 
             </RelativeLayout>
@@ -75,16 +76,16 @@
                     android:id="@+id/audio_view_path_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_location"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_file_location" />
 
                 <TextView
                     android:id="@+id/audio_view_path"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_view_path_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_view_path_icon"
                     android:textColor="@color/design_default_color_background" />
             </RelativeLayout>
 
@@ -97,16 +98,16 @@
                     android:id="@+id/audio_view_file_name_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_name"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_file_name" />
 
                 <TextView
                     android:id="@+id/audio_view_file_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_view_file_name_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_view_file_name_icon"
                     android:textColor="@color/design_default_color_background" />
             </RelativeLayout>
 
@@ -119,16 +120,16 @@
                     android:id="@+id/audio_view_duration_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_time"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_time" />
 
                 <TextView
                     android:id="@+id/audio_view_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_view_duration_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_view_duration_icon"
                     android:textColor="@color/design_default_color_background" />
             </RelativeLayout>
 
@@ -138,24 +139,21 @@
                 android:layout_marginTop="10dp">
 
                 <ImageView
-                    android:id="@+id/audio_view_res_icon"
+                    android:id="@+id/audio_view_filetype_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_resolution"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_file_type" />
 
                 <TextView
-                    android:id="@+id/audio_view_res"
+                    android:id="@+id/audio_view_filetype"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_view_res_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_view_filetype_icon"
                     android:textColor="@color/design_default_color_background" />
             </RelativeLayout>
-
-
-
 
 
             <RelativeLayout
@@ -167,16 +165,16 @@
                     android:id="@+id/audio_view_file_size_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/asm_gvr_file_size"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"/>
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/asm_gvr_file_size_icon" />
 
                 <TextView
                     android:id="@+id/audio_view_file_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/audio_view_file_size_icon"
                     android:layout_marginStart="16dp"
+                    android:layout_toRightOf="@id/audio_view_file_size_icon"
                     android:textColor="@color/design_default_color_background" />
             </RelativeLayout>
         </LinearLayout>

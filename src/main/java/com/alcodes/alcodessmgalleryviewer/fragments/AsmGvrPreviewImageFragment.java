@@ -1,16 +1,11 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.WallpaperColors;
 import android.app.WallpaperManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
-import android.widget.LinearLayout;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
@@ -51,8 +43,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import java.io.IOException;
-
-import timber.log.Timber;
 
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";

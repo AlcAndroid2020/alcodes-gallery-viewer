@@ -137,7 +137,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             mFilename = uri.toString();
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);
-            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) +"Unknow File Name");
+            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) +"Unknown File Name");
         } else {
             DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
             mFilename = f.getName();
@@ -198,8 +198,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
-        if(checkFile != null)
+        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
             mShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
         else
             Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
@@ -207,8 +206,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onOpenWithButtonClicked() {
-        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
-        if(checkFile != null)
+        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
             mOpenWithConfig.openWith(getContext(), Uri.parse(mViewPagerURL));
         else
             Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
@@ -223,8 +221,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 //        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 //        startActivityForResult(intent, 42);
 
-        String checkFile = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase());
-        if(checkFile != null) {
+        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
