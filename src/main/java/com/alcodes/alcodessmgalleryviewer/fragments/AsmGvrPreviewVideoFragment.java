@@ -54,6 +54,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private static final String ARG_STRING_IS_INTERNET_SOURCE = "ARG_STRING_IS_INTERNET_SOURCE";
     private static final String ARG_STRING_FILE_TYPE = "ARG_STRING_FILE_TYPE";
     private static final String ARG_STRING_FILE_NAME = "ARG_STRING_FILE_NAME";
+    private static final String OUTSTATE_VIDEO_DETAIL_IS_SHOWN = "OUTSTATE_VIDEO_DETAIL_IS_SHOWN";
     private static final int CHOOSE_DOWNLOAD_FOLDER_REQUEST_CODE = 41;
     private static final int SWIPE_MIN_DISTANCE = 60;
     private static final int SWIPE_MAX_OFF_PATH = 120;
@@ -79,7 +80,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
     private Boolean isDetailsShowing = false;
     private AsmGvrCircularProgressBar mCircularProgressBar;
     private Uri mVideoUri;
-    private Boolean isDetailsInitializedBefore = false;
     private AsmGvrFileDetailsHelper mFileDetailsHelper;
 
     public AsmGvrPreviewVideoFragment() {
@@ -149,10 +149,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         //Open video with other application
         else if(item.getItemId() == R.id.video_fragment_menu_details){
             if(!isDetailsShowing){
-                if(!isDetailsInitializedBefore){
-                    initVideoDetails(mVideoUri);
-                    isDetailsInitializedBefore = true;
-                }
                 initSlideVideoDetails(true);
                 isDetailsShowing = true;
             }else{
@@ -171,10 +167,26 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         mNavController = Navigation.findNavController(requireParentFragment().requireView());
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("IsDetailShown", isDetailsShowing);
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+
+            if (savedInstanceState.getBoolean("IsDetailShown")) {
+                initSlideVideoDetails(true);
+                isDetailsShowing = true;
+            }
+        }
+
         // Extract arguments.
         mViewPagerPosition = requireArguments().getInt(ARG_INT_PAGER_POSITION);
         mViewPagerUri = Uri.parse(requireArguments().getString(ARG_STRING_FILE_PATH));
@@ -186,7 +198,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
         // Init Internet Status & Video Caching Notifier
         mDataBinding.previewVideoNotifierRoot.setZ(3);
         mDataBinding.previewVideoNoInternet.setZ(3);
-        mDataBinding.rootVideoDetails.setZ(3);
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setZ(3);
         Glide.with(requireActivity())
                 .load(R.drawable.asm_gvr_no_wifi)
                 .into(mDataBinding.previewVideoNoInternet);
@@ -346,10 +358,6 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                     if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
                         // Swipe Up
                         if(!isDetailsShowing){
-                            if(!isDetailsInitializedBefore){
-                                initVideoDetails(mVideoUri);
-                                isDetailsInitializedBefore= true;
-                            }
                             initSlideVideoDetails(true);
                             isDetailsShowing = true;
                         }
@@ -371,9 +379,11 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             }
 
         });
+
         // Hide and show menu bar & notifiers using double tap gesture
 
         startVideoPlayer(mViewPagerUri);
+        initVideoDetails(mVideoUri);
     }
 
     private void initVideoDetails(Uri uri){
@@ -382,50 +392,59 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             if (mIsInternetSource) {
                 mFFmpegMMR.setDataSource(uri.toString());
                 //Extract metadata of file size
-                mDataBinding.videoViewFileSize.setText(String.format("File Size: %s",
+                mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s",
                         mFileDetailsHelper.fileSizeBytesConverter(Long.parseLong(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)), "MB")));
                 //Extract metadata of file size
             } else {
                 mFFmpegMMR.setDataSource(requireActivity(), uri);
                 //Extract metadata of file size
                 DocumentFile documentFile = DocumentFile.fromSingleUri(requireActivity(), uri);
-                mDataBinding.videoViewFileSize.setText(String.format("File Size: %s", mFileDetailsHelper.fileSizeBytesConverter(documentFile.length(), "MB")));
+                mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s", mFileDetailsHelper.fileSizeBytesConverter(documentFile.length(), "MB")));
                 //Extract metadata of file size
             }
             //Set Data Source for FFmpeg to get datasource for details displaying
 
             //Extract Creation Date if available
             if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null) {
-                mDataBinding.videoViewDateRoot.setVisibility(View.VISIBLE);
-                mDataBinding.videoViewDate.setText(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME)));
+                mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME)));
             } else {
-                mDataBinding.videoViewDateRoot.setVisibility(View.GONE);
+                mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.GONE);
             }
             //Extract Creation Date if available
 
             //Display URL/URI & filename for details displaying
-            mDataBinding.videoViewPath.setText(String.format("Path: %s", uri.toString()));
-            mDataBinding.videoViewFileName.setText(String.format("Name: %s", mFileName));
+            mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", uri.toString()));
+            mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", mFileName));
             //Display URL/URI & filename for details displaying
 
             //Extract video duration for details displaying
-            mDataBinding.videoViewDuration.setText(String.format("Duration: %s",
+            mDataBinding.includedPanelFileDetails.relativelayoutDuration.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewDuration.setText(String.format("Duration: %s",
                     mFileDetailsHelper.createTimeLabel(Integer.parseInt(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION)))));
             //Extract video duration for details displaying
 
             //Extract Video Resolution for details displaying
-            mDataBinding.videoViewRes.setText(String.format("Resolution: %sX%s",
+            mDataBinding.includedPanelFileDetails.relativelayoutResolution.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewRes.setText(String.format("Resolution: %sX%s",
                     mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH),
                     mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
             //Extract Video Resolution for details displaying
 
             //Extract Video & Audio Codec for details displaying
-            mDataBinding.videoViewVideoCodec.setText(String.format("Video Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_CODEC)));
-            mDataBinding.videoViewAudioCodec.setText(String.format("Audio Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_AUDIO_CODEC)));
+            mDataBinding.includedPanelFileDetails.relativelayoutVideoCodec.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutAudioCodec.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewVideoCodec.setText(String.format("Video Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_CODEC)));
+            mDataBinding.includedPanelFileDetails.textViewAudioCodec.setText(String.format("Audio Codec: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_AUDIO_CODEC)));
             //Extract Video & Audio Codec for details displaying
 
             //Extract Video Frame Rate for details displaying
-            mDataBinding.videoViewFrameRate.setText(String.format("Frame per second: %s FPS", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FRAMERATE)));
+            mDataBinding.includedPanelFileDetails.relativelayoutFrameRate.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewFrameRate.setText(String.format("Frame per second: %s FPS", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FRAMERATE)));
             //Extract Video Frame Rate for details displaying
         }catch(Exception e){
             e.printStackTrace();
@@ -687,25 +706,25 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
 
     private void initSlideVideoDetails(Boolean isSlideUp){
         if(isSlideUp){
-            mDataBinding.rootVideoDetails.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
             TranslateAnimation animation = new TranslateAnimation(
                     0,                 // fromXDelta
                     0,                   // toXDelta
-                    mDataBinding.rootVideoDetails.getHeight(),            // fromYDelta
+                    mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight(),            // fromYDelta
                     0);// toYDelta
             animation.setDuration(500);
             animation.setFillAfter(true);
-            mDataBinding.rootVideoDetails.setAnimation(animation);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
         }else{
-            mDataBinding.rootVideoDetails.setVisibility(View.INVISIBLE);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
             TranslateAnimation animation = new TranslateAnimation(
                     0,                 // fromXDelta
                     0,                   // toXDelta
                     0,            // fromYDelta
-                    mDataBinding.rootVideoDetails.getHeight()); // toYDelta
+                    mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight()); // toYDelta
             animation.setDuration(500);
             animation.setFillAfter(true);
-            mDataBinding.rootVideoDetails.setAnimation(animation);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
         }
     }
 }

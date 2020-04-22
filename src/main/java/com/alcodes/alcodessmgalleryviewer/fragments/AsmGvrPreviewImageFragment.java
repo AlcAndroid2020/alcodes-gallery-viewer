@@ -274,6 +274,9 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 fileType = mDataBinding.touchImageViewPreviewImage.getImageFileExtensionURI(Uri.parse(mMediaConfig.uri));
             }
 
+            mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
             mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(fileLocation);
             mDataBinding.includedPanelFileDetails.textViewFileName.setText(fileName);
             mDataBinding.includedPanelFileDetails.textViewFileType.setText(mMediaConfig.fileType+"/"+fileType);
