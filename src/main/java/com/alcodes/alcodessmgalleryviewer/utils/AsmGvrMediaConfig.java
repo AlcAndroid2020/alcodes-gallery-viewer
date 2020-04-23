@@ -79,6 +79,7 @@ public class AsmGvrMediaConfig{
             }
         }else{
             isOnline = false;
+//            fileType = "image";
             fileType = cR.getType(uri).substring(0, cR.getType(uri).lastIndexOf("/"));
         }
         if(isOnline){
