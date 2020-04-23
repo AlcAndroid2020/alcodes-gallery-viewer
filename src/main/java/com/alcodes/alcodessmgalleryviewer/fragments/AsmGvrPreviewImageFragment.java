@@ -277,9 +277,9 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
             mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
             mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(fileLocation);
-            mDataBinding.includedPanelFileDetails.textViewFileName.setText(fileName);
-            mDataBinding.includedPanelFileDetails.textViewFileType.setText(mMediaConfig.fileType+"/"+fileType);
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", fileLocation));
+            mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s",fileName));
+            mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: %s",mMediaConfig.fileType+"/"+fileType));
         }catch (Exception e){
             e.printStackTrace();
         }

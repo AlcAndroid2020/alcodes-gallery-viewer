@@ -19,7 +19,6 @@ public class AsmGvrMainActivity extends AppCompatActivity {
     private AsmGvrActivityMainBinding mDataBinding;
     private NavController mNavController;
     public static final String EXTRA_INTEGER_SELECTED_THEME = "EXTRA_INTEGER_SELECTED_THEME";
-    public static final String EXTRA_STRING_GET_DEFAULT_THEME = "EXTRA_STRING_GET_DEFAULT_THEME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,7 @@ public class AsmGvrMainActivity extends AppCompatActivity {
                 }else if (bundle.getInt(EXTRA_INTEGER_SELECTED_THEME) == 2){
                     setTheme(R.style.asm_gvr_apps_theme_transparent);
                 }else {
-                    setTheme(bundle.getInt(EXTRA_STRING_GET_DEFAULT_THEME));
+                    setTheme(R.style.asm_gvr_apps_default);
                 }
             }
 

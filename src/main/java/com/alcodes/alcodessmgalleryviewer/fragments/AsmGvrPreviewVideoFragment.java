@@ -360,6 +360,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         if(!isDetailsShowing){
                             initSlideVideoDetails(true);
                             isDetailsShowing = true;
+
                         }
                         mDataBinding.previewVideoView.setMediaController(null);
                     }else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
@@ -375,6 +376,10 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
+                if(isDetailsShowing)
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                else
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             }
 
