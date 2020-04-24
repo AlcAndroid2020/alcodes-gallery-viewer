@@ -34,6 +34,7 @@ import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrOpenWithConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.bumptech.glide.Glide;
 
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private final AsmGvrDownloadConfig mDownloadConfig;
@@ -133,15 +134,18 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         uri = Uri.parse(mViewPagerURL);
         String URLfileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-
+        String realname = URLfileName.substring(URLfileName.indexOf(':') + 1 );
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             mFilename = uri.toString();
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);
-            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) +"Unknown File Name");
+            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) +"Unknown");
+            Glide.with(requireActivity())
+                    .load(R.drawable.asm_gvr_no_wifi)
+                    .into(mDataBinding.noInternet);
         } else {
             DocumentFile f = DocumentFile.fromSingleUri(getContext(), uri);
             mFilename = f.getName();
-            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) + URLfileName);
+            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) + realname);
             mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
         }
 
@@ -155,6 +159,29 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 if (integer != null) {
                     mDataBinding.previewUnknownFileRoot.setBackgroundColor(ContextCompat.getColor(getActivity(), integer));
 
+                }
+            }
+        });
+        mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
+            @Override
+            public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
+                if(internetStatusData.internetStatus){
+                    mDataBinding.noInternet.setVisibility(View.INVISIBLE);
+//                    mDataBinding.btnDownload.setVisibility(View.VISIBLE);
+                    if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+                        mDataBinding.btnDownload.setVisibility(View.VISIBLE);
+                    } else {
+                        mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
+                    }
+
+                }else{
+
+                    mDataBinding.noInternet.setVisibility(View.VISIBLE);
+                    if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+                        mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
+                    } else {
+                        mDataBinding.btnDownload.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });

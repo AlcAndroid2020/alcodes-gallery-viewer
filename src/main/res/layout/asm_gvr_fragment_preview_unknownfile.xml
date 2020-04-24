@@ -21,6 +21,11 @@
         android:gravity="center"
         android:padding="16dp">
 
+        <ImageView
+            android:id="@+id/no_internet"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"/>
 
         <TextView
             android:id="@+id/FileTypeView"
