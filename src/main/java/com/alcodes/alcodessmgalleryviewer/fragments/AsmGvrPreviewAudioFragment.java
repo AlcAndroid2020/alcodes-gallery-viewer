@@ -183,67 +183,68 @@ public class AsmGvrPreviewAudioFragment extends Fragment implements CacheListene
 
     private void showdetails() {
         // show audio file details
+try {
+    //for local file
+    if (!mInternetSource) {
 
-        //for local file
-        if (!mInternetSource) {
-
-            Uri uri = Uri.parse(mViewPagerURL);
-            DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
-            mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", mFileName));
-            mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: %s", df.getType()));
-            String size = "";
-            //format size
+        Uri uri = Uri.parse(mViewPagerURL);
+        DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
+        mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", mFileName));
+        mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: %s", df.getType()));
+        String size = "";
+        //format size
 
 
-            size = createFileSizeLabel(df.length());
-            mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s",size));
+        size = createFileSizeLabel(df.length());
+        mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s", size));
 
-            mDataBinding.includedPanelFileDetails.relativelayoutDuration.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
-            //format date
-            Date d = new Date(df.lastModified());
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            String newDate = formatter.format(d);
+        mDataBinding.includedPanelFileDetails.relativelayoutDuration.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+        //format date
+        Date d = new Date(df.lastModified());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String newDate = formatter.format(d);
+        mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format("Date Created: %s", newDate));
+        mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", uri.getPath()));
+
+    } else {
+        //for  url file
+
+        mFFmpegMMR.setDataSource(ProxyUrl);
+
+        mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", mFileName));
+
+        mDataBinding.includedPanelFileDetails.relativelayoutDuration.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
+
+        String extension = ProxyUrl.substring(ProxyUrl.lastIndexOf(".") + 1);
+        mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: audio /  %s", extension));
+
+        mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", ProxyUrl));
+
+        String mSize = createFileSizeLabel(Long.valueOf(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)));
+        mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
+        mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s", mSize));
+
+        mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME);
+        if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null) {
             mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format("Date Created: %s", newDate));
-            mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s",uri.getPath()));
+            mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME))));
+        } else
+            mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.GONE);
 
-        } else {
-            //for  url file
-
-            mFFmpegMMR.setDataSource(ProxyUrl);
-
-            mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", mFileName));
-
-            mDataBinding.includedPanelFileDetails.relativelayoutDuration.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewDuration.setText("Duration: " + createTimeLabel(mDataBinding.AudioPlayer.getDuration()));
-
-            String extension = ProxyUrl.substring(ProxyUrl.lastIndexOf(".") + 1);
-            mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: audio /  %s", extension));
-
-            mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s",ProxyUrl));
-
-            String mSize = createFileSizeLabel(Long.valueOf(mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_FILESIZE)));
-            mDataBinding.includedPanelFileDetails.relativelayoutFileSize.setVisibility(View.VISIBLE);
-            mDataBinding.includedPanelFileDetails.textViewFileSize.setText(String.format("File Size: %s",mSize));
-
-            mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME);
-            if (mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME) != null){
-                mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.VISIBLE);
-                mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format(String.format("Date Created: %s", mFFmpegMMR.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_CREATION_TIME))));
-            }
-            else
-                mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.GONE);
-
-        }
-
+    }
+}catch(Exception e){
+    e.printStackTrace();
+}
     }
 
 
