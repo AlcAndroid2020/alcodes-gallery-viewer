@@ -99,6 +99,7 @@ public class AsmGvrDownloadConfig {
                                 .setMessage(ctxt.getString(R.string.DownloadCompleteMessage))
                                 .setPositiveButton(ctxt.getString(R.string.Okay), null)
                                 .show();
+                        ctxt.unregisterReceiver(onComplete);
                     }
                 }
             }
