@@ -8,6 +8,8 @@ android {
     buildToolsVersion rootConfigurations.buildToolsVersion
 
     defaultConfig {
+
+
         minSdkVersion rootConfigurations.minSdkVersion
         targetSdkVersion rootConfigurations.targetSdkVersion
         versionCode 100
