@@ -189,6 +189,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void onSlideFileDetailUp(Boolean isSlidedUP) {
 
         //slide up
@@ -375,10 +376,8 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private void showdetails() {
         // show file details
         try {
-            //for local file
             if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
                 //for  url file
-
                 mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
                 mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", realname));
 
@@ -389,6 +388,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("URL: %s", mViewPagerURL));
 
             } else {
+                //for local file
 
                 Uri uri = Uri.parse(mViewPagerURL);
                 DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
