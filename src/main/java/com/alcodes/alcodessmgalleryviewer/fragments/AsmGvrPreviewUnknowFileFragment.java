@@ -7,9 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -36,6 +40,9 @@ import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import com.bumptech.glide.Glide;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class AsmGvrPreviewUnknowFileFragment extends Fragment implements UnknownFileCallback {
     private final AsmGvrDownloadConfig mDownloadConfig;
     private final AsmGvrShareConfig mShareConfig;
@@ -48,10 +55,13 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     private String mViewPagerURL;
     private Uri mDirpath;
     private String mFilename = "";
-    private String mFiletype="";
+    private String mFiletype = "";
     private Uri uri = null;
     private ActionBar mActionBar;
-
+    private static final int SWIPE_MIN_DISTANCE = 60;
+    private static final int SWIPE_MAX_OFF_PATH = 120;
+    private Boolean IsSlideUp = false;
+    private String realname = "";
 
     public AsmGvrPreviewUnknowFileFragment() {
         mDownloadConfig = new AsmGvrDownloadConfig();
@@ -78,8 +88,14 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mDataBinding = AsmGvrFragmentPreviewUnknownfileBinding.inflate(inflater, container, false);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
-
+        setHasOptionsMenu(true);
         return mDataBinding.getRoot();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.asm_gvr_file_menu, menu);
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -104,11 +120,38 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                 public boolean onDoubleTap(MotionEvent e) {
                     return super.onDoubleTap(e);
                 }
+
+                @Override
+                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                    if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH) {
+                        //Swipe Left or Right will not take any action
+                        return false;
+                    }
+
+                    if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+                        // Swipe Up
+                        if (!IsSlideUp) {
+                            onSlideFileDetailUp(true);
+                            IsSlideUp = true;
+                        }
+                    } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
+                        // Swipe Down
+                        onSlideFileDetailUp(false);
+                        IsSlideUp = false;
+                    }
+
+                    return super.onFling(e1, e2, velocityX, velocityY);
+                }
             });
+
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
+                if (IsSlideUp)
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                else
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             }
 
@@ -120,9 +163,75 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("IsDetailShown", IsSlideUp);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.file_menu_details) {
+            //show file file details
+
+            //check if details is shown
+            if (!IsSlideUp) {
+                //show details
+                onSlideFileDetailUp(true);
+                IsSlideUp = true;
+            } else {
+                //hide details
+                onSlideFileDetailUp(false);
+                IsSlideUp = false;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onSlideFileDetailUp(Boolean isSlidedUP) {
+
+        //slide up
+        if (isSlidedUP) {
+
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
+            TranslateAnimation animation = new TranslateAnimation(
+                    0,                 // fromXDelta
+                    0,                   // toXDelta
+                    mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight(),            // fromYDelta
+                    0);// toYDelta
+            animation.setDuration(500);
+            animation.setFillAfter(true);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+        } else {
+            //slide down / close details
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
+            TranslateAnimation animation = new TranslateAnimation(
+                    0,                 // fromXDelta
+                    0,                   // toXDelta
+                    0,            // fromYDelta
+                    mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight()); // toYDelta
+            animation.setDuration(500);
+            animation.setFillAfter(true);
+            mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+        }
+
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // Extract arguments.
+
+        if (savedInstanceState != null) {
+
+            if (savedInstanceState.getBoolean("IsDetailShown")) {
+                onSlideFileDetailUp(true);
+                IsSlideUp = true;
+            }
+        }
+
 
         mViewPagerURL = requireArguments().getString(ARG_String_PAGER_FILEURL);
 
@@ -134,11 +243,11 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
         uri = Uri.parse(mViewPagerURL);
         String URLfileName = URLUtil.guessFileName(mViewPagerURL, null, MimeTypeMap.getFileExtensionFromUrl(mViewPagerURL));
-        String realname = URLfileName.substring(URLfileName.indexOf(':') + 1 );
+        realname = URLfileName.substring(URLfileName.indexOf(':') + 1);
         if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
             mFilename = uri.toString();
             mDataBinding.btnDownload.setVisibility(View.VISIBLE);
-            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) +"Unknown");
+            mDataBinding.FileNameView.setText(getResources().getString(R.string.FileName) + "Unknown");
             Glide.with(requireActivity())
                     .load(R.drawable.asm_gvr_no_wifi)
                     .into(mDataBinding.noInternet);
@@ -150,6 +259,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
 
         mDataBinding.FileTypeView.setText(getResources().getString(R.string.FileType) + checkFileType(mFilename));
+        showdetails();
         mDataBinding.setBindingCallback(this);
 
         //get selected color
@@ -165,7 +275,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
-                if(internetStatusData.internetStatus){
+                if (internetStatusData.internetStatus) {
                     mDataBinding.noInternet.setVisibility(View.INVISIBLE);
 //                    mDataBinding.btnDownload.setVisibility(View.VISIBLE);
                     if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
@@ -174,7 +284,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
                         mDataBinding.btnDownload.setVisibility(View.INVISIBLE);
                     }
 
-                }else{
+                } else {
 
                     mDataBinding.noInternet.setVisibility(View.VISIBLE);
                     if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
@@ -225,7 +335,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onShareButtonClicked() {
-        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
+        if (MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
             mShareConfig.shareWith(getContext(), Uri.parse(mViewPagerURL));
         else
             Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
@@ -233,7 +343,7 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onOpenWithButtonClicked() {
-        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
+        if (MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null)
             mOpenWithConfig.openWith(getContext(), Uri.parse(mViewPagerURL));
         else
             Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
@@ -241,20 +351,12 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
 
     @Override
     public void onDownloadButtonClicked() {
-
-
-//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//        startActivityForResult(intent, 42);
-
-        if(MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null) {
+        if (MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(String.valueOf(uri)).toLowerCase()) != null) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             startActivityForResult(intent, 42);
-        }
-        else
+        } else
             Toast.makeText(getActivity(), "Invalid File Url.", Toast.LENGTH_SHORT).show();
 
     }
@@ -271,6 +373,44 @@ public class AsmGvrPreviewUnknowFileFragment extends Fragment implements Unknown
         }
     }
 
+    private void showdetails() {
+        // show file details
+        try {
+            if (uri.getScheme().equals("http") | uri.getScheme().equals("https")) {
+                //for  url file
+                mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", realname));
+
+                mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type:  %s", checkFileType(mFilename)));
+
+                mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("URL: %s", mViewPagerURL));
+
+            } else {
+                //for local file
+
+                Uri uri = Uri.parse(mViewPagerURL);
+                DocumentFile df = DocumentFile.fromSingleUri(getContext(), uri);
+                mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s", realname));
+                mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: %s", df.getType()));
+
+                //format date
+                Date d = new Date(df.lastModified());
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                String newDate = formatter.format(d);
+                mDataBinding.includedPanelFileDetails.relativelayoutDateRoot.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewDate.setText(String.format("Date Created: %s", newDate));
+                mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+                mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", uri.getPath()));
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
-

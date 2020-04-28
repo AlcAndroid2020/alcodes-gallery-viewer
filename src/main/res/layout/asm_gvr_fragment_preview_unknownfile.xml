@@ -84,6 +84,9 @@
             android:textSize="18sp"
             android:textStyle="bold"/>
 
+        <include
+            android:id="@+id/included_panel_file_details"
+            layout="@layout/asm_gvr_panel_file_details" />
     </LinearLayout>
 
 
