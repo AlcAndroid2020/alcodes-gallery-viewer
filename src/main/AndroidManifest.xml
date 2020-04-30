@@ -25,7 +25,7 @@
         </activity>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".utils.AsmGvrFileProvider"
             android:authorities="com.alcodes.alcodessmgalleryviewer"
             android:exported="false"
             android:grantUriPermissions="true">
