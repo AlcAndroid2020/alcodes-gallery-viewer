@@ -12,4 +12,8 @@
     <item
         android:id="@+id/video_fragment_menu_open_with"
         android:title="@string/asm_gvr_open_with" />
+    <item
+        android:id="@+id/video_fragment_menu_details"
+        android:title="@string/asm_gvr_video_details"
+        />
 </menu>

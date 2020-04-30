@@ -1,30 +1,28 @@
 package com.alcodes.alcodessmgalleryviewer.fragments;
 
-import android.annotation.SuppressLint;
-import android.app.WallpaperColors;
+import android.app.Activity;
 import android.app.WallpaperManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
+import android.view.animation.TranslateAnimation;
 
 import com.alcodes.alcodessmgalleryviewer.R;
 import com.alcodes.alcodessmgalleryviewer.databinding.AsmGvrFragmentPreviewImageBinding;
 import com.alcodes.alcodessmgalleryviewer.databinding.bindingcallbacks.AsmGvrImageCallback;
 import com.alcodes.alcodessmgalleryviewer.gsonmodels.AsmGvrMediaConfigModel;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrDownloadConfig;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
+import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrShareConfig;
 import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
+import com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -46,10 +44,10 @@ import androidx.navigation.Navigation;
 
 import java.io.IOException;
 
-import timber.log.Timber;
-
 public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageCallback {
     private static final String ARG_JSON_STRING_MEDIACONFIG_MODEL = "ARG_JSON_STRING_MEDIACONFIG_MODEL";
+    private static final String OUTSTATE_IMAGE_DETAIL_IS_SHOWN = "OUTSTATE_IMAGE_DETAIL_IS_SHOWN";
+    private static final int OPEN_DIRECTORY_REQUEST_CODE = 50;
 
     private NavController mNavController;
     private AsmGvrFragmentPreviewImageBinding mDataBinding;
@@ -69,6 +67,7 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         mediaConfigModel.fileType = mediaConfig.getFileType();
         mediaConfigModel.fromInternetSource = mediaConfig.getFromInternetSource();
         mediaConfigModel.uri = mediaConfig.getUri();
+        mediaConfigModel.fileName = mediaConfig.getFileName();
 
         args.putString(ARG_JSON_STRING_MEDIACONFIG_MODEL, new Gson().toJson(mediaConfigModel));
 
@@ -100,13 +99,24 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.asm_gvr_image_menu, menu);
+        boolean setVisible;
 
         if(mMediaConfig.fromInternetSource){
-            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(true);
+            setVisible = true;
         }else{
-            menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(false);
+            setVisible = false;
         }
 
+        menu.findItem(R.id.menu_item_open_image_on_browser).setVisible(setVisible);
+        menu.findItem(R.id.menu_save_image).setVisible(setVisible);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Any rotation happens will close/open the detail panel when its original is close/open state
+        outState.putBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN, mDataBinding.touchImageViewPreviewImage.getIsDetailShown());
     }
 
     @Override
@@ -119,6 +129,15 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         }else if(itemId == R.id.menu_item_set_as_wallpaper) {
             //Set image as wallpaper is Pressed
             setImageAsWallPaper();
+        }else if(itemId == R.id.menu_save_image){
+            //Open SAF to select directory and save the images
+            saveImageIntoDevice();
+        }else if(itemId == R.id.menu_share_image){
+            //Share images
+            shareImageToOthers();
+        }else if(itemId == R.id.menu_details){
+            //Show Details
+            onSlideImageDetailUp(mDataBinding.touchImageViewPreviewImage);
         }
 
         return super.onOptionsItemSelected(item);
@@ -138,6 +157,19 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 mNavController.getBackStackEntry(R.id.asm_gvr_nav_main),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
         ).get(AsmGvrMainSharedViewModel.class);
+
+        //Init Saved instance State
+        if(savedInstanceState != null){
+            if(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN)){
+                //Image Detail is Shown, then after rotate should be shown
+                mDataBinding.touchImageViewPreviewImage.setIsDetailShown(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN));
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
+            }else{
+                //Image Detail is not Shown, then after rotate should not be shown
+                mDataBinding.touchImageViewPreviewImage.setIsDetailShown(savedInstanceState.getBoolean(OUTSTATE_IMAGE_DETAIL_IS_SHOWN));
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
+            }
+        }
 
         mMainSharedViewModel.getViewPagerPositionLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
 
@@ -173,7 +205,20 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
             }
         });
 
-        Timber.e("Check: "+ mMediaConfig.uri);
+        //Init View
+        initView();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == OPEN_DIRECTORY_REQUEST_CODE){
+                if(data != null){
+                    new AsmGvrDownloadConfig().startDownload(requireContext(), mMediaConfig.uri, data.getData());
+                }
+            }
+        }
     }
 
     @Override
@@ -183,6 +228,62 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
         }else{
             mActionBar.show();
         }
+    }
+
+    @Override
+    public void onSlideImageDetailUp(AsmGvrTouchImageView imageView) {
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.VISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight(),            // fromYDelta
+                0);// toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+
+        imageView.setIsDetailShown(true);
+    }
+
+    @Override
+    public void onSlideImageDetailDown(AsmGvrTouchImageView imageView) {
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setVisibility(View.INVISIBLE);
+        TranslateAnimation animation = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                   // toXDelta
+                0,            // fromYDelta
+                mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.getHeight()); // toYDelta
+        animation.setDuration(500);
+        animation.setFillAfter(true);
+        mDataBinding.includedPanelFileDetails.linearLayoutFileDetails.setAnimation(animation);
+
+        imageView.setIsDetailShown(false);
+    }
+
+    private void initView(){
+        String fileLocation;
+        String fileName = mMediaConfig.fileName;
+        String fileType;
+
+        try{
+            if(mMediaConfig.fromInternetSource){
+                fileLocation = mMediaConfig.uri;
+                fileType = mDataBinding.touchImageViewPreviewImage.getImageFileExtensionURL(Uri.parse(mMediaConfig.uri));
+            }else{
+                fileLocation = Uri.parse(mMediaConfig.uri).getPath();
+                fileType = mDataBinding.touchImageViewPreviewImage.getImageFileExtensionURI(Uri.parse(mMediaConfig.uri));
+            }
+
+            mDataBinding.includedPanelFileDetails.relativelayoutLocation.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutName.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.relativelayoutFileType.setVisibility(View.VISIBLE);
+            mDataBinding.includedPanelFileDetails.textViewFileLocation.setText(String.format("Path: %s", fileLocation));
+            mDataBinding.includedPanelFileDetails.textViewFileName.setText(String.format("Name: %s",fileName));
+            mDataBinding.includedPanelFileDetails.textViewFileType.setText(String.format("File Type: %s",mMediaConfig.fileType+"/"+fileType));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     private void openImageOnWebBrowser(){
@@ -212,5 +313,14 @@ public class AsmGvrPreviewImageFragment extends Fragment implements AsmGvrImageC
                 return false;
             }
         }).submit();
+    }
+
+    private void saveImageIntoDevice(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE);
+    }
+
+    private void shareImageToOthers(){
+        new AsmGvrShareConfig().shareWith(requireContext(), Uri.parse(mMediaConfig.uri));
     }
 }

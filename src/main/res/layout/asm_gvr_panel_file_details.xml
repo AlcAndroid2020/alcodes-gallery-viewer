@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:id="@+id/linear_layout_file_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible"
+        android:padding="16dp"
+        android:background="@color/cardview_dark_background">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_view_for_details"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/design_default_color_background" />
+
+        <!-- START <> File Location -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_location"
+            android:visibility="gone"
+            android:layout_marginTop="18dp">
+
+            <ImageView
+                android:id="@+id/image_view_file_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_location"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_file_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_file_location"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background"
+                android:layout_marginEnd="16dp" />
+
+        </RelativeLayout>
+        <!-- END <> File Location -->
+
+        <!-- START <> File Name -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_name"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_file_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_name"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_file_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_file_name"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background"
+                android:layout_marginEnd="16dp"/>
+        </RelativeLayout>
+        <!-- END <> File Name -->
+
+        <!-- START <> File Type -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_file_type"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_file_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_type"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_file_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_file_type"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background"
+                android:layout_marginEnd="16dp" />
+        </RelativeLayout>
+        <!-- END <> File Type -->
+
+        <RelativeLayout
+            android:id="@+id/relativelayout_date_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_date_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_calendar"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_date_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_duration"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_duration_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_time"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_duration_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_resolution"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_res_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_resolution_icon"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_res"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_res_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_video_codec"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_video_codec_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_videocode_icon"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_video_codec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_video_codec_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_audio_codec"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_audio_codec_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_audiocodec_icon"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_audio_codec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_audio_codec_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_frame_rate"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_frame_rate_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_framerate_icon"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_frame_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_frame_rate_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativelayout_file_size"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/image_view_file_size_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/asm_gvr_file_size_icon"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/text_view_file_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/image_view_file_size_icon"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/design_default_color_background" />
+        </RelativeLayout>
+    </LinearLayout>
+</layout>

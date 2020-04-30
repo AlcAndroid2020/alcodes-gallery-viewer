@@ -13,7 +13,8 @@
                 android:id="@+id/preview_video_notifier_root"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="60dp"
                 android:orientation="horizontal"
                 android:layout_alignParentRight="true">
                 <ImageView
@@ -33,12 +34,18 @@
                 android:id="@+id/preview_video_image_loading"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
+                android:scaleType="centerInside"
                 android:layout_centerInParent="true" />
 
-            <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
+        <com.alcodes.alcodessmgalleryviewer.views.AsmGvrStateBroadcastingVideoView
                 android:id="@+id/preview_video_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true" />
+
+        <include
+            android:id="@+id/included_panel_file_details"
+            layout="@layout/asm_gvr_panel_file_details" />
+        
     </RelativeLayout>
 </layout>

@@ -4,11 +4,20 @@
 
     <data></data>
 
-    <com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView
-        android:id="@+id/touch_image_view_preview_image"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/cardview_dark_background"
-        android:layout_gravity="center"/>
+        android:layout_height="match_parent">
+
+        <com.alcodes.alcodessmgalleryviewer.views.AsmGvrTouchImageView
+            android:id="@+id/touch_image_view_preview_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/cardview_dark_background"
+            android:layout_gravity="center"/>
+
+        <include
+            android:id="@+id/included_panel_file_details"
+            layout="@layout/asm_gvr_panel_file_details" />
+    </RelativeLayout>
 
 </layout>

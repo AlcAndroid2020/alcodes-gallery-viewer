@@ -3,11 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_item_open_image_on_browser"
-        android:title="@string/btnOpenImageUrl"
+        android:title="@string/menuItemOpenImageUrl"
         android:visible="true"/>
 
     <item
         android:id="@+id/menu_item_set_as_wallpaper"
-        android:title="@string/btnSetWallpaper"
+        android:title="@string/menuItemSetWallpaper"
         android:visible="true"/>
+
+    <item
+        android:id="@+id/menu_save_image"
+        android:title="@string/menuItemSaveImage"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/menu_share_image"
+        android:title="@string/menuItemShareImage"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/menu_details"
+        android:title="@string/text_view_for_details"
+        android:visible="true" />
 </menu>

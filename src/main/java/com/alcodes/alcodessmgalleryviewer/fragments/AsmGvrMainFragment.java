@@ -6,18 +6,18 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,6 +33,7 @@ import com.alcodes.alcodessmgalleryviewer.viewmodels.AsmGvrMainSharedViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class AsmGvrMainFragment extends Fragment {
 
     public static final String EXTRA_STRING_ARRAY_FILE_URI = "EXTRA_STRING_ARRAY_FILE_URI";
@@ -43,8 +44,10 @@ public class AsmGvrMainFragment extends Fragment {
     private AsmGvrMainViewPagerAdapter mAdapter;
     private ViewPager2.OnPageChangeCallback mViewPager2OnPageChangeCallback;
     private List<String> data;
+    private int getThemeData = 0;
     private int color;
     private ActionBar mActionBar;
+    public static final String EXTRA_INTEGER_SELECTED_THEME = "EXTRA_INTEGER_SELECTED_THEME";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,12 +58,26 @@ public class AsmGvrMainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Init data binding;
-        mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+        setHasOptionsMenu(true);
 
         mActionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Init data binding;
+        mDataBinding = AsmGvrFragmentMainBinding.inflate(inflater, container, false);
+
         return mDataBinding.getRoot();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -78,6 +95,7 @@ public class AsmGvrMainFragment extends Fragment {
         //Init data to prevent null pointer exception
         data = new ArrayList<>();
 
+
         //testing uri by using uri from file picker
         Intent intent = getActivity().getIntent();
         Bundle bundle = intent.getExtras();
@@ -85,14 +103,15 @@ public class AsmGvrMainFragment extends Fragment {
 
         if (bundle != null) {
             //Get File From Previous Main Module Fragment
-            if(bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null){
+            if (bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI) != null) {
                 data = bundle.getStringArrayList(EXTRA_STRING_ARRAY_FILE_URI);
+                getThemeData = bundle.getInt(EXTRA_INTEGER_SELECTED_THEME);
             }
 
             //getcolor
-            if (bundle.getInt("color") != 0)
-                color = bundle.getInt("color");
-
+            if (bundle != null)
+                if (bundle.getInt("color") != 0)
+                    color = bundle.getInt("color");
         }
 
         // Init view model.
@@ -114,18 +133,10 @@ public class AsmGvrMainFragment extends Fragment {
                 super.onPageSelected(position);
 
                 // Set fragment number in to menu bar
-                mActionBar.setTitle((position + 1) + "/" + data.size());
-
-                //get internet status from shared view model
-                mMainSharedViewModel.getInternetStatusDataLiveData().observe(getViewLifecycleOwner(), new Observer<AsmGvrMainSharedViewModel.InternetStatusData>() {
-                    @Override
-                    public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
-                        if (!internetStatusData.internetStatus) {
-                            Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
+                if (getThemeData != 2)
+                    mActionBar.setTitle((position + 1) + "/" + data.size());
+                else
+                    mActionBar.setTitle("");
 
                 mMainSharedViewModel.setViewPagerCurrentPagePosition(position);
             }
@@ -137,7 +148,7 @@ public class AsmGvrMainFragment extends Fragment {
             @Override
             public void onChanged(AsmGvrMainSharedViewModel.InternetStatusData internetStatusData) {
                 if (!internetStatusData.internetStatus) {
-
+                    Toast.makeText(getActivity(), mMainSharedViewModel.getInternetStatusDataLiveData().getValue().statusMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -145,8 +156,8 @@ public class AsmGvrMainFragment extends Fragment {
         //set color
         if (color != 0)
             mMainSharedViewModel.setmColorSelectedLiveData(color);
-
     }
+
 
     @Override
     public void onResume() {
@@ -165,12 +176,9 @@ public class AsmGvrMainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //Clear the data
-        data.clear();
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 

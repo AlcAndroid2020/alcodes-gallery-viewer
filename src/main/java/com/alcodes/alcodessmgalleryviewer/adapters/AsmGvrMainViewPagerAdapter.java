@@ -1,6 +1,7 @@
 package com.alcodes.alcodessmgalleryviewer.adapters;
 
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -9,11 +10,11 @@ import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewAudioFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewImageFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewUnknowFileFragment;
 import com.alcodes.alcodessmgalleryviewer.fragments.AsmGvrPreviewVideoFragment;
-
-import java.util.List;
 import com.alcodes.alcodessmgalleryviewer.utils.AsmGvrMediaConfig;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
     private final List<String> mData;
@@ -50,6 +51,7 @@ public class AsmGvrMainViewPagerAdapter extends FragmentStateAdapter {
         mMediaConfig.setFromInternetSource(isOnline);
         mMediaConfig.setPosition(position);
         mMediaConfig.setUri(data);
+        mMediaConfig.setFileName(fragment.requireContext());
 
         if(fileType.startsWith("image")){
             return AsmGvrPreviewImageFragment.newInstance(mMediaConfig);

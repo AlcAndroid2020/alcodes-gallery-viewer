@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/audio_menu_share"
+        android:title="@string/asm_gvr_share" />
+    <item
+        android:id="@+id/audio_menu_download"
+        android:title="@string/asm_gvr_download" />
+    <item
+        android:id="@+id/audio_menu_open_with"
+        android:title="@string/asm_gvr_open_with" />
+
+    <item
+        android:id="@+id/audio_menu_details"
+        android:title="@string/text_view_for_details"/>
+</menu>
