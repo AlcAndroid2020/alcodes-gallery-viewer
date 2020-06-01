@@ -3,13 +3,26 @@ apply plugin: 'com.android.library'
 def rootConfigurations = rootProject.ext.configurations
 def rootLibraries = rootProject.ext.libraries
 
+publish {
+
+    def groupProjectID = 'com.alcodes.alcodesgalleryviewer'
+    def artifactProjectID = 'alcodesgalleryviewer'
+    def publishVersionID = '1.0.0'
+
+    userOrg = 'danielwongyx5336'
+    repoName = 'Gallery-Viewer'
+    groupId = groupProjectID
+    artifactId = artifactProjectID
+    publishVersion = publishVersionID
+    desc = 'This is an Android Library Designed to load URI/URL from both local Android Storage &amp; Online URL Links and displayed in page based on the number of URI/URL provided/chosen.'
+    website = 'https://bitbucket.org/alcodesandroidintern/alcodes-sm-gallery-viewer/src/master/'
+}
+
 android {
     compileSdkVersion rootConfigurations.compileSdkVersion
     buildToolsVersion rootConfigurations.buildToolsVersion
 
     defaultConfig {
-
-
         minSdkVersion rootConfigurations.minSdkVersion
         targetSdkVersion rootConfigurations.targetSdkVersion
         versionCode 100
