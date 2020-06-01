@@ -33,8 +33,6 @@ public class AsmGvrMainSharedViewModel extends AndroidViewModel {
         mViewPagerPositionLiveData.setValue(position);
     }
 
-
-
     public LiveData<Integer> getColorSelectedLiveData() {
         return mColorSelectedLiveData;
     }
