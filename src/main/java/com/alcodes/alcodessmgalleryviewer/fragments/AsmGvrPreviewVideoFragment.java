@@ -44,8 +44,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.danikula.videocache.HttpProxyCacheServer;
 
-import java.text.DecimalFormat;
-
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class AsmGvrPreviewVideoFragment extends Fragment{
@@ -509,7 +507,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
             }
             //Assigning URI to Video View
 
-            //Setting Listener for Video View on prepared, finish, play and pause
+            //Setting Listener for Video View on prepared, finish, asm_gvr_play and pause
             if(!videoErrorFlag){
                 mDataBinding.previewVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     public void onPrepared(MediaPlayer mp) {
@@ -592,12 +590,12 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                         mCircularProgressBar.stop();
                         Glide.with(requireActivity())
-                                .load(R.drawable.play)
+                                .load(R.drawable.asm_gvr_play)
                                 .apply(new RequestOptions().override(256,256))
                                 .centerInside()
                                 .into(mDataBinding.previewVideoImageLoading);
                         //Add Play img to show video image aside from media controller
-                        //Check if video is playing to not accidentally hide image view, then delay 1.5 seconds to remove play img for video viewing experience
+                        //Check if video is playing to not accidentally hide image view, then delay 1.5 seconds to remove asm_gvr_play img for video viewing experience
                         if (mDataBinding.previewVideoView.isPlaying()) {
                             final Handler handler = new Handler();
                             handler.postDelayed(new Runnable() {
@@ -610,7 +608,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                                 }
                             }, 1500);
                         }
-                        //Check if video is playing to not accidentally hide image view, then delay 1.5 seconds to remove play img for video viewing experience
+                        //Check if video is playing to not accidentally hide image view, then delay 1.5 seconds to remove asm_gvr_play img for video viewing experience
                     }
 
                     @Override
@@ -620,7 +618,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         mDataBinding.previewVideoView.setZ(0);
                         mDataBinding.previewVideoImageLoading.setVisibility(View.VISIBLE);
                         Glide.with(requireActivity())
-                                .load(R.drawable.pause)
+                                .load(R.drawable.asm_gvr_pause)
                                 .apply(new RequestOptions().override(256,256))
                                 .centerInside()
                                 .into(mDataBinding.previewVideoImageLoading);
@@ -629,18 +627,18 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                 });
                 //Set Video View Play & Pause Listener
 
-                //Set Video View on click listener for play video alternative media controller
+                //Set Video View on click listener for asm_gvr_play video alternative media controller
                 mDataBinding.previewVideoImageLoading.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Only play video because the image view will not be present because of Z-Index hiding, so no use to pause
+                        //Only asm_gvr_play video because the image view will not be present because of Z-Index hiding, so no use to pause
                         mDataBinding.previewVideoView.start();
-                        //Only play video because the image view will not be present because of Z-Index hiding, so no use to pause
+                        //Only asm_gvr_play video because the image view will not be present because of Z-Index hiding, so no use to pause
                     }
                 });
-                //Set Video View on click listener for play video alternative media controller
+                //Set Video View on click listener for asm_gvr_play video alternative media controller
 
-                //Set Video view play back error listener
+                //Set Video view asm_gvr_play back error listener
                 mDataBinding.previewVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     @Override
                     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -662,7 +660,7 @@ public class AsmGvrPreviewVideoFragment extends Fragment{
                         return false;
                     }
                 });
-                //Set Video view play back error listener
+                //Set Video view asm_gvr_play back error listener
             }
         }
     }

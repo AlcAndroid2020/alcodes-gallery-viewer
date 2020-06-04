@@ -521,7 +521,7 @@ try {
             mDataBinding.AudioPlayer.setVideoURI(uri);
 
         }
-        //when player ready to play
+        //when player ready to asm_gvr_play
         mDataBinding.AudioPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mp) {
                 //close progress bar

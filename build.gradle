@@ -1,3 +1,4 @@
+apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'com.android.library'
 
 def rootConfigurations = rootProject.ext.configurations
@@ -44,6 +45,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.appcompat:appcompat:${rootLibraries.androidxAppCompatVersion}"
     implementation "androidx.constraintlayout:constraintlayout:${rootLibraries.androidxConstraintLayoutVersion}"
     implementation "androidx.coordinatorlayout:coordinatorlayout:${rootLibraries.androidxCoordinatorLayoutVersion}"
@@ -73,3 +75,90 @@ dependencies {
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-arm64-v8a:${rootLibraries.FFmpegMediaMetadataRetriever_arm64_v8a}"
     implementation "com.github.wseemann:FFmpegMediaMetadataRetriever-native-armeabi-v7a:${rootLibraries.FFmpegMediaMetadataRetriever_armeabi_v7a}"
 }
+
+publish {
+    userOrg = 'alcodes'
+    groupId = 'com.alcodes'
+    artifactId = 'alcodes-gallery-viewer'
+    publishVersion = '1.0.0'
+    desc = 'First Release'
+    website = 'https://github.com/AlcAndroid2020/alcodes-gallery-viewer'
+}
+
+//apply plugin: 'com.jfrog.bintray'
+//apply plugin: 'com.github.dcendents.android-maven'
+//
+//install {
+//    repositories.mavenInstaller {
+//        pom.project {
+//            packaging 'aar'
+//            groupId "com.alcodes"
+//            version "1.0.0"
+//            name "alcodes-gallery-viewer" // pom.project.name must be same as bintray.pkg.name
+//            url "https://github.com/AlcAndroid2020/alcodes-gallery-viewer"
+//            inceptionYear '2020' // HARDCODED
+//            licenses {
+//                license { // HARDCODED
+//                    name 'The Apache Software License, Version 2.0'
+//                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                    distribution 'repo'
+//                }
+//            }
+//            scm {
+//                connection "https://github.com/AlcAndroid2020/alcodes-gallery-viewer.git"
+//                developerConnection "https://github.com/AlcAndroid2020/alcodes-gallery-viewer.git"
+//                url "https://github.com/AlcAndroid2020/alcodes-gallery-viewer"
+//            }
+//            developers {
+//                developer {
+//                    name 'Yong Xian'
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//def properties = new Properties()
+//properties.load(new FileInputStream("local.properties"))
+//
+//bintray {
+//    user = properties.getProperty("bintray.user")
+//    key = properties.getProperty("bintray.apikey")
+//
+//    configurations = ['archives']
+//    pkg {
+//        userOrg = 'alcodes'
+//        repo = "Gallery-Viewer"
+//        name = "alcodes-gallery-viewer"
+//        websiteUrl = "https://github.com/AlcAndroid2020/alcodes-gallery-viewer"
+//        vcsUrl = "https://github.com/AlcAndroid2020/alcodes-gallery-viewer.git"
+//        licenses = ["Apache-2.0"]
+//        publish = true
+//        publicDownloadNumbers = true
+//        version {
+//            name = "1.0.1"
+//        }
+//    }
+//}
+//
+//task sourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier = 'sources'
+//}
+//
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//    // options.encoding = 'UTF-8'
+//}
+//
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}
+
